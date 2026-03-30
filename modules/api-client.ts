@@ -7,7 +7,7 @@ interface ChatCompletionOptions {
   onChunk?: (chunk: string) => void;
 }
 
-class APIClient {
+export class APIClient {
   private currentModel: ModelConfig | null = null;
 
   setModel(model: ModelConfig): void {
@@ -23,9 +23,9 @@ class APIClient {
 
     try {
       if (stream && onChunk) {
-        return await this.streamChatCompletion(messages, tools, onChunk);
+        return await this.streamChatCompletion(messages, tools || [], onChunk);
       } else {
-        return await this.nonStreamChatCompletion(messages, tools);
+        return await this.nonStreamChatCompletion(messages, tools || []);
       }
     } catch (error) {
       throw this.handleError(error);

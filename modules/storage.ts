@@ -1,6 +1,6 @@
 import { STORAGE_KEYS, Config, Conversation, Skill } from '../types';
 
-class Storage {
+export class Storage {
   async get<T>(key: string): Promise<T | null> {
     try {
       const result = await chrome.storage.local.get(key);
@@ -146,4 +146,6 @@ class Storage {
   }
 }
 
-export const storage = new Storage();
+export class StorageClass extends Storage {}
+
+export const storage = new StorageClass();

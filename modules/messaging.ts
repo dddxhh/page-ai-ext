@@ -1,6 +1,6 @@
 import { ExtensionMessage, MessageType } from '../types';
 
-class Messaging {
+export class Messaging {
   private listeners: Map<MessageType, Set<(data: any, sender: chrome.runtime.MessageSender) => void>> = new Map();
 
   // Send message to background
@@ -102,4 +102,6 @@ class Messaging {
   }
 }
 
-export const messaging = new Messaging();
+export class MessagingClass extends Messaging {}
+
+export const messaging = new MessagingClass();

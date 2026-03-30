@@ -1,7 +1,7 @@
 # Chrome AI Assistant Extension - 项目状态
 
 **创建时间**: 2026-03-28
-**最后更新**: 2026-03-28 16:40
+**最后更新**: 2026-03-30 09:36
 
 ---
 
@@ -9,7 +9,10 @@
 
 ### 项目位置
 - **项目目录**: `/home/hf/code/orign/chrome-ai-assistant/`
-- **当前工作目录**: `/home/hf/code/orign/torchair`
+- **当前工作目录**: `/home/hf/code/orign/chrome-ai-assistant/`
+- **GitHub 仓库**: `https://github.com/dddxhh/page-ai-ext`
+- **Git 分支**: `main`
+- **最新提交**: `29086f2 - Initial commit: Chrome AI Assistant Extension`
 
 ### 技术栈
 - **框架**: WXT 0.19.29
@@ -100,6 +103,15 @@
   - 点击 "This Firefox" → "Load Temporary Add-on"
   - 选择 `.output/firefox-mv2/manifest.json`
 
+### Git 提交状态
+- ✅ Git 仓库已初始化
+- ✅ .gitignore 已创建
+- ✅ 代码已提交到本地仓库
+- ✅ 已推送到 GitHub 仓库
+- ✅ 远程仓库：https://github.com/dddxhh/page-ai-ext
+- ✅ 提交哈希：29086f2
+- ✅ 分支：main
+
 ---
 
 ## 项目文件结构
@@ -143,6 +155,27 @@ chrome-ai-assistant/
 │   └── firefox-mv2/
 └── README.md
 ```
+
+---
+
+## Git 提交记录
+
+### 初始提交
+- **提交哈希**: 29086f2
+- **提交信息**: Initial commit: Chrome AI Assistant Extension
+- **提交时间**: 2026-03-30 09:36
+- **文件数量**: 27 个文件
+- **代码行数**: 3000+ 行
+- **分支**: main
+- **远程仓库**: https://github.com/dddxhh/page-ai-ext
+
+### 提交内容
+- ✅ 完整的 Chrome 扩展实现
+- ✅ WebMCP 协议集成
+- ✅ Vue 3 + TypeScript + Element UI
+- ✅ AI 模型支持（OpenAI、Anthropic、Google、自定义）
+- ✅ 技能系统和页面操作功能
+- ✅ Chrome MV3 和 Firefox MV2 支持
 
 ---
 
@@ -204,11 +237,12 @@ chrome-ai-assistant/
 
 ## 下次继续的步骤
 
-1. 切换到项目目录：`cd /home/hf/code/orign/chrome-ai-assistant`
-2. 查看此状态文档：`cat PROJECT_STATUS.md`
-3. 根据问题选择修复方案
-4. 修复后继续构建：`npm run build`
-5. 成功后测试：在 Chrome 中加载扩展
+1. 测试扩展功能
+   - 在 Chrome 中加载扩展：`chrome://extensions/` → Load unpacked → `.output/chrome-mv3`
+   - 在 Firefox 中加载扩展：`about:debugging` → Load Temporary Add-on → `.output/firefox-mv2/manifest.json`
+2. 配置 AI 模型（API Key）
+3. 测试对话功能
+4. 测试页面操作功能
 
 ---
 

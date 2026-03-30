@@ -13,20 +13,11 @@ export default defineConfig({
     ],
     host_permissions: ['*://*/*'],
     side_panel: {
-      default_title: 'AI Assistant'
+      default_title: 'AI Assistant',
+      default_path: 'sidebar.html'
     }
-  },
-  firefox: {
-    profile: 'web-ext-dev'
   },
   vite: () => ({
-    plugins: [vue()],
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@use "@/styles/variables.scss" as *;`
-        }
-      }
-    }
+    plugins: [vue()]
   })
 });

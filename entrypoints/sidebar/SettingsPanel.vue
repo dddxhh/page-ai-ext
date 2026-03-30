@@ -5,7 +5,11 @@
       <el-button @click="handleClose">Close</el-button>
     </div>
 
-    <el-tabs v-model="activeTab">
+    <div v-if="!config" class="loading">
+      Loading settings...
+    </div>
+
+    <el-tabs v-else v-model="activeTab">
       <el-tab-pane label="General" name="general">
         <el-form :model="config" label-width="150px">
           <el-form-item label="Theme">
@@ -67,7 +71,7 @@
           <h4>AI Assistant Extension</h4>
           <p>Version: 1.0.0</p>
           <p>
-            A Chrome extension that enables AI-powered page interaction
+            A Chrome extension extension that enables AI-powered page interaction
             using WebMCP protocol.
           </p>
           <p>
@@ -77,7 +81,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <div class="settings-footer">
+    <div class="settings-footer" v-if="config">
       <el-button type="primary" @click="saveSettings">
         Save Settings
       </el-button>

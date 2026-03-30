@@ -24,7 +24,10 @@
       </el-button-group>
     </div>
 
-    <MessageList :messages="messages" />
+    <div v-if="messages.length === 0" class="empty-state">
+      <p>No messages yet. Start a conversation!</p>
+    </div>
+    <MessageList v-else :messages="messages" />
 
     <div class="input-area">
       <el-input
@@ -50,8 +53,7 @@
     />
 
     <ModelSelector
-      v-if="showModelSelector"
-      @close="showModelSelector = false"
+      v-model:visible="showModelSelector"
     />
   </div>
 </template>
@@ -60,6 +62,9 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { messaging } from '~/modules/messaging';
 import { Message } from '~/types';
+import MessageList from './MessageList.vue';
+import SkillSelector from './SkillSelector.vue';
+import ModelSelector from './ModelSelector.vue';
 
 const messages = ref<Message[]>([]);
 const inputMessage = ref('');
@@ -69,6 +74,7 @@ const showModelSelector = ref(false);
 const currentResponse = ref('');
 
 onMounted(() => {
+  console.log('ChatPanel mounted');
   // Listen for message responses
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'MESSAGE_RESPONSE') {
@@ -183,6 +189,14 @@ const emit = defineEmits<{
 h3 {
   margin: 0;
   font-size: 16px;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
 }
 
 .input-area {

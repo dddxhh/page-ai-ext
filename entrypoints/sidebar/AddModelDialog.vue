@@ -3,7 +3,6 @@
     v-model="visible"
     title="Add Custom Model"
     width="500px"
-    @close="handleClose"
   >
     <el-form :model="form" label-width="120px">
       <el-form-item label="Name" required>

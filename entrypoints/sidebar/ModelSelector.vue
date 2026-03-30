@@ -3,7 +3,6 @@
     v-model="visible"
     title="Select Model"
     width="600px"
-    @close="handleClose"
   >
     <el-tabs v-model="activeTab">
       <el-tab-pane label="Built-in Models" name="builtin">
@@ -64,8 +63,7 @@
     </el-tabs>
 
     <AddModelDialog
-      v-if="showAddModel"
-      @close="showAddModel = false"
+      v-model:visible="showAddModel"
       @add="handleAddModel"
     />
 

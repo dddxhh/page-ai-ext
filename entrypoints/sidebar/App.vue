@@ -7,13 +7,13 @@
           <el-button-group>
             <el-button
               type="primary"
-              @click="showChat = true"
+              @click="showChat = true; showSettings = false"
               :disabled="showChat"
             >
               Chat
             </el-button>
             <el-button
-              @click="showSettings = true"
+              @click="showSettings = true; showChat = false"
               :disabled="showSettings"
             >
               Settings
@@ -40,13 +40,15 @@
 import { ref, computed, onMounted } from 'vue';
 import { storage } from '~/modules/storage';
 import { Config } from '~/types';
+import ChatPanel from './ChatPanel.vue';
+import SettingsPanel from './SettingsPanel.vue';
 
 const showChat = ref(true);
 const showSettings = ref(false);
 const config = ref<Config | null>(null);
 
 const themeClass = computed(() => {
-  if (!config.value) return '';
+  if (!config.value) return 'light';
   const theme = config.value.theme;
   if (theme === 'auto') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -57,7 +59,13 @@ const themeClass = computed(() => {
 });
 
 onMounted(async () => {
-  config.value = await storage.getConfig();
+  console.log('App mounted, loading config...');
+  try {
+    config.value = await storage.getConfig();
+    console.log('Config loaded:', config.value);
+  } catch (error) {
+    console.error('Failed to load config:', error);
+  }
 });
 </script>
 

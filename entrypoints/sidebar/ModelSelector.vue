@@ -55,7 +55,7 @@
 
         <el-button
           type="primary"
-          @click="showAddModel = true"
+          @click="handleShowAddModel"
         >
           Add Custom Model
         </el-button>
@@ -75,14 +75,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import { storage } from '~/modules/storage';
 import { ModelConfig, Config } from '~/types';
+import AddModelDialog from './AddModelDialog.vue';
 
 const visible = defineModel<boolean>('visible', { default: false });
 const activeTab = ref('builtin');
 const showAddModel = ref(false);
 const currentModelId = ref('');
 const customModels = ref<ModelConfig[]>([]);
+
+const builtinModelIds = ['gpt-4', 'gpt-3.5-turbo', 'claude-3-opus'];
 
 const builtinModels = [
   {
@@ -121,7 +125,7 @@ const emit = defineEmits<{
 onMounted(async () => {
   const config = await storage.getConfig();
   currentModelId.value = config.currentModelId;
-  customModels.value = config.models.filter(m => !m.isBuiltIn);
+  customModels.value = config.models.filter(m => !builtinModelIds.includes(m.id));
 });
 
 async function selectModel(model: ModelConfig): Promise<void> {
@@ -133,14 +137,28 @@ async function deleteModel(modelId: string): Promise<void> {
   const config = await storage.getConfig();
   const updatedModels = config.models.filter(m => m.id !== modelId);
   await storage.updateConfig({ models: updatedModels });
-  customModels.value = updatedModels.filter(m => !m.isBuiltIn);
+  customModels.value = updatedModels.filter(m => !builtinModelIds.includes(m.id));
 }
 
 async function handleAddModel(model: ModelConfig): Promise<void> {
-  const config = await storage.getConfig();
-  const updatedModels = [...config.models, model];
-  await storage.updateConfig({ models: updatedModels });
-  customModels.value = updatedModels.filter(m => !m.isBuiltIn);
+  console.log('handleAddModel called with:', model);
+  try {
+    const config = await storage.getConfig();
+    const updatedModels = [...config.models, model];
+    await storage.updateConfig({ models: updatedModels });
+    customModels.value = updatedModels.filter(m => !builtinModelIds.includes(m.id));
+    showAddModel.value = false;
+    ElMessage.success('Model added successfully');
+  } catch (error) {
+    ElMessage.error('Failed to add model');
+    console.error('Error adding model:', error);
+  }
+}
+
+function handleShowAddModel(): void {
+  console.log('handleShowAddModel called');
+  showAddModel.value = true;
+  console.log('showAddModel set to:', showAddModel.value);
 }
 
 function handleClose(): void {

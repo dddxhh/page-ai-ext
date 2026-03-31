@@ -50,7 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import { ModelConfig } from '~/types';
 
 const visible = defineModel<boolean>('visible', { default: false });
@@ -68,8 +69,17 @@ const emit = defineEmits<{
   add: [model: ModelConfig];
 }>();
 
+watch(visible, (newVal) => {
+  console.log('AddModelDialog visible changed to:', newVal);
+  if (!newVal) {
+    resetForm();
+  }
+});
+
 function handleSubmit(): void {
+  console.log('handleSubmit called, form:', form.value);
   if (!form.value.name || !form.value.model || !form.value.apiKey) {
+    ElMessage.error('Please fill in all required fields');
     return;
   }
 
@@ -83,12 +93,26 @@ function handleSubmit(): void {
     parameters: {}
   };
 
+  console.log('Emitting add event with model:', model);
   emit('add', model);
-  handleClose();
+  visible.value = false;
 }
 
 function handleClose(): void {
-  emit('close');
+  console.log('handleClose called');
+  visible.value = false;
+}
+
+function resetForm(): void {
+  console.log('resetForm called');
+  form.value = {
+    name: '',
+    provider: 'openai',
+    baseURL: '',
+    model: '',
+    apiKey: '',
+    parameters: {}
+  };
 }
 
 function generateId(): string {

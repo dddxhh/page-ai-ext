@@ -1,7 +1,12 @@
 <template>
   <div class="chat-panel">
     <div class="chat-header">
-      <h3>Conversation</h3>
+      <div class="header-left">
+        <h3>Conversation</h3>
+        <el-tag v-if="currentModelName" type="info" size="small">
+          {{ currentModelName }}
+        </el-tag>
+      </div>
       <el-button-group>
         <el-button
           size="small"
@@ -54,6 +59,7 @@
 
     <ModelSelector
       v-model:visible="showModelSelector"
+      @close="handleModelSelectorClose"
     />
   </div>
 </template>
@@ -61,7 +67,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { messaging } from '~/modules/messaging';
-import { Message } from '~/types';
+import { storage } from '~/modules/storage';
+import { Message, ModelConfig } from '~/types';
 import MessageList from './MessageList.vue';
 import SkillSelector from './SkillSelector.vue';
 import ModelSelector from './ModelSelector.vue';
@@ -72,9 +79,24 @@ const isSending = ref(false);
 const showSkillSelector = ref(false);
 const showModelSelector = ref(false);
 const currentResponse = ref('');
+const currentModelName = ref('');
 
-onMounted(() => {
+async function loadCurrentModelName(): Promise<void> {
+  try {
+    const config = await storage.getConfig();
+    const currentModel = config.models.find(m => m.id === config.currentModelId);
+    if (currentModel) {
+      currentModelName.value = currentModel.name;
+    }
+  } catch (error) {
+    console.error('Failed to load current model name:', error);
+  }
+}
+
+onMounted(async () => {
   console.log('ChatPanel mounted');
+  await loadCurrentModelName();
+
   // Listen for message responses
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'MESSAGE_RESPONSE') {
@@ -162,6 +184,10 @@ function applySkill(skillId: string): void {
   console.log('Applying skill:', skillId);
 }
 
+async function handleModelSelectorClose(): Promise<void> {
+  await loadCurrentModelName();
+}
+
 function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
@@ -184,6 +210,12 @@ const emit = defineEmits<{
   align-items: center;
   padding: 12px;
   border-bottom: 1px solid #ddd;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 h3 {

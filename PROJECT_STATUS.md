@@ -1,7 +1,7 @@
 # Chrome AI Assistant Extension - 项目状态
 
 **创建时间**: 2026-03-28
-**最后更新**: 2026-03-30 20:57
+**最后更新**: 2026-03-30 22:00
 
 ---
 
@@ -21,9 +21,14 @@
 - 配置加载正常
 - 空状态提示已添加
 
+**✅ 模型管理功能已完善**：
+- Add Model 按钮功能正常
+- 添加自定义模型对话框正常工作
+- 模型选择器功能完整
+- Chat 页面显示当前模型名称
+
 **⏳ 正在测试**：
 - AI 对话功能（需要配置 API Key）
-- 模型选择和配置
 - 技能应用
 - 页面操作功能
 
@@ -169,6 +174,16 @@
 - ✅ 侧边栏现在可以正常显示内容
 - ✅ Chat 和 Settings 标签页可以正常切换
 
+### 模型管理功能修复 (2026-03-30)
+- ✅ 修复了 Add Model 按钮无响应问题
+- ✅ 修复了 AddModelDialog 组件的表单验证
+- ✅ 添加了模型添加成功/失败提示
+- ✅ 修复了 ModelSelector 的模型过滤逻辑
+- ✅ 添加了 Chat 页面当前模型名称显示
+- ✅ 添加了模型选择器关闭时的自动刷新
+- ✅ 添加了调试日志便于问题排查
+- ✅ 创建了模型选择器组件测试用例 (6 tests)
+
 ### 测试系统实现
 - ✅ 配置 Vitest 测试框架
 - ✅ 安装测试依赖 (@vue/test-utils, jsdom, happy-dom)
@@ -289,7 +304,8 @@ chrome-ai-assistant/
 - ✅ Messaging 模块测试：7 tests passed
 - ✅ API Client 模块测试：13 tests passed
 - ✅ Vue 组件基础测试：3 tests passed
-- ✅ 总计：47 tests passed
+- ✅ ModelSelector 组件测试：6 tests passed
+- ✅ 总计：53 tests passed
 - ✅ 核心模块覆盖率：100%
 
 ### 待测试功能

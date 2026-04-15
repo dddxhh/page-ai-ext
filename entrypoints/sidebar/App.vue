@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storage } from '~/modules/storage';
 import { Config } from '~/types';
@@ -71,6 +71,16 @@ const themeClass = computed(() => {
   return theme;
 });
 
+function handleStorageChange(changes: { [key: string]: chrome.storage.StorageChange }): void {
+  if (changes.config?.newValue) {
+    const newConfig = changes.config.newValue as Config;
+    config.value = newConfig;
+    if (newConfig.language) {
+      currentLocale.value = newConfig.language;
+    }
+  }
+}
+
 onMounted(async () => {
   console.log('App mounted, loading config...');
   try {
@@ -83,6 +93,12 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load config:', error);
   }
+  
+  chrome.storage.onChanged.addListener(handleStorageChange);
+});
+
+onUnmounted(() => {
+  chrome.storage.onChanged.removeListener(handleStorageChange);
 });
 
 watch(() => config.value?.language, (newLanguage) => {

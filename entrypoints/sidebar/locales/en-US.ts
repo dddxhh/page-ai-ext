@@ -37,6 +37,7 @@ export default {
     saveSettings: 'Save Settings',
     settingsSaved: 'Settings saved successfully',
     settingsSaveFailed: 'Failed to save settings',
+    skillsImported: 'Skills imported successfully',
     skillsManagementComing: 'Skills management UI coming soon...',
     loading: 'Loading settings...'
   },

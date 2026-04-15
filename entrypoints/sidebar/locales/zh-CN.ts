@@ -37,6 +37,7 @@ export default {
     saveSettings: '保存设置',
     settingsSaved: '设置已保存',
     settingsSaveFailed: '保存失败',
+    skillsImported: '技能导入成功',
     skillsManagementComing: '技能管理界面即将推出...',
     loading: '加载设置...'
   },

@@ -11,15 +11,25 @@
             v-for="model in builtinModels"
             :key="model.id"
             :class="['model-item', { active: currentModelId === model.id }]"
-            @click="selectModel(model)"
           >
-            <div class="model-info">
+            <div class="model-info" @click="selectModel(model)">
               <h4>{{ model.name }}</h4>
               <p>{{ model.description }}</p>
             </div>
-            <el-tag type="success" v-if="currentModelId === model.id">
-              {{ t('model.active') }}
-            </el-tag>
+            <div class="model-actions">
+              <el-tag :type="hasApiKey(model.id) ? 'success' : 'warning'" size="small">
+                {{ hasApiKey(model.id) ? t('model.configured') : t('model.notConfigured') }}
+              </el-tag>
+              <el-button
+                size="small"
+                @click="handleConfigureModel(model)"
+              >
+                {{ hasApiKey(model.id) ? t('model.editKey') : t('model.configure') }}
+              </el-button>
+              <el-tag type="success" v-if="currentModelId === model.id" size="small">
+                {{ t('model.active') }}
+              </el-tag>
+            </div>
           </div>
         </div>
       </el-tab-pane>
@@ -67,6 +77,31 @@
       @add="handleAddModel"
     />
 
+    <el-dialog
+      v-model="showApiKeyDialog"
+      :title="t('model.enterApiKey')"
+      width="400px"
+      append-to-body
+    >
+      <el-form label-width="100px">
+        <el-form-item :label="t('model.model')">
+          <el-input :value="pendingModel?.name" disabled />
+        </el-form-item>
+        <el-form-item :label="t('model.apiKey')" required>
+          <el-input
+            v-model="apiKeyInput"
+            type="password"
+            placeholder="sk-..."
+            show-password
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showApiKeyDialog = false">{{ t('model.cancel') }}</el-button>
+        <el-button type="primary" @click="saveApiKey">{{ t('model.save') }}</el-button>
+      </template>
+    </el-dialog>
+
     <template #footer>
       <el-button @click="handleClose">{{ t('model.close') }}</el-button>
     </template>
@@ -86,10 +121,14 @@ import AddModelDialog from './AddModelDialog.vue';
 const visible = defineModel<boolean>('visible', { default: false });
 const activeTab = ref('builtin');
 const showAddModel = ref(false);
+const showApiKeyDialog = ref(false);
+const apiKeyInput = ref('');
+const pendingModel = ref<ModelConfig | null>(null);
 const currentModelId = ref('');
 const customModels = ref<ModelConfig[]>([]);
+const modelApiKeys = ref<Record<string, string>>({});
 
-const builtinModelIds = ['gpt-4', 'gpt-3.5-turbo', 'claude-3-opus'];
+const builtinModelIds = ['gpt-4', 'gpt-3.5-turbo', 'claude-3-opus', 'deepseek-chat', 'deepseek-coder'];
 
 const builtinModels = [
   {
@@ -118,6 +157,24 @@ const builtinModels = [
     model: 'claude-3-opus-20240229',
     apiKey: '',
     parameters: {}
+  },
+  {
+    id: 'deepseek-chat',
+    name: 'DeepSeek Chat',
+    description: 'DeepSeek Chat model for general conversation',
+    provider: 'deepseek' as const,
+    model: 'deepseek-chat',
+    apiKey: '',
+    parameters: {}
+  },
+  {
+    id: 'deepseek-coder',
+    name: 'DeepSeek Coder',
+    description: 'DeepSeek Coder model for code tasks',
+    provider: 'deepseek' as const,
+    model: 'deepseek-coder',
+    apiKey: '',
+    parameters: {}
   }
 ];
 
@@ -129,9 +186,56 @@ onMounted(async () => {
   const config = await storage.getConfig();
   currentModelId.value = config.currentModelId;
   customModels.value = config.models.filter(m => !builtinModelIds.includes(m.id));
+  
+  for (const model of config.models) {
+    if (model.apiKey) {
+      modelApiKeys.value[model.id] = model.apiKey;
+    }
+  }
 });
 
+function hasApiKey(modelId: string): boolean {
+  return !!modelApiKeys.value[modelId];
+}
+
+function handleConfigureModel(model: ModelConfig): void {
+  pendingModel.value = model;
+  apiKeyInput.value = modelApiKeys.value[model.id] || '';
+  showApiKeyDialog.value = true;
+}
+
+async function saveApiKey(): Promise<void> {
+  if (!apiKeyInput.value || !pendingModel.value) {
+    ElMessage.error(t('model.fillRequired'));
+    return;
+  }
+
+  const config = await storage.getConfig();
+  const existingIndex = config.models.findIndex(m => m.id === pendingModel.value!.id);
+  
+  const modelWithKey: ModelConfig = {
+    ...pendingModel.value!,
+    apiKey: apiKeyInput.value
+  };
+
+  if (existingIndex >= 0) {
+    config.models[existingIndex] = modelWithKey;
+  } else {
+    config.models.push(modelWithKey);
+  }
+
+  await storage.updateConfig({ models: config.models });
+  modelApiKeys.value[pendingModel.value!.id] = apiKeyInput.value;
+  
+  showApiKeyDialog.value = false;
+  ElMessage.success(t('model.apiKeySaved'));
+}
+
 async function selectModel(model: ModelConfig): Promise<void> {
+  if (!hasApiKey(model.id)) {
+    handleConfigureModel(model);
+    return;
+  }
   await storage.updateConfig({ currentModelId: model.id });
   currentModelId.value = model.id;
 }
@@ -184,7 +288,6 @@ function handleClose(): void {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  cursor: pointer;
   transition: all 0.2s;
 }
 
@@ -192,6 +295,17 @@ function handleClose(): void {
 .model-item.active {
   background: #f5f5f5;
   border-color: #409eff;
+}
+
+.model-info {
+  flex: 1;
+  cursor: pointer;
+}
+
+.model-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .model-info h4 {

@@ -2,7 +2,7 @@
 export interface ModelConfig {
   id: string;
   name: string;
-  provider: 'openai' | 'anthropic' | 'google' | 'custom';
+  provider: 'openai' | 'anthropic' | 'google' | 'deepseek' | 'custom';
   apiKey: string;
   baseURL?: string;
   model: string;

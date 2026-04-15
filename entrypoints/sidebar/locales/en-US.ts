@@ -60,7 +60,14 @@ export default {
     cancel: 'Cancel',
     modelAdded: 'Model added successfully',
     modelAddFailed: 'Failed to add model',
-    fillRequired: 'Please fill in all required fields'
+    fillRequired: 'Please fill in all required fields',
+    configured: 'Configured',
+    notConfigured: 'Not Configured',
+    configure: 'Configure',
+    editKey: 'Edit',
+    enterApiKey: 'Enter API Key',
+    save: 'Save',
+    apiKeySaved: 'API Key saved successfully'
   },
   skill: {
     selectSkill: 'Select Skill',

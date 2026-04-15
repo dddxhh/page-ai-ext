@@ -131,6 +131,8 @@ export class APIClient {
         return 'https://api.anthropic.com/v1/messages';
       case 'google':
         return 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+      case 'deepseek':
+        return 'https://api.deepseek.com/v1/chat/completions';
       default:
         throw new Error('Unknown provider');
     }
@@ -141,7 +143,7 @@ export class APIClient {
       'Content-Type': 'application/json'
     };
 
-    if (this.currentModel?.provider === 'openai' || this.currentModel?.provider === 'custom') {
+    if (this.currentModel?.provider === 'openai' || this.currentModel?.provider === 'custom' || this.currentModel?.provider === 'deepseek') {
       headers['Authorization'] = `Bearer ${this.currentModel.apiKey}`;
     } else if (this.currentModel?.provider === 'anthropic') {
       headers['x-api-key'] = this.currentModel.apiKey;

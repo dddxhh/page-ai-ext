@@ -60,7 +60,14 @@ export default {
     cancel: '取消',
     modelAdded: '模型添加成功',
     modelAddFailed: '模型添加失败',
-    fillRequired: '请填写所有必填项'
+    fillRequired: '请填写所有必填项',
+    configured: '已配置',
+    notConfigured: '未配置',
+    configure: '配置',
+    editKey: '修改',
+    enterApiKey: '输入 API Key',
+    save: '保存',
+    apiKeySaved: 'API Key 已保存'
   },
   skill: {
     selectSkill: '选择技能',

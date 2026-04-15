@@ -14,6 +14,7 @@
           <el-option label="OpenAI" value="openai" />
           <el-option label="Anthropic" value="anthropic" />
           <el-option label="Google" value="google" />
+          <el-option label="DeepSeek" value="deepseek" />
           <el-option label="Custom" value="custom" />
         </el-select>
       </el-form-item>

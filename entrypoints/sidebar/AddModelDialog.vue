@@ -1,15 +1,15 @@
 <template>
   <el-dialog
     v-model="visible"
-    title="Add Custom Model"
+    :title="t('model.addModel')"
     width="500px"
   >
     <el-form :model="form" label-width="120px">
-      <el-form-item label="Name" required>
+      <el-form-item :label="t('model.name')" required>
         <el-input v-model="form.name" placeholder="My Custom Model" />
       </el-form-item>
 
-      <el-form-item label="Provider" required>
+      <el-form-item :label="t('model.provider')" required>
         <el-select v-model="form.provider">
           <el-option label="OpenAI" value="openai" />
           <el-option label="Anthropic" value="anthropic" />
@@ -18,21 +18,21 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Base URL" v-if="form.provider === 'custom'">
+      <el-form-item :label="t('model.baseUrl')" v-if="form.provider === 'custom'">
         <el-input
           v-model="form.baseURL"
           placeholder="https://api.example.com/v1"
         />
       </el-form-item>
 
-      <el-form-item label="Model" required>
+      <el-form-item :label="t('model.modelId')" required>
         <el-input
           v-model="form.model"
           placeholder="gpt-4"
         />
       </el-form-item>
 
-      <el-form-item label="API Key" required>
+      <el-form-item :label="t('model.apiKey')" required>
         <el-input
           v-model="form.apiKey"
           type="password"
@@ -43,8 +43,8 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="handleClose">Cancel</el-button>
-      <el-button type="primary" @click="handleSubmit">Add</el-button>
+      <el-button @click="handleClose">{{ t('model.cancel') }}</el-button>
+      <el-button type="primary" @click="handleSubmit">{{ t('model.add') }}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -52,7 +52,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 import { ModelConfig } from '~/types';
+
+const { t } = useI18n();
 
 const visible = defineModel<boolean>('visible', { default: false });
 const form = ref<Partial<ModelConfig>>({
@@ -79,7 +82,7 @@ watch(visible, (newVal) => {
 function handleSubmit(): void {
   console.log('handleSubmit called, form:', form.value);
   if (!form.value.name || !form.value.model || !form.value.apiKey) {
-    ElMessage.error('Please fill in all required fields');
+    ElMessage.error(t('model.fillRequired'));
     return;
   }
 

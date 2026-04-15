@@ -1,13 +1,13 @@
 <template>
   <el-dialog
     v-model="visible"
-    title="Select Skill"
+    :title="t('skill.selectSkill')"
     width="600px"
     @close="handleClose"
   >
     <el-input
       v-model="searchQuery"
-      placeholder="Search skills..."
+      :placeholder="t('skill.searchSkills')"
       clearable
       @input="handleSearch"
     />
@@ -36,7 +36,7 @@
             </el-tag>
           </div>
           <div class="skill-examples" v-if="skill.metadata.examples.length">
-            <strong>Examples:</strong>
+            <strong>{{ t('skill.examples') }}:</strong>
             <ul>
               <li v-for="example in skill.metadata.examples" :key="example">
                 {{ example }}
@@ -48,15 +48,18 @@
     </el-scrollbar>
 
     <template #footer>
-      <el-button @click="handleClose">Cancel</el-button>
+      <el-button @click="handleClose">{{ t('skill.cancel') }}</el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { skillManager } from '~/modules/skill-manager';
 import { Skill } from '~/types';
+
+const { t } = useI18n();
 
 const visible = defineModel<boolean>('visible', { default: false });
 const searchQuery = ref('');

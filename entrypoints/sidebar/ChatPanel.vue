@@ -2,7 +2,7 @@
   <div class="chat-panel">
     <div class="chat-header">
       <div class="header-left">
-        <h3>Conversation</h3>
+        <h3>{{ t('chat.conversation') }}</h3>
         <el-tag v-if="currentModelName" type="info" size="small">
           {{ currentModelName }}
         </el-tag>
@@ -12,25 +12,25 @@
           size="small"
           @click="showSkillSelector = true"
         >
-          Select Skill
+          {{ t('chat.selectSkill') }}
         </el-button>
         <el-button
           size="small"
           @click="showModelSelector = true"
         >
-          Change Model
+          {{ t('chat.changeModel') }}
         </el-button>
         <el-button
           size="small"
           @click="clearConversation"
         >
-          Clear
+          {{ t('chat.clear') }}
         </el-button>
       </el-button-group>
     </div>
 
     <div v-if="messages.length === 0" class="empty-state">
-      <p>No messages yet. Start a conversation!</p>
+      <p>{{ t('chat.noMessages') }}</p>
     </div>
     <MessageList v-else :messages="messages" />
 
@@ -39,7 +39,7 @@
         v-model="inputMessage"
         type="textarea"
         :rows="3"
-        placeholder="Type your message..."
+        :placeholder="t('chat.typeMessage')"
         @keydown.ctrl.enter="sendMessage"
       />
       <el-button
@@ -47,7 +47,7 @@
         :loading="isSending"
         @click="sendMessage"
       >
-        Send
+        {{ t('chat.send') }}
       </el-button>
     </div>
 
@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { messaging } from '~/modules/messaging';
 import { storage } from '~/modules/storage';
 import { Message, ModelConfig } from '~/types';
@@ -73,6 +74,7 @@ import MessageList from './MessageList.vue';
 import SkillSelector from './SkillSelector.vue';
 import ModelSelector from './ModelSelector.vue';
 
+const { t } = useI18n();
 const messages = ref<Message[]>([]);
 const inputMessage = ref('');
 const isSending = ref(false);

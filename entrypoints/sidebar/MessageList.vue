@@ -23,8 +23,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Message } from '~/types';
 import { marked } from 'marked';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   messages: Message[];
@@ -33,11 +36,11 @@ const props = defineProps<{
 function roleLabel(role: string): string {
   switch (role) {
     case 'user':
-      return 'You';
+      return t('message.you');
     case 'assistant':
-      return 'AI';
+      return t('message.ai');
     case 'system':
-      return 'System';
+      return t('message.system');
     default:
       return role;
   }

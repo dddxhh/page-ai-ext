@@ -1,89 +1,84 @@
 <template>
   <div class="settings-panel">
     <div class="settings-header">
-      <h3>Settings</h3>
-      <el-button @click="handleClose">Close</el-button>
+      <h3>{{ t('settings.title') }}</h3>
+      <el-button @click="handleClose">{{ t('settings.close') }}</el-button>
     </div>
 
     <div v-if="!config" class="loading">
-      Loading settings...
+      {{ t('settings.loading') }}
     </div>
 
     <el-tabs v-else v-model="activeTab">
-      <el-tab-pane label="General" name="general">
+      <el-tab-pane :label="t('settings.general')" name="general">
         <el-form :model="config" label-width="150px">
-          <el-form-item label="Theme">
+          <el-form-item :label="t('settings.theme')">
             <el-select v-model="config.theme">
-              <el-option label="Light" value="light" />
-              <el-option label="Dark" value="dark" />
-              <el-option label="Auto" value="auto" />
+              <el-option :label="t('settings.themeLight')" value="light" />
+              <el-option :label="t('settings.themeDark')" value="dark" />
+              <el-option :label="t('settings.themeAuto')" value="auto" />
             </el-select>
           </el-form-item>
 
-          <el-form-item label="Language">
+          <el-form-item :label="t('settings.language')">
             <el-select v-model="config.language">
-              <el-option label="中文" value="zh-CN" />
-              <el-option label="English" value="en-US" />
+              <el-option :label="t('settings.languageZh')" value="zh-CN" />
+              <el-option :label="t('settings.languageEn')" value="en-US" />
             </el-select>
           </el-form-item>
         </el-form>
       </el-tab-pane>
 
-      <el-tab-pane label="Shortcuts" name="shortcuts">
+      <el-tab-pane :label="t('settings.shortcuts')" name="shortcuts">
         <el-form :model="config.shortcuts" label-width="150px">
-          <el-form-item label="Toggle Sidebar">
+          <el-form-item :label="t('settings.toggleSidebar')">
             <el-input v-model="config.shortcuts.toggleSidebar" />
           </el-form-item>
 
-          <el-form-item label="New Conversation">
+          <el-form-item :label="t('settings.newConversation')">
             <el-input v-model="config.shortcuts.newConversation" />
           </el-form-item>
         </el-form>
       </el-tab-pane>
 
-      <el-tab-pane label="Privacy" name="privacy">
+      <el-tab-pane :label="t('settings.privacy')" name="privacy">
         <el-form :model="config.privacy" label-width="150px">
-          <el-form-item label="Encrypt History">
+          <el-form-item :label="t('settings.encryptHistory')">
             <el-switch v-model="config.privacy.encryptHistory" />
           </el-form-item>
 
-          <el-form-item label="Allow Page Content">
+          <el-form-item :label="t('settings.allowPageContent')">
             <el-switch v-model="config.privacy.allowPageContentUpload" />
           </el-form-item>
         </el-form>
       </el-tab-pane>
 
-      <el-tab-pane label="Skills" name="skills">
+      <el-tab-pane :label="t('settings.skills')" name="skills">
         <div class="skills-section">
           <el-button type="primary" @click="exportSkills">
-            Export Skills
+            {{ t('settings.exportSkills') }}
           </el-button>
           <el-button @click="importSkills">
-            Import Skills
+            {{ t('settings.importSkills') }}
           </el-button>
         </div>
 
-        <p>Skills management UI coming soon...</p>
+        <p>{{ t('settings.skillsManagementComing') }}</p>
       </el-tab-pane>
 
-      <el-tab-pane label="About" name="about">
+      <el-tab-pane :label="t('settings.about')" name="about">
         <div class="about-section">
-          <h4>AI Assistant Extension</h4>
-          <p>Version: 1.0.0</p>
-          <p>
-            A Chrome extension extension that enables AI-powered page interaction
-            using WebMCP protocol.
-          </p>
-          <p>
-            Built with WXT, Vue 3, TypeScript, and Element Plus.
-          </p>
+          <h4>{{ t('about.title') }}</h4>
+          <p>{{ t('about.version') }}: {{ t('about.versionNumber') }}</p>
+          <p>{{ t('about.description') }}</p>
+          <p>{{ t('about.builtWith') }}</p>
         </div>
       </el-tab-pane>
     </el-tabs>
 
     <div class="settings-footer" v-if="config">
       <el-button type="primary" @click="saveSettings">
-        Save Settings
+        {{ t('settings.saveSettings') }}
       </el-button>
     </div>
   </div>
@@ -91,8 +86,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { ElMessage } from 'element-plus';
 import { storage } from '~/modules/storage';
 import { Config } from '~/types';
+
+const { t } = useI18n();
 
 const activeTab = ref('general');
 const config = ref<Config | null>(null);
@@ -110,10 +109,10 @@ async function saveSettings(): Promise<void> {
 
   try {
     await storage.updateConfig(config.value);
-    alert('Settings saved successfully');
+    ElMessage.success(t('settings.settingsSaved'));
   } catch (error) {
     console.error('Failed to save settings:', error);
-    alert('Failed to save settings');
+    ElMessage.error(t('settings.settingsSaveFailed'));
   }
 }
 
@@ -142,7 +141,7 @@ async function importSkills(): Promise<void> {
     const text = await file.text();
     const skills = JSON.parse(text);
     await storage.importSkills(skills);
-    alert('Skills imported successfully');
+    ElMessage.success(t('settings.skillsImported'));
   };
 
   input.click();

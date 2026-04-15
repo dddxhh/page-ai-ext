@@ -1,0 +1,82 @@
+export default {
+  app: {
+    title: 'AI 助手',
+    chat: '聊天',
+    settings: '设置'
+  },
+  chat: {
+    conversation: '对话',
+    selectSkill: '选择技能',
+    changeModel: '切换模型',
+    clear: '清空',
+    noMessages: '暂无消息，开始对话吧！',
+    typeMessage: '输入消息...',
+    send: '发送'
+  },
+  settings: {
+    title: '设置',
+    close: '关闭',
+    general: '通用',
+    shortcuts: '快捷键',
+    privacy: '隐私',
+    skills: '技能',
+    about: '关于',
+    theme: '主题',
+    themeLight: '浅色',
+    themeDark: '深色',
+    themeAuto: '自动',
+    language: '语言',
+    languageZh: '中文',
+    languageEn: 'English',
+    toggleSidebar: '切换侧边栏',
+    newConversation: '新建对话',
+    encryptHistory: '加密历史',
+    allowPageContent: '允许上传页面内容',
+    exportSkills: '导出技能',
+    importSkills: '导入技能',
+    saveSettings: '保存设置',
+    settingsSaved: '设置已保存',
+    settingsSaveFailed: '保存失败',
+    skillsManagementComing: '技能管理界面即将推出...',
+    loading: '加载设置...'
+  },
+  model: {
+    selectModel: '选择模型',
+    builtinModels: '内置模型',
+    customModels: '自定义模型',
+    addCustomModel: '添加自定义模型',
+    active: '当前',
+    select: '选择',
+    delete: '删除',
+    close: '关闭',
+    addModel: '添加模型',
+    name: '名称',
+    provider: '提供商',
+    baseUrl: 'Base URL',
+    modelId: '模型',
+    apiKey: 'API Key',
+    add: '添加',
+    cancel: '取消',
+    modelAdded: '模型添加成功',
+    modelAddFailed: '模型添加失败',
+    fillRequired: '请填写所有必填项'
+  },
+  skill: {
+    selectSkill: '选择技能',
+    searchSkills: '搜索技能...',
+    examples: '示例',
+    cancel: '取消'
+  },
+  message: {
+    you: '你',
+    ai: 'AI',
+    system: '系统'
+  },
+  about: {
+    title: 'AI 助手扩展',
+    version: '版本',
+    versionNumber: '1.0.0',
+    description: '一个使用 WebMCP 协议实现 AI 页面交互的 Chrome 扩展。',
+    builtWith: '使用 WXT、Vue 3、TypeScript 和 Element Plus 构建。'
+  }
+}

@@ -1,11 +1,11 @@
 <template>
   <el-dialog
     v-model="visible"
-    title="Select Model"
+    :title="t('model.selectModel')"
     width="600px"
   >
     <el-tabs v-model="activeTab">
-      <el-tab-pane label="Built-in Models" name="builtin">
+      <el-tab-pane :label="t('model.builtinModels')" name="builtin">
         <div class="model-list">
           <div
             v-for="model in builtinModels"
@@ -18,13 +18,13 @@
               <p>{{ model.description }}</p>
             </div>
             <el-tag type="success" v-if="currentModelId === model.id">
-              Active
+              {{ t('model.active') }}
             </el-tag>
           </div>
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="Custom Models" name="custom">
+      <el-tab-pane :label="t('model.customModels')" name="custom">
         <div class="model-list">
           <div
             v-for="model in customModels"
@@ -40,14 +40,14 @@
                 size="small"
                 @click="selectModel(model)"
               >
-                Select
+                {{ t('model.select') }}
               </el-button>
               <el-button
                 size="small"
                 type="danger"
                 @click="deleteModel(model.id)"
               >
-                Delete
+                {{ t('model.delete') }}
               </el-button>
             </el-button-group>
           </div>
@@ -57,7 +57,7 @@
           type="primary"
           @click="handleShowAddModel"
         >
-          Add Custom Model
+          {{ t('model.addCustomModel') }}
         </el-button>
       </el-tab-pane>
     </el-tabs>
@@ -68,7 +68,7 @@
     />
 
     <template #footer>
-      <el-button @click="handleClose">Close</el-button>
+      <el-button @click="handleClose">{{ t('model.close') }}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -76,6 +76,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 import { storage } from '~/modules/storage';
 import { ModelConfig, Config } from '~/types';
 import AddModelDialog from './AddModelDialog.vue';
@@ -148,9 +151,9 @@ async function handleAddModel(model: ModelConfig): Promise<void> {
     await storage.updateConfig({ models: updatedModels });
     customModels.value = updatedModels.filter(m => !builtinModelIds.includes(m.id));
     showAddModel.value = false;
-    ElMessage.success('Model added successfully');
+    ElMessage.success(t('model.modelAdded'));
   } catch (error) {
-    ElMessage.error('Failed to add model');
+    ElMessage.error(t('model.modelAddFailed'));
     console.error('Error adding model:', error);
   }
 }

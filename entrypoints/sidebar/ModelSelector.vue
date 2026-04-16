@@ -269,7 +269,7 @@ function handleShowAddModel(): void {
 }
 
 function handleClose(): void {
-  emit('close');
+  visible.value = false;
 }
 </script>
 

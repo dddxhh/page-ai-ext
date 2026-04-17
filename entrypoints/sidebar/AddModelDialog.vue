@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus/es/components/message/index';
 import { useI18n } from 'vue-i18n';
 import { ModelConfig } from '~/types';
 

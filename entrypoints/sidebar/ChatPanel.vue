@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus/es/components/message/index';
 import { messaging } from '~/modules/messaging';
 import { storage } from '~/modules/storage';
 import { skillManager } from '~/modules/skill-manager';

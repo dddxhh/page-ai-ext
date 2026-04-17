@@ -44,8 +44,8 @@ import { useI18n } from 'vue-i18n';
 import { storage } from '~/modules/storage';
 import { Config } from '~/types';
 import { useLocale } from './composables/useLocale';
-import zhCn from 'element-plus/es/locale/lang/zh-cn';
-import en from 'element-plus/es/locale/lang/en';
+import zhCn from 'element-plus/es/locale/lang/zh-cn.mjs';
+import en from 'element-plus/es/locale/lang/en.mjs';
 
 const { t } = useI18n();
 const { currentLocale, loadSavedLocale } = useLocale();

@@ -32,6 +32,10 @@ yarn-error.log*
 # Testing
 coverage/
 
+# Auto-generated type declarations
+auto-imports.d.ts
+components.d.ts
+
 # Temporary files
 *.tmp
 .temp/

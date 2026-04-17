@@ -3,8 +3,8 @@
     <div class="chat-header">
       <div class="header-left">
         <h3>{{ t('chat.conversation') }}</h3>
-        <el-tag v-if="selectedSkill" type="success" size="small">
-          {{ selectedSkill }}
+        <el-tag v-if="selectedSkillName" type="success" size="small">
+          {{ selectedSkillName }}
         </el-tag>
         <el-tag v-if="currentModelName" type="info" size="small">
           {{ currentModelName }}
@@ -72,6 +72,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { messaging } from '~/modules/messaging';
 import { storage } from '~/modules/storage';
+import { skillManager } from '~/modules/skill-manager';
 import { Message, ModelConfig } from '~/types';
 import MessageList from './MessageList.vue';
 import SkillSelector from './SkillSelector.vue';
@@ -86,6 +87,7 @@ const showModelSelector = ref(false);
 const currentResponse = ref('');
 const currentModelName = ref('');
 const selectedSkill = ref<string | null>(null);
+const selectedSkillName = ref<string | null>(null);
 
 async function loadCurrentModelName(): Promise<void> {
   try {
@@ -146,6 +148,8 @@ async function sendMessage(): Promise<void> {
       skillId: selectedSkill.value,
       includePageContent: true
     });
+    selectedSkill.value = null;
+    selectedSkillName.value = null;
   } catch (error) {
     console.error('Send message error:', error);
     isSending.value = false;
@@ -186,8 +190,19 @@ function clearConversation(): void {
   messages.value = [];
 }
 
-function applySkill(skillId: string): void {
+async function applySkill(skillId: string): Promise<void> {
   selectedSkill.value = skillId;
+  try {
+    const skill = await skillManager.getSkill(skillId);
+    if (skill) {
+      selectedSkillName.value = skill.name;
+    } else {
+      selectedSkillName.value = skillId;
+    }
+  } catch (error) {
+    console.error('Failed to load skill name:', error);
+    selectedSkillName.value = skillId;
+  }
   console.log('Skill selected:', skillId);
 }
 

@@ -39,12 +39,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storage } from '~/modules/storage';
 import { Config } from '~/types';
-import ChatPanel from './ChatPanel.vue';
-import SettingsPanel from './SettingsPanel.vue';
 import { useLocale } from './composables/useLocale';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import en from 'element-plus/es/locale/lang/en';
@@ -55,6 +53,9 @@ const { currentLocale, loadSavedLocale } = useLocale();
 const showChat = ref(true);
 const showSettings = ref(false);
 const config = ref<Config | null>(null);
+
+const ChatPanel = defineAsyncComponent(() => import('./ChatPanel.vue'));
+const SettingsPanel = defineAsyncComponent(() => import('./SettingsPanel.vue'));
 
 const elementLocale = computed(() => {
   return currentLocale.value === 'zh-CN' ? zhCn : en;

@@ -77,16 +77,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import { messaging } from '~/modules/messaging';
 import { storage } from '~/modules/storage';
 import { skillManager } from '~/modules/skill-manager';
 import { Message, ModelConfig } from '~/types';
-import MessageList from './MessageList.vue';
-import SkillSelector from './SkillSelector.vue';
-import ModelSelector from './ModelSelector.vue';
+
+const MessageList = defineAsyncComponent(() => import('./MessageList.vue'));
+const SkillSelector = defineAsyncComponent(() => import('./SkillSelector.vue'));
+const ModelSelector = defineAsyncComponent(() => import('./ModelSelector.vue'));
 
 const { t } = useI18n();
 const messages = ref<Message[]>([]);

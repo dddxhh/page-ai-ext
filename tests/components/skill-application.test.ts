@@ -1,29 +1,135 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
+import { createI18n } from 'vue-i18n';
+import ChatPanel from '../../entrypoints/sidebar/ChatPanel.vue';
 
-const mockGetSkill = vi.fn();
-vi.mock('~/modules/skill-manager', () => ({
+const mockGetSkill = vi.hoisted(() => vi.fn());
+const mockSendToBackground = vi.hoisted(() => vi.fn());
+const mockGetConfig = vi.hoisted(() => vi.fn());
+
+vi.mock('../../modules/skill-manager', () => ({
   skillManager: {
     getSkill: mockGetSkill
   }
 }));
 
-const mockSendToBackground = vi.fn();
-vi.mock('~/modules/messaging', () => ({
+vi.mock('../../modules/messaging', () => ({
   messaging: {
     sendToBackground: mockSendToBackground
   }
 }));
 
-describe('Skill Application Logic', () => {
+vi.mock('../../modules/storage', () => ({
+  storage: {
+    getConfig: mockGetConfig
+  }
+}));
+
+vi.mock('../../entrypoints/sidebar/MessageList.vue', () => ({
+  default: {
+    template: '<div class="message-list-mock"></div>',
+    props: ['messages']
+  }
+}));
+
+vi.mock('../../entrypoints/sidebar/SkillSelector.vue', () => ({
+  default: {
+    template: '<div class="skill-selector-mock"></div>',
+    emits: ['close', 'select']
+  }
+}));
+
+vi.mock('../../entrypoints/sidebar/ModelSelector.vue', () => ({
+  default: {
+    template: '<div class="model-selector-mock"></div>',
+    props: ['visible'],
+    emits: ['update:visible', 'close']
+  }
+}));
+
+const mockConfig = {
+  currentModelId: 'gpt-4',
+  models: [
+    {
+      id: 'gpt-4',
+      name: 'GPT-4',
+      provider: 'openai' as const,
+      model: 'gpt-4',
+      apiKey: 'sk-test',
+      parameters: {}
+    }
+  ],
+  shortcuts: {
+    toggleSidebar: 'Ctrl+Shift+A',
+    newConversation: 'Ctrl+Shift+N'
+  },
+  theme: 'light' as const,
+  language: 'en-US' as const,
+  privacy: {
+    encryptHistory: false,
+    allowPageContentUpload: true
+  }
+};
+
+const i18n = createI18n({
+  legacy: false,
+  locale: 'en-US',
+  messages: {
+    'en-US': {
+      chat: {
+        conversation: 'Conversation',
+        selectSkill: 'Select Skill',
+        changeModel: 'Change Model',
+        clear: 'Clear',
+        noMessages: 'No messages',
+        typeMessage: 'Type a message',
+        send: 'Send'
+      }
+    }
+  }
+});
+
+function createWrapper() {
+  return mount(ChatPanel, {
+    global: {
+      plugins: [i18n],
+      stubs: {
+        MessageList: true,
+        SkillSelector: true,
+        ModelSelector: true,
+        ElTag: {
+          template: '<span class="el-tag" :class="type ? \'el-tag--\' + type : \'\'"><slot /></span>',
+          props: ['type', 'size']
+        },
+        ElButton: {
+          template: '<button class="el-button" :class="{ \'is-loading\': loading }"><slot /></button>',
+          props: ['type', 'size', 'loading']
+        },
+        ElButtonGroup: {
+          template: '<div class="el-button-group"><slot /></div>'
+        },
+        ElInput: {
+          template: '<textarea class="el-input"></textarea>',
+          props: ['modelValue', 'type', 'rows', 'placeholder'],
+          emits: ['update:modelValue']
+        }
+      }
+    }
+  });
+}
+
+describe('Skill Application', () => {
+  let wrapper: ReturnType<typeof createWrapper>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetConfig.mockResolvedValue(mockConfig);
+    mockSendToBackground.mockResolvedValue(undefined);
   });
 
   describe('applySkill', () => {
     it('should set skill name from skill manager when skill exists', async () => {
-      const { skillManager } = await import('~/modules/skill-manager');
-
-      mockGetSkill.mockResolvedValueOnce({
+      mockGetSkill.mockResolvedValue({
         id: 'test-skill',
         name: 'Test Skill',
         description: 'Test description',
@@ -33,145 +139,171 @@ describe('Skill Application Logic', () => {
         createdAt: Date.now()
       });
 
-      const selectedSkill = { value: null as string | null };
-      const selectedSkillName = { value: null as string | null };
+      wrapper = createWrapper();
+      await flushPromises();
 
-      async function applySkill(skillId: string): Promise<void> {
-        selectedSkill.value = skillId;
-        try {
-          const skill = await skillManager.getSkill(skillId);
-          if (skill) {
-            selectedSkillName.value = skill.name;
-          } else {
-            selectedSkillName.value = skillId;
-          }
-        } catch (error) {
-          selectedSkillName.value = skillId;
-        }
-      }
+      await wrapper.vm.applySkill('test-skill');
+      await flushPromises();
 
-      await applySkill('test-skill');
-
-      expect(selectedSkill.value).toBe('test-skill');
-      expect(selectedSkillName.value).toBe('Test Skill');
+      expect(wrapper.vm.selectedSkill).toBe('test-skill');
+      expect(wrapper.vm.selectedSkillName).toBe('Test Skill');
+      expect(mockGetSkill).toHaveBeenCalledWith('test-skill');
     });
 
     it('should fallback to skill ID when skill not found', async () => {
-      const { skillManager } = await import('~/modules/skill-manager');
+      mockGetSkill.mockResolvedValue(null);
 
-      mockGetSkill.mockResolvedValueOnce(null);
+      wrapper = createWrapper();
+      await flushPromises();
 
-      const selectedSkill = { value: null as string | null };
-      const selectedSkillName = { value: null as string | null };
+      await wrapper.vm.applySkill('unknown-skill');
+      await flushPromises();
 
-      async function applySkill(skillId: string): Promise<void> {
-        selectedSkill.value = skillId;
-        try {
-          const skill = await skillManager.getSkill(skillId);
-          if (skill) {
-            selectedSkillName.value = skill.name;
-          } else {
-            selectedSkillName.value = skillId;
-          }
-        } catch (error) {
-          selectedSkillName.value = skillId;
-        }
-      }
-
-      await applySkill('unknown-skill');
-
-      expect(selectedSkill.value).toBe('unknown-skill');
-      expect(selectedSkillName.value).toBe('unknown-skill');
+      expect(wrapper.vm.selectedSkill).toBe('unknown-skill');
+      expect(wrapper.vm.selectedSkillName).toBe('unknown-skill');
     });
 
     it('should fallback to skill ID on error', async () => {
-      const { skillManager } = await import('~/modules/skill-manager');
+      mockGetSkill.mockRejectedValue(new Error('Load error'));
 
-      mockGetSkill.mockRejectedValueOnce(new Error('Load error'));
+      wrapper = createWrapper();
+      await flushPromises();
 
-      const selectedSkill = { value: null as string | null };
-      const selectedSkillName = { value: null as string | null };
+      await wrapper.vm.applySkill('error-skill');
+      await flushPromises();
 
-      async function applySkill(skillId: string): Promise<void> {
-        selectedSkill.value = skillId;
-        try {
-          const skill = await skillManager.getSkill(skillId);
-          if (skill) {
-            selectedSkillName.value = skill.name;
-          } else {
-            selectedSkillName.value = skillId;
-          }
-        } catch (error) {
-          selectedSkillName.value = skillId;
-        }
-      }
-
-      await applySkill('error-skill');
-
-      expect(selectedSkill.value).toBe('error-skill');
-      expect(selectedSkillName.value).toBe('error-skill');
+      expect(wrapper.vm.selectedSkill).toBe('error-skill');
+      expect(wrapper.vm.selectedSkillName).toBe('error-skill');
     });
   });
 
   describe('sendMessage with skill', () => {
-    it('should clear skill selection after sending message', async () => {
-      const { messaging } = await import('~/modules/messaging');
+    it('should clear skill selection after successful message send', async () => {
+      mockGetSkill.mockResolvedValue({
+        id: 'test-skill',
+        name: 'Test Skill',
+        description: 'Test description',
+        systemPrompt: 'Test prompt',
+        metadata: { author: 'Test', version: '1.0', tags: [], examples: [], category: 'Test' },
+        isBuiltIn: true,
+        createdAt: Date.now()
+      });
+      mockSendToBackground.mockResolvedValue(undefined);
 
-      mockSendToBackground.mockResolvedValueOnce(undefined);
+      wrapper = createWrapper();
+      await flushPromises();
 
-      const selectedSkill = { value: 'test-skill' as string | null };
-      const selectedSkillName = { value: 'Test Skill' as string | null };
+      await wrapper.vm.applySkill('test-skill');
+      await flushPromises();
 
-      async function sendMessage(content: string): Promise<void> {
-        try {
-          await messaging.sendToBackground('SEND_MESSAGE', {
-            content,
-            skillId: selectedSkill.value,
-            includePageContent: true
-          });
-          selectedSkill.value = null;
-          selectedSkillName.value = null;
-        } catch (error) {
-          throw error;
-        }
-      }
+      expect(wrapper.vm.selectedSkill).toBe('test-skill');
+      expect(wrapper.vm.selectedSkillName).toBe('Test Skill');
 
-      await sendMessage('Test message');
+      wrapper.vm.inputMessage = 'Test message';
+      await wrapper.vm.sendMessage();
+      await flushPromises();
 
-      expect(selectedSkill.value).toBe(null);
-      expect(selectedSkillName.value).toBe(null);
+      expect(wrapper.vm.selectedSkill).toBe(null);
+      expect(wrapper.vm.selectedSkillName).toBe(null);
+      expect(mockSendToBackground).toHaveBeenCalledWith('SEND_MESSAGE', {
+        content: 'Test message',
+        skillId: 'test-skill',
+        includePageContent: true
+      });
     });
 
     it('should not clear skill on send error', async () => {
-      const { messaging } = await import('~/modules/messaging');
+      mockGetSkill.mockResolvedValue({
+        id: 'test-skill',
+        name: 'Test Skill',
+        description: 'Test description',
+        systemPrompt: 'Test prompt',
+        metadata: { author: 'Test', version: '1.0', tags: [], examples: [], category: 'Test' },
+        isBuiltIn: true,
+        createdAt: Date.now()
+      });
+      mockSendToBackground.mockRejectedValue(new Error('Send error'));
 
-      mockSendToBackground.mockRejectedValueOnce(new Error('Send error'));
+      wrapper = createWrapper();
+      await flushPromises();
 
-      const selectedSkill = { value: 'test-skill' as string | null };
-      const selectedSkillName = { value: 'Test Skill' as string | null };
+      await wrapper.vm.applySkill('test-skill');
+      await flushPromises();
 
-      async function sendMessage(content: string): Promise<void> {
-        try {
-          await messaging.sendToBackground('SEND_MESSAGE', {
-            content,
-            skillId: selectedSkill.value,
-            includePageContent: true
-          });
-          selectedSkill.value = null;
-          selectedSkillName.value = null;
-        } catch (error) {
-          throw error;
-        }
-      }
+      expect(wrapper.vm.selectedSkill).toBe('test-skill');
 
-      try {
-        await sendMessage('Test message');
-      } catch (e) {
-        // Expected error
-      }
+      wrapper.vm.inputMessage = 'Test message';
+      await wrapper.vm.sendMessage();
+      await flushPromises();
 
-      expect(selectedSkill.value).toBe('test-skill');
-      expect(selectedSkillName.value).toBe('Test Skill');
+      expect(wrapper.vm.selectedSkill).toBe('test-skill');
+      expect(wrapper.vm.selectedSkillName).toBe('Test Skill');
+    });
+
+    it('should not send when input is empty', async () => {
+      wrapper = createWrapper();
+      await flushPromises();
+
+      await wrapper.vm.applySkill('test-skill');
+      await flushPromises();
+
+      wrapper.vm.inputMessage = '';
+      await wrapper.vm.sendMessage();
+      await flushPromises();
+
+      expect(mockSendToBackground).not.toHaveBeenCalled();
+      expect(wrapper.vm.selectedSkill).toBe('test-skill');
+    });
+
+    it('should not send when already sending', async () => {
+      mockSendToBackground.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+
+      wrapper = createWrapper();
+      await flushPromises();
+
+      wrapper.vm.inputMessage = 'Test message';
+      wrapper.vm.isSending = true;
+
+      await wrapper.vm.sendMessage();
+      await flushPromises();
+
+      expect(mockSendToBackground).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('UI rendering', () => {
+    it('should display skill name tag when skill is selected', async () => {
+      mockGetSkill.mockResolvedValue({
+        id: 'test-skill',
+        name: 'Test Skill',
+        description: 'Test description',
+        systemPrompt: 'Test prompt',
+        metadata: { author: 'Test', version: '1.0', tags: [], examples: [], category: 'Test' },
+        isBuiltIn: true,
+        createdAt: Date.now()
+      });
+
+      wrapper = createWrapper();
+      await flushPromises();
+
+      const htmlBefore = wrapper.html();
+      expect(htmlBefore).not.toContain('Test Skill');
+
+      await wrapper.vm.applySkill('test-skill');
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+
+      const htmlAfter = wrapper.html();
+      expect(htmlAfter).toContain('Test Skill');
+      expect(htmlAfter).toContain('el-tag--success');
+    });
+
+    it('should not display skill tag when no skill is selected', async () => {
+      wrapper = createWrapper();
+      await flushPromises();
+
+      const html = wrapper.html();
+      expect(html).not.toContain('el-tag--success');
     });
   });
 });

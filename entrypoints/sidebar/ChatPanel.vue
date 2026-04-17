@@ -32,6 +32,15 @@
       </el-button-group>
     </div>
 
+    <el-alert
+      v-if="errorMessage"
+      type="error"
+      :title="errorMessage"
+      :closable="true"
+      @close="errorMessage = null"
+      style="margin: 12px"
+    />
+
     <div v-if="messages.length === 0" class="empty-state">
       <p>{{ t('chat.noMessages') }}</p>
     </div>
@@ -70,6 +79,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { ElMessage } from 'element-plus';
 import { messaging } from '~/modules/messaging';
 import { storage } from '~/modules/storage';
 import { skillManager } from '~/modules/skill-manager';
@@ -88,6 +98,7 @@ const currentResponse = ref('');
 const currentModelName = ref('');
 const selectedSkill = ref<string | null>(null);
 const selectedSkillName = ref<string | null>(null);
+const errorMessage = ref<string | null>(null);
 
 async function loadCurrentModelName(): Promise<void> {
   try {
@@ -125,7 +136,14 @@ onMounted(async () => {
   // Listen for message responses
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'MESSAGE_RESPONSE') {
-      const { content, isStreaming, done } = message.data;
+      const { content, isStreaming, done, error } = message.data;
+
+      if (error) {
+        ElMessage.error(error);
+        errorMessage.value = error;
+        isSending.value = false;
+        return;
+      }
 
       if (isStreaming) {
         currentResponse.value += content;
@@ -149,6 +167,8 @@ onUnmounted(() => {
 async function sendMessage(): Promise<void> {
   if (!inputMessage.value.trim() || isSending.value) return;
 
+  errorMessage.value = null;
+
   const userMessage: Message = {
     id: generateId(),
     role: 'user',
@@ -169,7 +189,10 @@ async function sendMessage(): Promise<void> {
     selectedSkill.value = null;
     selectedSkillName.value = null;
   } catch (error) {
+    const errorMsg = (error as Error).message || '发送消息失败';
     console.error('Send message error:', error);
+    ElMessage.error(errorMsg);
+    errorMessage.value = errorMsg;
     isSending.value = false;
   }
 }

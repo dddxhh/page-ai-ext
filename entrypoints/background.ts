@@ -134,8 +134,13 @@ export default defineBackground(() => {
         }
       };
     } catch (error) {
+      const errorMsg = (error as Error).message || 'Unknown error occurred';
       console.error('Send message error:', error);
-      return { success: false, error: (error as Error).message };
+      return {
+        success: false,
+        error: errorMsg,
+        timestamp: Date.now()
+      };
     }
   });
 

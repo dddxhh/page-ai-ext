@@ -1,4 +1,15 @@
 import { vi } from 'vitest';
+import { config } from '@vue/test-utils';
+
+config.global.stubs = {
+  ElAlert: {
+    template: '<div class="el-alert" v-if="$props.title">{{ $props.title }}</div>',
+    props: ['type', 'title', 'closable']
+  },
+  ElMessage: {
+    template: '<div class="el-message">{{ message }}</div>'
+  }
+};
 
 // Mock Chrome Extension APIs
 global.chrome = {

@@ -3,6 +3,9 @@
     <div class="chat-header">
       <div class="header-left">
         <h3>{{ t('chat.conversation') }}</h3>
+        <el-tag v-if="selectedSkill" type="success" size="small">
+          {{ selectedSkill }}
+        </el-tag>
         <el-tag v-if="currentModelName" type="info" size="small">
           {{ currentModelName }}
         </el-tag>
@@ -82,6 +85,7 @@ const showSkillSelector = ref(false);
 const showModelSelector = ref(false);
 const currentResponse = ref('');
 const currentModelName = ref('');
+const selectedSkill = ref<string | null>(null);
 
 async function loadCurrentModelName(): Promise<void> {
   try {
@@ -139,6 +143,7 @@ async function sendMessage(): Promise<void> {
   try {
     await messaging.sendToBackground('SEND_MESSAGE', {
       content: userMessage.content,
+      skillId: selectedSkill.value,
       includePageContent: true
     });
   } catch (error) {
@@ -182,8 +187,8 @@ function clearConversation(): void {
 }
 
 function applySkill(skillId: string): void {
-  // Apply skill to next message
-  console.log('Applying skill:', skillId);
+  selectedSkill.value = skillId;
+  console.log('Skill selected:', skillId);
 }
 
 async function handleModelSelectorClose(): Promise<void> {

@@ -25,7 +25,7 @@
         </el-button>
         <el-button
           size="small"
-          @click="clearConversation"
+          @click="handleClearConversation"
         >
           {{ t('chat.clear') }}
         </el-button>
@@ -133,7 +133,9 @@ onMounted(async () => {
         updateStreamingMessage(content);
       } else if (done) {
         isSending.value = false;
-        void finalizeMessage(currentResponse.value);
+        finalizeMessage(currentResponse.value).catch(error => {
+          console.error('Failed to finalize message:', error);
+        });
         currentResponse.value = '';
       }
     }
@@ -231,6 +233,10 @@ async function clearConversation(): Promise<void> {
   } catch (error) {
     console.error('Failed to clear conversation from storage:', error);
   }
+}
+
+async function handleClearConversation(): Promise<void> {
+  await clearConversation();
 }
 
 async function applySkill(skillId: string): Promise<void> {

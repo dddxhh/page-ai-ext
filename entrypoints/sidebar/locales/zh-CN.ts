@@ -11,7 +11,8 @@ export default {
     clear: '清空',
     noMessages: '暂无消息，开始对话吧！',
     typeMessage: '输入消息...',
-    send: '发送'
+    send: '发送',
+    conversationCleared: '对话已清空'
   },
   settings: {
     title: '设置',
@@ -32,6 +33,7 @@ export default {
     newConversation: '新建对话',
     encryptHistory: '加密历史',
     allowPageContent: '允许上传页面内容',
+    allowPageContentUpload: '允许上传页面内容',
     exportSkills: '导出技能',
     importSkills: '导入技能',
     saveSettings: '保存设置',
@@ -39,7 +41,11 @@ export default {
     settingsSaveFailed: '保存失败',
     skillsImported: '技能导入成功',
     skillsManagementComing: '技能管理界面即将推出...',
-    loading: '加载设置...'
+    loading: '加载设置...',
+    invalidShortcutFormat: '快捷键格式无效',
+    shortcutPlaceholder: '例如：Ctrl+Shift+A',
+    shortcutFormat: '格式：Ctrl+Shift+A (Windows/Linux), Cmd+Shift+A (Mac)',
+    shortcutConflict: '快捷键冲突'
   },
   model: {
     selectModel: '选择模型',

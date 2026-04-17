@@ -157,12 +157,24 @@ export default defineBackground(() => {
     }
   });
 
-  // Handle toggle sidebar
-  messaging.onMessage('TOGGLE_SIDEBAR', async () => {
+  // Handle toggle sidebar command
+  chrome.commands.onCommand.addListener('toggleSidebar', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab.id) {
       await chrome.sidePanel.open({ tabId: tab.id });
     }
+  });
+
+  // Handle new conversation command
+  chrome.commands.onCommand.addListener('newConversation', async () => {
+    // Clear conversation from storage
+    await storage.deleteConversation('current');
+    
+    // Notify sidebar to clear messages
+    chrome.runtime.sendMessage({
+      type: 'NEW_CONVERSATION',
+      data: {}
+    });
   });
 
   // Helper functions

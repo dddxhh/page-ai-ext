@@ -11,7 +11,8 @@ export default {
     clear: 'Clear',
     noMessages: 'No messages yet. Start a conversation!',
     typeMessage: 'Type your message...',
-    send: 'Send'
+    send: 'Send',
+    conversationCleared: 'Conversation cleared'
   },
   settings: {
     title: 'Settings',
@@ -32,6 +33,7 @@ export default {
     newConversation: 'New Conversation',
     encryptHistory: 'Encrypt History',
     allowPageContent: 'Allow Page Content Upload',
+    allowPageContentUpload: 'Allow Page Content Upload',
     exportSkills: 'Export Skills',
     importSkills: 'Import Skills',
     saveSettings: 'Save Settings',
@@ -39,7 +41,11 @@ export default {
     settingsSaveFailed: 'Failed to save settings',
     skillsImported: 'Skills imported successfully',
     skillsManagementComing: 'Skills management UI coming soon...',
-    loading: 'Loading settings...'
+    loading: 'Loading settings...',
+    invalidShortcutFormat: 'Invalid shortcut format',
+    shortcutPlaceholder: 'e.g., Ctrl+Shift+A',
+    shortcutFormat: 'Format: Ctrl+Shift+A (Windows/Linux), Cmd+Shift+A (Mac)',
+    shortcutConflict: 'Shortcut conflict'
   },
   model: {
     selectModel: 'Select Model',

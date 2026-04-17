@@ -32,14 +32,37 @@
       <el-tab-pane :label="t('settings.shortcuts')" name="shortcuts">
         <el-form :model="config.shortcuts" label-width="150px">
           <el-form-item :label="t('settings.toggleSidebar')">
-            <el-input v-model="config.shortcuts.toggleSidebar" />
+            <el-input 
+              v-model="config.shortcuts.toggleSidebar" 
+              :placeholder="t('settings.shortcutPlaceholder')"
+            />
+            <el-text type="info" size="small" style="margin-top: 4px">
+              {{ t('settings.shortcutFormat') }}: Ctrl+Shift+A (Windows/Linux), Cmd+Shift+A (Mac)
+            </el-text>
           </el-form-item>
 
           <el-form-item :label="t('settings.newConversation')">
-            <el-input v-model="config.shortcuts.newConversation" />
+            <el-input 
+              v-model="config.shortcuts.newConversation"
+              :placeholder="t('settings.shortcutPlaceholder')"
+            />
+            <el-text type="info" size="small" style="margin-top: 4px">
+              {{ t('settings.shortcutFormat') }}: Ctrl+Shift+N (Windows/Linux), Cmd+Shift+N (Mac)
+            </el-text>
           </el-form-item>
         </el-form>
+
+        <el-alert
+          v-if="shortcutError"
+          type="error"
+          :title="shortcutError"
+          :closable="true"
+          @close="shortcutError = null"
+          style="margin-top: 12px"
+        />
       </el-tab-pane>
+
+.
 
       <el-tab-pane :label="t('settings.privacy')" name="privacy">
         <el-form :model="config.privacy" label-width="150px">
@@ -95,9 +118,10 @@ const { t } = useI18n();
 
 const activeTab = ref('general');
 const config = ref<Config | null>(null);
+const shortcutError = ref<string | null>(null);
 
 const emit = defineEmits<{
-  close: [];
+  close: 'close';
 }>();
 
 onMounted(async () => {
@@ -108,12 +132,42 @@ async function saveSettings(): Promise<void> {
   if (!config.value) return;
 
   try {
+    if (!validateShortcuts()) {
+      return;
+    }
+
     await storage.updateConfig(config.value);
     ElMessage.success(t('settings.settingsSaved'));
   } catch (error) {
     console.error('Failed to save settings:', error);
     ElMessage.error(t('settings.settingsSaveFailed'));
   }
+}
+
+function validateShortcuts(): boolean {
+  if (!config.value) return false;
+
+  const { toggleSidebar, newConversation } = config.value.shortcuts;
+  
+  const shortcutPattern = /^(Ctrl|Cmd|Alt|Meta|Shift)\+([A-Za-z0-9]|\w+([A-Za-z0-9]))$/;
+  
+  if (toggleSidebar && !shortcutPattern.test(toggleSidebar)) {
+    shortcutError.value = t('settings.invalidShortcutFormat') + ': ' + t('settings.toggleSidebar');
+    return false;
+  }
+
+  if (newConversation && !shortcutPattern.test(newConversation)) {
+    shortcutError.value = t('settings.invalidShortcutFormat') + ': ' + t('settings.newConversation');
+    return false;
+  }
+
+  if (toggleSidebar && newConversation && toggleSidebar === newConversation) {
+    shortcutError.value = t('settings.shortcutConflict');
+    return false;
+  }
+
+  shortcutError.value = null;
+  return true;
 }
 
 async function exportSkills(): Promise<void> {

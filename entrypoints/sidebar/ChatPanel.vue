@@ -157,6 +157,13 @@ onMounted(async () => {
         });
         currentResponse.value = '';
       }
+    } else if (message.type === 'NEW_CONVERSATION') {
+      // Clear conversation when shortcut triggered
+      messages.value = [];
+      selectedSkill.value = null;
+      selectedSkillName.value = null;
+      errorMessage.value = null;
+      ElMessage.success(t('chat.conversationCleared') || '对话已清空');
     }
   });
 });

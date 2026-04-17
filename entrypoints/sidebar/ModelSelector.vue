@@ -110,7 +110,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { ElMessage } from 'element-plus/es/components/message/index';
+import { ElMessage } from 'element-plus/es';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

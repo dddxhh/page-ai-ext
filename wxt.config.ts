@@ -21,14 +21,14 @@ export default defineConfig({
         description: '切换侧边栏',
         suggested_key: {
           default: 'Ctrl+Shift+A',
-          mac: 'Cmd+Shift+A'
+          mac: 'Command+Shift+A'
         }
       },
       newConversation: {
         description: '新建对话',
         suggested_key: {
-          default: 'Ctrl+Shift+N',
-          mac: 'Cmd+Shift+N'
+          default: 'Ctrl+Shift+P',
+          mac: 'Command+Shift+P'
         }
       }
     }

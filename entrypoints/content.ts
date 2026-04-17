@@ -179,11 +179,33 @@ export default defineContentScript({
     async function handleExecuteScript(params: any): Promise<any> {
       const { script } = params;
 
+      // Security validation - prevent dangerous operations
+      const dangerousPatterns = [
+        /chrome\./i,             // Block chrome API access
+        /fetch\(/i,              // Block network requests
+        /XMLHttpRequest/i,       // Block XHR
+        /document\.cookie/i,     // Block cookie access
+        /localStorage/i,         // Block local storage
+        /sessionStorage/i,       // Block session storage
+        /window\.location/i,     // Block navigation
+        /eval\(/i,               // Block nested eval
+        /Function\(/i            // Block nested Function
+      ];
+
+      for (const pattern of dangerousPatterns) {
+        if (pattern.test(script)) {
+          throw new Error('脚本包含禁止的操作');
+        }
+      }
+
       try {
-        const result = eval(script);
+        // Use Function constructor instead of eval for better security
+        // Note: Still has security implications, but more controlled than eval
+        const fn = new Function('return ' + script);
+        const result = fn();
         return { result };
       } catch (error) {
-        throw new Error(`Script execution error: ${(error as Error).message}`);
+        throw new Error(`脚本执行错误: ${(error as Error).message}`);
       }
     }
 

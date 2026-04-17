@@ -133,8 +133,7 @@ onMounted(async () => {
         updateStreamingMessage(content);
       } else if (done) {
         isSending.value = false;
-        // Finalize message
-        finalizeMessage(currentResponse.value);
+        void finalizeMessage(currentResponse.value);
         currentResponse.value = '';
       }
     }
@@ -190,8 +189,7 @@ async function sendMessage(): Promise<void> {
   }
 }
 
-function finalizeMessage(content: string): void {
-  // Replace streaming message with final message
+async function finalizeMessage(content: string): Promise<void> {
   const index = messages.value.findIndex(m => m.id === 'streaming');
   if (index >= 0) {
     messages.value[index] = {
@@ -201,20 +199,21 @@ function finalizeMessage(content: string): void {
       timestamp: Date.now()
     };
   }
-  // Save conversation after finalizing
-  saveConversationToStorage();
+  await saveConversationToStorage();
 }
 
 async function saveConversationToStorage(): Promise<void> {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const existing = await storage.getConversation('current');
+    const createdAt = existing?.createdAt || Date.now();
     const conversation = {
       id: 'current',
       url: tab.url || '',
       title: tab.title || '',
       messages: messages.value,
       skillId: selectedSkill.value,
-      createdAt: Date.now(),
+      createdAt,
       updatedAt: Date.now()
     };
     await storage.saveConversation(conversation);
@@ -223,8 +222,15 @@ async function saveConversationToStorage(): Promise<void> {
   }
 }
 
-function clearConversation(): void {
+async function clearConversation(): Promise<void> {
   messages.value = [];
+  selectedSkill.value = null;
+  selectedSkillName.value = null;
+  try {
+    await storage.deleteConversation('current');
+  } catch (error) {
+    console.error('Failed to clear conversation from storage:', error);
+  }
 }
 
 async function applySkill(skillId: string): Promise<void> {

@@ -27,8 +27,8 @@ export default defineConfig({
       newConversation: {
         description: '新建对话',
         suggested_key: {
-          default: 'Ctrl+Shift+P',
-          mac: 'Command+Shift+P'
+          default: 'Ctrl+Shift+O',
+          mac: 'Command+Shift+O'
         }
       }
     }

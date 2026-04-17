@@ -47,7 +47,7 @@
               :placeholder="t('settings.shortcutPlaceholder')"
             />
             <el-text type="info" size="small" style="margin-top: 4px">
-              {{ t('settings.shortcutFormat') }}: Ctrl+Shift+N (Windows/Linux), Cmd+Shift+N (Mac)
+              {{ t('settings.shortcutFormat') }}: Ctrl+Shift+O (Windows/Linux), Command+Shift+O (Mac)
             </el-text>
           </el-form-item>
         </el-form>

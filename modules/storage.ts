@@ -48,8 +48,8 @@ export class Storage {
       models: [],
       currentModelId: '',
       shortcuts: {
-        toggleSidebar: 'Cmd+Shift+A',
-        newConversation: 'Cmd+Shift+N'
+        toggleSidebar: 'Ctrl+Shift+A',
+        newConversation: 'Ctrl+Shift+O'
       },
       theme: 'auto',
       language: 'zh-CN',

@@ -121,7 +121,18 @@ export default defineBackground(() => {
         }
       });
 
-      return { success: true };
+      return {
+        success: true,
+        conversation: {
+          id: 'current',
+          url: conversation.url,
+          title: conversation.title,
+          messages: conversation.messages,
+          skillId: skillId,
+          createdAt: conversation.createdAt,
+          updatedAt: Date.now()
+        }
+      };
     } catch (error) {
       console.error('Send message error:', error);
       return { success: false, error: (error as Error).message };

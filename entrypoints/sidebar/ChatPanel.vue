@@ -101,9 +101,26 @@ async function loadCurrentModelName(): Promise<void> {
   }
 }
 
+async function loadConversation(): Promise<void> {
+  try {
+    const conversation = await storage.getConversation('current');
+    if (conversation) {
+      messages.value = conversation.messages;
+      selectedSkill.value = conversation.skillId || null;
+      if (conversation.skillId) {
+        const skill = await skillManager.getSkill(conversation.skillId);
+        selectedSkillName.value = skill?.name || conversation.skillId;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load conversation:', error);
+  }
+}
+
 onMounted(async () => {
   console.log('ChatPanel mounted');
   await loadCurrentModelName();
+  await loadConversation();
 
   // Listen for message responses
   chrome.runtime.onMessage.addListener((message) => {
@@ -183,6 +200,26 @@ function finalizeMessage(content: string): void {
       content,
       timestamp: Date.now()
     };
+  }
+  // Save conversation after finalizing
+  saveConversationToStorage();
+}
+
+async function saveConversationToStorage(): Promise<void> {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const conversation = {
+      id: 'current',
+      url: tab.url || '',
+      title: tab.title || '',
+      messages: messages.value,
+      skillId: selectedSkill.value,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    await storage.saveConversation(conversation);
+  } catch (error) {
+    console.error('Failed to save conversation:', error);
   }
 }
 

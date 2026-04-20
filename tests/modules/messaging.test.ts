@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { Messaging } from '../../modules/messaging'
-import { MessageType } from '../../types'
 
 describe('Messaging Module', () => {
   let messaging: Messaging

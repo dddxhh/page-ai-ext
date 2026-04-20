@@ -67,7 +67,7 @@
   import { messaging } from '~/modules/messaging'
   import { storage } from '~/modules/storage'
   import { skillManager } from '~/modules/skill-manager'
-  import { Message, ModelConfig } from '~/types'
+  import { Message } from '~/types'
 
   const MessageList = defineAsyncComponent(() => import('./MessageList.vue'))
   const SkillSelector = defineAsyncComponent(() => import('./SkillSelector.vue'))
@@ -279,10 +279,6 @@
   function generateId(): string {
     return Math.random().toString(36).substring(2, 15)
   }
-
-  const emit = defineEmits<{
-    'toggle-settings': []
-  }>()
 </script>
 
 <style scoped>

@@ -40,9 +40,13 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
       'no-unused-vars': 'off',
       'vue/multi-word-component-names': 'off',
+      'vue/no-v-html': 'off',
       'prettier/prettier': 'error',
     },
   },

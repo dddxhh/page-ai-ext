@@ -1,5 +1,4 @@
 import { messaging } from '~/modules/messaging'
-import { ExtensionMessage } from '~/types'
 import { defineContentScript } from 'wxt/sandbox'
 
 export default defineContentScript({
@@ -9,7 +8,7 @@ export default defineContentScript({
     messaging.initialize()
 
     // Handle tool execution
-    messaging.onMessage('EXECUTE_TOOL', async (data, sender) => {
+    messaging.onMessage('EXECUTE_TOOL', async (data, _sender) => {
       const { tool, params } = data
 
       try {
@@ -49,7 +48,7 @@ export default defineContentScript({
     })
 
     // Handle page content request
-    messaging.onMessage('GET_PAGE_CONTENT', async (data, sender) => {
+    messaging.onMessage('GET_PAGE_CONTENT', async (data, _sender) => {
       const { format = 'text' } = data
 
       try {
@@ -227,7 +226,7 @@ export default defineContentScript({
     }
 
     async function handleTakeScreenshot(params: any): Promise<any> {
-      const { selector, format = 'png' } = params
+      const { format = 'png' } = params
 
       // Use chrome.tabs.captureVisibleTab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })

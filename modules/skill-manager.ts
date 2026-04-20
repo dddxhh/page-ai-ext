@@ -8,12 +8,11 @@ class SkillManager {
   async initialize(): Promise<void> {
     if (this.initialized) return
 
-    // Load built-in skills if not already loaded
     const existingSkills = await storage.getAllSkills()
-    const builtInIds = new Set(BUILT_IN_SKILLS.map((s) => s.id))
+    const existingIds = new Set(existingSkills.map((s) => s.id))
 
     for (const skill of BUILT_IN_SKILLS) {
-      if (!builtInIds.has(skill.id)) {
+      if (!existingIds.has(skill.id)) {
         await storage.saveSkill(skill)
       }
     }

@@ -18,14 +18,14 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { Message } from '~/types'
   import { marked } from 'marked'
+  import DOMPurify from 'dompurify'
 
   const { t } = useI18n()
 
-  const props = defineProps<{
+  defineProps<{
     messages: Message[]
   }>()
 
@@ -48,7 +48,8 @@
   }
 
   function renderedContent(content: string): string {
-    return marked(content)
+    const rawHtml = marked(content) as string
+    return DOMPurify.sanitize(rawHtml)
   }
 </script>
 

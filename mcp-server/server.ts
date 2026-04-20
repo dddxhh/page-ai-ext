@@ -1,5 +1,4 @@
 import { messaging } from '~/modules/messaging'
-import { ExtensionMessage } from '~/types'
 
 interface MCPTool {
   name: string

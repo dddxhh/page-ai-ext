@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ElMessage } from 'element-plus'
 import { storage } from '../../modules/storage'
 import { ModelConfig } from '../../types'
 
@@ -78,7 +77,7 @@ describe('ModelSelector Component Logic', () => {
       const config = await storage.getConfig()
       const updatedModels = [...config.models, newModel]
       await storage.updateConfig({ models: updatedModels })
-    } catch (error) {
+    } catch (_error) {
       errorThrown = true
     }
 

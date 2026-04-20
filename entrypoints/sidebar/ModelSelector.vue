@@ -90,7 +90,7 @@
 
   const { t } = useI18n()
   import { storage } from '~/modules/storage'
-  import { ModelConfig, Config } from '~/types'
+  import { ModelConfig } from '~/types'
   import AddModelDialog from './AddModelDialog.vue'
 
   const visible = defineModel<boolean>('visible', { default: false })
@@ -158,10 +158,6 @@
       parameters: {},
     },
   ]
-
-  const emit = defineEmits<{
-    close: []
-  }>()
 
   onMounted(async () => {
     const config = await storage.getConfig()

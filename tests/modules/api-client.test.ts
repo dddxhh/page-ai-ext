@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { APIClient } from '../../modules/api-client'
-import { ModelConfig, Message, ErrorType } from '../../types'
+import { ErrorType } from '../../types'
 import { mockModelConfig, mockMessage } from '../fixtures/data-fixtures'
 
 describe('API Client Module', () => {

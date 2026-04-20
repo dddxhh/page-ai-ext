@@ -3,7 +3,7 @@ import { storage } from '../modules/storage'
 import { apiClient } from '../modules/api-client'
 import { skillManager } from '../modules/skill-manager'
 import { mcpServer } from '../mcp-server/server'
-import { ExtensionMessage, Message, Conversation, ModelConfig } from '../types'
+import { Message } from '../types'
 import { defineBackground } from 'wxt/sandbox'
 
 export default defineBackground(() => {
@@ -20,7 +20,7 @@ export default defineBackground(() => {
   })
 
   // Handle message from sidebar
-  messaging.onMessage('SEND_MESSAGE', async (data, sender) => {
+  messaging.onMessage('SEND_MESSAGE', async (data, _sender) => {
     const { content, skillId, includePageContent = true } = data
 
     try {

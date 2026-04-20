@@ -149,7 +149,7 @@ function validateShortcuts(): boolean {
 
   const { toggleSidebar, newConversation } = config.value.shortcuts;
   
-  const shortcutPattern = /^(Ctrl|Cmd|Alt|Meta|Shift)\+([A-Za-z0-9]|\w+([A-Za-z0-9]))$/;
+  const shortcutPattern = /^(Ctrl|Command|Cmd|Alt|Meta|Shift)(\+(Ctrl|Command|Cmd|Alt|Meta|Shift))*\+([A-Za-z0-9])$/;
   
   if (toggleSidebar && !shortcutPattern.test(toggleSidebar)) {
     shortcutError.value = t('settings.invalidShortcutFormat') + ': ' + t('settings.toggleSidebar');

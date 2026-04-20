@@ -38,6 +38,10 @@ npm run format:check     # Prettier 检查格式
 - `entrypoints/background.ts` - Service worker，处理 AI 聊天、MCP 工具执行
 - `entrypoints/content.ts` - 内容脚本，页面操作
 - `entrypoints/sidebar/*.vue` - Vue UI 组件
+  - `ChatPanel.vue` - 聊天面板
+  - `SettingsPanel.vue` - 设置面板，包含技能管理
+  - `SkillSelector.vue` - 技能选择器
+  - `SkillEditorDialog.vue` - 技能编辑对话框（新增/编辑/复制）
 
 **配置文件：**
 

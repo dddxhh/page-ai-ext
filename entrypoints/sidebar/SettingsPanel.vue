@@ -271,6 +271,7 @@
           confirmButtonText: t('skill.delete'),
           cancelButtonText: t('skill.cancel'),
           type: 'warning',
+          customClass: 'skill-delete-confirm-dialog',
         }
       )
       await skillManager.deleteSkill(skill.id)

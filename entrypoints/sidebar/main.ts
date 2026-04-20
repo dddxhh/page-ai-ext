@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
 import 'element-plus/es/components/message/style/css'
+import 'element-plus/es/components/message-box/style/css'
+import './styles/global.css'
 import App from './App.vue'
 import { messages, defaultLocale } from './locales'
 

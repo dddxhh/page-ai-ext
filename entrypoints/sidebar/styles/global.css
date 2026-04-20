@@ -1,0 +1,22 @@
+.skill-delete-confirm-dialog {
+  max-width: 400px;
+}
+
+.skill-delete-confirm-dialog .el-message-box__content {
+  padding: 20px;
+}
+
+.skill-delete-confirm-dialog .el-message-box__message {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.skill-delete-confirm-dialog .el-button--primary {
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+}
+
+.skill-delete-confirm-dialog .el-button--primary:hover {
+  background-color: #f78989;
+  border-color: #f78989;
+}

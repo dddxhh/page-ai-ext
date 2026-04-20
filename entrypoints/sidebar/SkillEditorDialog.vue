@@ -145,12 +145,8 @@
   })
 
   const validateNameUnique = (rule: any, value: string, callback: any) => {
-    if (!value) {
-      callback(new Error(t('skill.nameRequired')))
-      return
-    }
-    if (value.length < 2) {
-      callback(new Error(t('skill.nameMinLength')))
+    if (!value || value.length < 2) {
+      callback()
       return
     }
     const existing = props.skills.find((s) => s.name === value && s.id !== formData.value.id)
@@ -170,7 +166,11 @@
   }
 
   const formRules: FormRules = {
-    name: [{ validator: validateNameUnique, trigger: 'blur' }],
+    name: [
+      { required: true, message: t('skill.nameRequired'), trigger: 'blur' },
+      { min: 2, message: t('skill.nameMinLength'), trigger: 'blur' },
+      { validator: validateNameUnique, trigger: 'blur' },
+    ],
     description: [
       { required: true, message: t('skill.descriptionRequired'), trigger: 'blur' },
       { min: 10, message: t('skill.descriptionMinLength'), trigger: 'blur' },

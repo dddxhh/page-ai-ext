@@ -21,7 +21,12 @@
           </div>
           <p class="skill-description">{{ skill.description }}</p>
           <div class="skill-tags">
-            <el-tag v-for="tag in skill.metadata.tags" :key="tag" size="small" type="info">
+            <el-tag
+              v-for="tag in Array.isArray(skill.metadata.tags) ? skill.metadata.tags : []"
+              :key="tag"
+              size="small"
+              type="info"
+            >
               {{ tag }}
             </el-tag>
           </div>

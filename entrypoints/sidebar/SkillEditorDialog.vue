@@ -244,6 +244,9 @@
       }
 
       formData.value.metadata.examples = formData.value.metadata.examples.filter((e) => e.trim())
+      if (!Array.isArray(formData.value.metadata.tags)) {
+        formData.value.metadata.tags = []
+      }
 
       await skillManager.saveSkill(formData.value)
       ElMessage.success(t('skill.saveSuccess'))

@@ -116,7 +116,10 @@
                   {{ skill.metadata.category }}
                 </el-tag>
                 <el-tag
-                  v-for="tag in skill.metadata.tags.slice(0, 3)"
+                  v-for="tag in (Array.isArray(skill.metadata.tags)
+                    ? skill.metadata.tags
+                    : []
+                  ).slice(0, 3)"
                   :key="tag"
                   size="small"
                   type="info"
@@ -236,9 +239,10 @@
         !searchQuery.value ||
         skill.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         skill.description.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        skill.metadata.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.value.toLowerCase())
-        )
+        (Array.isArray(skill.metadata.tags) &&
+          skill.metadata.tags.some((tag) =>
+            tag.toLowerCase().includes(searchQuery.value.toLowerCase())
+          ))
       const matchesCategory =
         !selectedCategory.value || skill.metadata.category === selectedCategory.value
       return matchesQuery && matchesCategory

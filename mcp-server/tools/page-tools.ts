@@ -1,4 +1,4 @@
-import { mcpServer } from '../server';
+import { mcpServer } from '../server'
 
 mcpServer.registerTool({
   name: 'get_page_content',
@@ -10,15 +10,15 @@ mcpServer.registerTool({
         type: 'string',
         enum: ['text', 'markdown', 'html', 'json'],
         description: 'Output format',
-        default: 'markdown'
+        default: 'markdown',
       },
       selector: {
         type: 'string',
-        description: 'CSS selector for a specific section (optional)'
-      }
-    }
-  }
-});
+        description: 'CSS selector for a specific section (optional)',
+      },
+    },
+  },
+})
 
 mcpServer.registerTool({
   name: 'get_page_structure',
@@ -29,16 +29,16 @@ mcpServer.registerTool({
       depth: {
         type: 'number',
         description: 'Depth of structure to return',
-        default: 3
+        default: 3,
       },
       includeText: {
         type: 'boolean',
         description: 'Include text content in structure',
-        default: false
-      }
-    }
-  }
-});
+        default: false,
+      },
+    },
+  },
+})
 
 mcpServer.registerTool({
   name: 'find_elements',
@@ -48,20 +48,20 @@ mcpServer.registerTool({
     properties: {
       text: {
         type: 'string',
-        description: 'Element text content (optional)'
+        description: 'Element text content (optional)',
       },
       tag: {
         type: 'string',
-        description: 'HTML tag name (optional)'
+        description: 'HTML tag name (optional)',
       },
       attribute: {
         type: 'string',
-        description: 'Attribute name (optional)'
+        description: 'Attribute name (optional)',
       },
       attributeValue: {
         type: 'string',
-        description: 'Attribute value (optional)'
-      }
-    }
-  }
-});
+        description: 'Attribute value (optional)',
+      },
+    },
+  },
+})

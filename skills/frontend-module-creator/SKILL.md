@@ -309,20 +309,14 @@ export const use{ModelName}Store = defineStore('{moduleName}', () => {
 ```vue
 <template>
   <div class="{module-name}-list">
-    <el-table :data="{modelNames}" :loading="loading">
+    <el-table :data="{ modelNames }" :loading="loading">
       <el-table-column prop="id" label="ID" width="80" />
       {{ tableColumns }}
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleView(row)">
-            查看
-          </el-button>
-          <el-button type="warning" size="small" @click="handleEdit(row)">
-            编辑
-          </el-button>
-          <el-button type="danger" size="small" @click="handleDelete(row)">
-            删除
-          </el-button>
+          <el-button type="primary" size="small" @click="handleView(row)"> 查看 </el-button>
+          <el-button type="warning" size="small" @click="handleEdit(row)"> 编辑 </el-button>
+          <el-button type="danger" size="small" @click="handleDelete(row)"> 删除 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -338,57 +332,57 @@ export const use{ModelName}Store = defineStore('{moduleName}', () => {
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { use{ModelName}Store } from '@/stores/{module-name}'
-import type { {ModelName} } from '@/types'
+  import { ref, onMounted } from 'vue'
+  import { use{ModelName}Store } from '@/stores/{module-name}'
+  import type { {ModelName} } from '@/types'
 
-const {modelName}Store = use{ModelName}Store()
+  const {modelName}Store = use{ModelName}Store()
 
-const {modelNames} = computed(() => {moduleName}Store.{modelNames})
-const loading = computed(() => {moduleName}Store.loading)
-const total = computed(() => {moduleName}Store.total)
-const page = computed({
-  get: () => {moduleName}Store.page,
-  set: (value) => {moduleName}Store.page = value
-})
-const pageSize = computed({
-  get: () => {moduleName}Store.pageSize,
-  set: (value) => {moduleName}Store.pageSize = value
-})
+  const {modelNames} = computed(() => {moduleName}Store.{modelNames})
+  const loading = computed(() => {moduleName}Store.loading)
+  const total = computed(() => {moduleName}Store.total)
+  const page = computed({
+    get: () => {moduleName}Store.page,
+    set: (value) => {moduleName}Store.page = value
+  })
+  const pageSize = computed({
+    get: () => {moduleName}Store.pageSize,
+    set: (value) => {moduleName}Store.pageSize = value
+  })
 
-onMounted(() => {
-  {moduleName}Store.fetch{ModelName}s()
-})
+  onMounted(() => {
+    {moduleName}Store.fetch{ModelName}s()
+  })
 
-function handleView(row: {ModelName}) {
-  // 查看详情
-}
-
-function handleEdit(row: {ModelName}) {
-  // 编辑
-}
-
-async function handleDelete(row: {ModelName}) {
-  try {
-    await {moduleName}Store.delete{ModelName}(row.id)
-  } catch (error) {
-    console.error('删除失败', error)
+  function handleView(row: {ModelName}) {
+    // 查看详情
   }
-}
 
-function handlePageChange(page: number) {
-  {moduleName}Store.fetch{ModelName}s()
-}
+  function handleEdit(row: {ModelName}) {
+    // 编辑
+  }
 
-function handleSizeChange(size: number) {
-  {moduleName}Store.fetch{ModelName}s()
-}
+  async function handleDelete(row: {ModelName}) {
+    try {
+      await {moduleName}Store.delete{ModelName}(row.id)
+    } catch (error) {
+      console.error('删除失败', error)
+    }
+  }
+
+  function handlePageChange(page: number) {
+    {moduleName}Store.fetch{ModelName}s()
+  }
+
+  function handleSizeChange(size: number) {
+    {moduleName}Store.fetch{ModelName}s()
+  }
 </script>
 
 <style scoped lang="scss">
-.{module-name}-list {
-  padding: 16px;
-}
+  .{module-name}-list {
+    padding: 16px;
+  }
 </style>
 ```
 
@@ -510,6 +504,7 @@ tests/
 ## 命名规范
 
 ### 模块命名
+
 - 模块名：kebab-case
 - 模型名：PascalCase
 - 复数形式：kebab-case + s
@@ -525,18 +520,23 @@ tests/
 ## 最佳实践
 
 ### 1. 模块化设计
+
 每个模块独立，职责单一。
 
 ### 2. 类型安全
+
 使用 TypeScript 定义所有类型。
 
 ### 3. 错误处理
+
 在 Store 中统一处理错误。
 
 ### 4. 加载状态
+
 为异步操作添加加载状态。
 
 ### 5. 测试覆盖
+
 为 API 和 Store 编写测试。
 
 ## 检查清单

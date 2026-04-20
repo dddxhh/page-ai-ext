@@ -1,0 +1,6 @@
+.output/
+.wxt/
+node_modules/
+coverage/
+auto-imports.d.ts
+components.d.ts

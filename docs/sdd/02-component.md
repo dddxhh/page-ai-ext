@@ -7,14 +7,17 @@
 ## 组件命名规范
 
 ### 文件命名
+
 - 使用 **PascalCase**
 - 示例：`UserCard.vue`, `OrderList.vue`, `ProductDetail.vue`
 
 ### 组件注册名
+
 - 使用 **kebab-case**
 - 示例：`user-card`, `order-list`, `product-detail`
 
 ### 组件内部命名
+
 - 使用 **PascalCase**
 - 示例：`UserCard`, `OrderList`, `ProductDetail`
 
@@ -28,115 +31,126 @@
 </template>
 
 <script setup lang="ts">
-// 1. Imports
-import { ref, computed, onMounted } from 'vue'
+  // 1. Imports
+  import { ref, computed, onMounted } from 'vue'
 
-// 2. Props 定义
-interface Props {
-  title: string
-  count?: number
-  disabled?: boolean
-}
-const props = withDefaults(defineProps<Props>(), {
-  count: 0,
-  disabled: false
-})
-
-// 3. Emits 定义
-interface Emits {
-  (e: 'update:modelValue', value: string): void
-  (e: 'submit', data: FormData): void
-}
-const emit = defineEmits<Emits>()
-
-// 4. 响应式数据
-const loading = ref(false)
-const error = ref<string | null>(null)
-
-// 5. 计算属性
-const displayTitle = computed(() => {
-  return props.title || 'Default Title'
-})
-
-// 6. 方法
-async function handleSubmit() {
-  loading.value = true
-  try {
-    // 处理逻辑
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    loading.value = false
+  // 2. Props 定义
+  interface Props {
+    title: string
+    count?: number
+    disabled?: boolean
   }
-}
+  const props = withDefaults(defineProps<Props>(), {
+    count: 0,
+    disabled: false,
+  })
 
-// 7. 生命周期
-onMounted(() => {
-  console.log('Component mounted')
-})
+  // 3. Emits 定义
+  interface Emits {
+    (e: 'update:modelValue', value: string): void
+    (e: 'submit', data: FormData): void
+  }
+  const emit = defineEmits<Emits>()
 
-// 8. 暴露给父组件的方法
-defineExpose({
-  handleSubmit
-})
+  // 4. 响应式数据
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  // 5. 计算属性
+  const displayTitle = computed(() => {
+    return props.title || 'Default Title'
+  })
+
+  // 6. 方法
+  async function handleSubmit() {
+    loading.value = true
+    try {
+      // 处理逻辑
+    } catch (err) {
+      error.value = err.message
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 7. 生命周期
+  onMounted(() => {
+    console.log('Component mounted')
+  })
+
+  // 8. 暴露给父组件的方法
+  defineExpose({
+    handleSubmit,
+  })
 </script>
 
 <style scoped lang="scss">
-// 组件样式
-.component {
-  // 样式
-}
+  // 组件样式
+  .component {
+    // 样式
+  }
 </style>
 ```
 
 ### 结构说明
 
 #### 1. Imports
+
 导入所有需要的依赖，按类型分组：
+
 - Vue 相关
 - 第三方库
 - 项目内部模块
 - 类型定义
 
 #### 2. Props 定义
+
 - 使用 TypeScript 接口定义 Props 类型
 - 使用 `withDefaults` 设置默认值
 - Props 应该是只读的，不要直接修改
 
 #### 3. Emits 定义
+
 - 使用 TypeScript 接口定义 Emits 类型
 - 事件名使用 kebab-case
 - 明确事件参数类型
 
 #### 4. 响应式数据
+
 - 使用 `ref` 或 `reactive` 定义响应式数据
 - 复杂对象使用 `reactive`
 - 简单值使用 `ref`
 
 #### 5. 计算属性
+
 - 使用 `computed` 定义计算属性
 - 计算属性应该是纯函数
 
 #### 6. 方法
+
 - 方法名使用 camelCase
 - 方法应该有明确的职责
 - 复杂逻辑拆分为多个方法
 
 #### 7. 生命周期
+
 - 按照生命周期顺序排列
 - 只在必要时使用生命周期钩子
 
 #### 8. 暴露方法
+
 - 使用 `defineExpose` 暴露需要被父组件调用的方法
 - 只暴露必要的方法
 
 ## Props 规范
 
 ### 命名规范
+
 - 使用 **camelCase**
 - 示例：`userName`, `isLoading`, `userList`
 
 ### 类型定义
+
 ```typescript
 interface Props {
   // 基本类型
@@ -163,16 +177,18 @@ interface Props {
 ```
 
 ### 默认值
+
 ```typescript
 const props = withDefaults(defineProps<Props>(), {
   title: 'Default Title',
   count: 0,
   active: false,
-  data: () => []
+  data: () => [],
 })
 ```
 
 ### Props 验证
+
 ```typescript
 interface Props {
   email: string
@@ -194,10 +210,12 @@ if (props.age < 0 || props.age > 150) {
 ## Emits 规范
 
 ### 命名规范
+
 - 使用 **kebab-case**
 - 示例：`update:modelValue`, `item-click`, `form-submit`
 
 ### 类型定义
+
 ```typescript
 interface Emits {
   // 无参数事件
@@ -217,6 +235,7 @@ const emit = defineEmits<Emits>()
 ```
 
 ### 事件触发
+
 ```typescript
 // 触发事件
 emit('close')
@@ -228,10 +247,12 @@ emit('submit', { id: '1', value: data })
 ## Slots 规范
 
 ### 命名规范
+
 - 使用 **kebab-case**
 - 示例：`header`, `footer`, `item`
 
 ### 默认 Slot
+
 ```vue
 <template>
   <div class="component">
@@ -241,6 +262,7 @@ emit('submit', { id: '1', value: data })
 ```
 
 ### 命名 Slot
+
 ```vue
 <template>
   <div class="component">
@@ -258,6 +280,7 @@ emit('submit', { id: '1', value: data })
 ```
 
 ### 作用域 Slot
+
 ```vue
 <template>
   <div class="list">
@@ -271,35 +294,34 @@ emit('submit', { id: '1', value: data })
 ## 组件通信模式
 
 ### 1. Props Down, Events Up
+
 ```vue
 <!-- 父组件 -->
 <template>
-  <ChildComponent
-    :value="parentValue"
-    @update:value="handleUpdate"
-  />
+  <ChildComponent :value="parentValue" @update:value="handleUpdate" />
 </template>
 
 <!-- 子组件 -->
 <script setup lang="ts">
-interface Props {
-  value: string
-}
+  interface Props {
+    value: string
+  }
 
-interface Emits {
-  (e: 'update:value', value: string): void
-}
+  interface Emits {
+    (e: 'update:value', value: string): void
+  }
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+  const props = defineProps<Props>()
+  const emit = defineEmits<Emits>()
 
-function handleChange(newValue: string) {
-  emit('update:value', newValue)
-}
+  function handleChange(newValue: string) {
+    emit('update:value', newValue)
+  }
 </script>
 ```
 
 ### 2. v-model
+
 ```vue
 <!-- 父组件 -->
 <template>
@@ -308,24 +330,25 @@ function handleChange(newValue: string) {
 
 <!-- 子组件 -->
 <script setup lang="ts">
-interface Props {
-  modelValue: string
-}
+  interface Props {
+    modelValue: string
+  }
 
-interface Emits {
-  (e: 'update:modelValue', value: string): void
-}
+  interface Emits {
+    (e: 'update:modelValue', value: string): void
+  }
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+  const props = defineProps<Props>()
+  const emit = defineEmits<Emits>()
 
-function handleChange(newValue: string) {
-  emit('update:modelValue', newValue)
-}
+  function handleChange(newValue: string) {
+    emit('update:modelValue', newValue)
+  }
 </script>
 ```
 
 ### 3. Provide/Inject
+
 ```typescript
 // 父组件
 import { provide } from 'vue'
@@ -339,6 +362,7 @@ const theme = inject<string>('theme', 'light')
 ```
 
 ### 4. Ref 暴露
+
 ```vue
 <!-- 父组件 -->
 <template>
@@ -346,44 +370,49 @@ const theme = inject<string>('theme', 'light')
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+  import { ref } from 'vue'
 
-const childRef = ref<InstanceType<typeof ChildComponent>>()
+  const childRef = ref<InstanceType<typeof ChildComponent>>()
 
-function callChildMethod() {
-  childRef.value?.exposedMethod()
-}
+  function callChildMethod() {
+    childRef.value?.exposedMethod()
+  }
 </script>
 
 <!-- 子组件 -->
 <script setup lang="ts">
-function exposedMethod() {
-  // 方法实现
-}
+  function exposedMethod() {
+    // 方法实现
+  }
 
-defineExpose({
-  exposedMethod
-})
+  defineExpose({
+    exposedMethod,
+  })
 </script>
 ```
 
 ## 组件复用原则
 
 ### 1. 单一职责
+
 每个组件只负责一个功能。
 
 ### 2. 组合优于继承
+
 使用组合式函数复用逻辑。
 
 ### 3. Props 配置化
+
 通过 Props 控制组件行为，而不是硬编码。
 
 ### 4. Slot 灵活性
+
 使用 Slot 提供扩展点。
 
 ## 性能优化
 
 ### 1. 使用 v-memo
+
 ```vue
 <template>
   <div v-for="item in list" :key="item.id" v-memo="[item.id, item.active]">
@@ -393,6 +422,7 @@ defineExpose({
 ```
 
 ### 2. 使用 v-once
+
 ```vue
 <template>
   <div v-once>
@@ -402,6 +432,7 @@ defineExpose({
 ```
 
 ### 3. 计算属性缓存
+
 ```typescript
 const expensiveValue = computed(() => {
   // 只在依赖变化时重新计算
@@ -410,15 +441,17 @@ const expensiveValue = computed(() => {
 ```
 
 ### 4. 避免不必要的响应式
+
 ```typescript
 // 不需要响应式的数据
 const staticConfig = {
   apiUrl: 'https://api.example.com',
-  timeout: 5000
+  timeout: 5000,
 }
 ```
 
 ### 5. 使用 shallowRef/shallowReactive
+
 ```typescript
 // 大型对象使用浅层响应式
 const largeData = shallowRef<LargeDataType>({})
@@ -427,6 +460,7 @@ const largeData = shallowRef<LargeDataType>({})
 ## 组件生命周期
 
 ### 常用生命周期
+
 ```typescript
 import { onMounted, onUpdated, onUnmounted } from 'vue'
 
@@ -444,6 +478,7 @@ onUnmounted(() => {
 ```
 
 ### 清理资源
+
 ```typescript
 onUnmounted(() => {
   // 清理定时器
@@ -460,6 +495,7 @@ onUnmounted(() => {
 ## 组件测试
 
 ### 测试结构
+
 ```typescript
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -469,8 +505,8 @@ describe('MyComponent', () => {
   it('renders correctly', () => {
     const wrapper = mount(MyComponent, {
       props: {
-        title: 'Test Title'
-      }
+        title: 'Test Title',
+      },
     })
 
     expect(wrapper.text()).toContain('Test Title')
@@ -489,7 +525,8 @@ describe('MyComponent', () => {
 ## 组件文档
 
 ### JSDoc 注释
-```typescript
+
+````typescript
 /**
  * 用户卡片组件
  *
@@ -503,9 +540,10 @@ describe('MyComponent', () => {
  * />
  * ```
  */
-```
+````
 
 ### Props 文档
+
 ```typescript
 /**
  * 用户数据
@@ -522,21 +560,27 @@ user: {
 ## 最佳实践
 
 ### 1. 组件拆分
+
 将大型组件拆分为多个小组件。
 
 ### 2. 逻辑复用
+
 使用组合式函数复用逻辑。
 
 ### 3. 类型安全
+
 始终使用 TypeScript 类型定义。
 
 ### 4. 错误处理
+
 添加适当的错误处理和边界检查。
 
 ### 5. 可访问性
+
 遵循 WCAG 可访问性标准。
 
 ### 6. 性能监控
+
 使用 Vue DevTools 监控组件性能。
 
 ## 检查清单
@@ -570,73 +614,73 @@ user: {
 </template>
 
 <script setup lang="ts">
-import type { User } from '@/types'
+  import type { User } from '@/types'
 
-interface Props {
-  user: User
-  clickable?: boolean
-}
-
-interface Emits {
-  (e: 'click', user: User): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  clickable: false
-})
-
-const emit = defineEmits<Emits>()
-
-function handleClick() {
-  if (props.clickable) {
-    emit('click', props.user)
+  interface Props {
+    user: User
+    clickable?: boolean
   }
-}
+
+  interface Emits {
+    (e: 'click', user: User): void
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    clickable: false,
+  })
+
+  const emit = defineEmits<Emits>()
+
+  function handleClick() {
+    if (props.clickable) {
+      emit('click', props.user)
+    }
+  }
 </script>
 
 <style scoped lang="scss">
-.user-card {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
+  .user-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
 
-  &:hover {
-    background: #f5f5f5;
-  }
+    &:hover {
+      background: #f5f5f5;
+    }
 
-  &__avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: 12px;
+    &__avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 12px;
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    &__info {
+      flex: 1;
+    }
+
+    &__name {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    &__email {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
     }
   }
-
-  &__info {
-    flex: 1;
-  }
-
-  &__name {
-    margin: 0 0 4px 0;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  &__email {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
-  }
-}
 </style>
 ```
 

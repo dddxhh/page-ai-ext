@@ -37,6 +37,7 @@ description: Vue 3 + TypeScript 文档生成技能。从组件、API、Store 自
 ### 步骤 1: 识别目标类型
 
 根据文件路径识别目标类型：
+
 - Vue 组件 → 组件文档
 - API 模块 → API 文档
 - Store 模块 → Store 文档
@@ -45,6 +46,7 @@ description: Vue 3 + TypeScript 文档生成技能。从组件、API、Store 自
 ### 步骤 2: 解析源代码
 
 解析源代码，提取：
+
 - Props 定义
 - Events 定义
 - Slots 定义
@@ -64,7 +66,7 @@ description: Vue 3 + TypeScript 文档生成技能。从组件、API、Store 自
 
 ### 组件文档模板
 
-```markdown
+````markdown
 # {{ ComponentName }} 组件
 
 {{ description }}
@@ -72,19 +74,19 @@ description: Vue 3 + TypeScript 文档生成技能。从组件、API、Store 自
 ## 基本用法
 
 ```vue
-<template>
-  <{{ componentNameKebab }} {{ basicUsageProps }} />
-</template>
+<template><{{ componentNameKebab }} {{ basicUsageProps }} /></template>
 
 <script setup lang="ts">
-import {{ ComponentName }} from '@/components/{{ type }}/{{ ComponentName }}.vue'
+  import {{ ComponentName }} from '@/components/{{ type }}/{{ ComponentName }}.vue'
 </script>
 ```
+````
 
 ## Props
 
 | 属性名 | 类型 | 默认值 | 必填 | 说明 |
-|--------|------|--------|------|------|
+| ------ | ---- | ------ | ---- | ---- |
+
 {{ propsTable }}
 
 ### Props 示例
@@ -98,7 +100,8 @@ const props = {
 ## Events
 
 | 事件名 | 参数 | 说明 |
-|--------|------|------|
+| ------ | ---- | ---- |
+
 {{ eventsTable }}
 
 ### Events 示例
@@ -106,21 +109,22 @@ const props = {
 ```vue
 <template>
   <{{ componentNameKebab }}
-    {{ eventsUsage }}
+  {{ eventsUsage }}
   />
 </template>
 
 <script setup lang="ts">
-function {{ eventHandlerName }}({{ eventParams }}) {
-  // 处理事件
-}
+  function {{ eventHandlerName }}({{ eventParams }}) {
+    // 处理事件
+  }
 </script>
 ```
 
 ## Slots
 
 | 插槽名 | 说明 | 作用域 |
-|--------|------|--------|
+| ------ | ---- | ------ |
+
 {{ slotsTable }}
 
 ### Slots 示例
@@ -136,7 +140,8 @@ function {{ eventHandlerName }}({{ eventParams }}) {
 ## Methods
 
 | 方法名 | 参数 | 返回值 | 说明 |
-|--------|------|--------|------|
+| ------ | ---- | ------ | ---- |
+
 {{ methodsTable }}
 
 ### Methods 示例
@@ -177,7 +182,8 @@ function {{ eventHandler }}({{ eventParams }}) {
 ## 样式变量
 
 | 变量名 | 默认值 | 说明 |
-|--------|--------|------|
+| ------ | ------ | ---- |
+
 {{ styleVariablesTable }}
 
 ## 注意事项
@@ -192,7 +198,8 @@ function {{ eventHandler }}({{ eventParams }}) {
 
 - **v1.0.0** ({{ date }})
   - 初始版本
-```
+
+````
 
 ## API 文档生成
 
@@ -207,7 +214,7 @@ function {{ eventHandler }}({{ eventParams }}) {
 
 ```typescript
 import { {moduleName}Api } from '@/api/modules/{module-name}'
-```
+````
 
 ## 接口列表
 
@@ -220,7 +227,8 @@ import { {moduleName}Api } from '@/api/modules/{module-name}'
 **请求参数**:
 
 | 参数名 | 类型 | 必填 | 默认值 | 说明 |
-|--------|------|------|--------|------|
+| ------ | ---- | ---- | ------ | ---- |
+
 {{ listParamsTable }}
 
 **请求示例**:
@@ -264,9 +272,9 @@ interface PageResponse<{{ ModelName }}> {
 
 **请求参数**:
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| id | string | 是 | {{ modelName }} ID |
+| 参数名 | 类型   | 必填 | 说明               |
+| ------ | ------ | ---- | ------------------ |
+| id     | string | 是   | {{ modelName }} ID |
 
 **请求示例**:
 
@@ -317,10 +325,10 @@ const result = await {moduleName}Api.create(data)
 
 **请求参数**:
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| id | string | 是 | {{ modelName }} ID |
-| data | Update{{ ModelName }}Dto | 是 | 更新数据 |
+| 参数名 | 类型                     | 必填 | 说明               |
+| ------ | ------------------------ | ---- | ------------------ |
+| id     | string                   | 是   | {{ modelName }} ID |
+| data   | Update{{ ModelName }}Dto | 是   | 更新数据           |
 
 ```typescript
 interface Update{{ ModelName }}Dto {
@@ -346,9 +354,9 @@ const result = await {moduleName}Api.update('123', data)
 
 **请求参数**:
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| id | string | 是 | {{ modelName }} ID |
+| 参数名 | 类型   | 必填 | 说明               |
+| ------ | ------ | ---- | ------------------ |
+| id     | string | 是   | {{ modelName }} ID |
 
 **请求示例**:
 
@@ -379,7 +387,8 @@ await {moduleName}Api.batchDelete(['123', '456'])
 ## 错误码
 
 | 错误码 | 说明 |
-|--------|------|
+| ------ | ---- |
+
 {{ errorCodesTable }}
 
 ## 使用示例
@@ -437,7 +446,8 @@ async function create{{ ModelName }}() {
 ## 注意事项
 
 {{ apiNotes }}
-```
+
+````
 
 ## Store 文档生成
 
@@ -454,24 +464,27 @@ async function create{{ ModelName }}() {
 import { use{{ ModelName }}Store } from '@/stores/{{ module-name }}'
 
 const {{ modelName }}Store = use{{ ModelName }}Store()
-```
+````
 
 ## State
 
 | 状态名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
+| ------ | ---- | ------ | ---- |
+
 {{ stateTable }}
 
 ## Getters
 
 | 计算属性名 | 类型 | 说明 |
-|------------|------|------|
+| ---------- | ---- | ---- |
+
 {{ gettersTable }}
 
 ## Actions
 
 | 方法名 | 参数 | 返回值 | 说明 |
-|--------|------|--------|------|
+| ------ | ---- | ------ | ---- |
+
 {{ actionsTable }}
 
 ## 使用示例
@@ -558,16 +571,16 @@ try {
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { use{{ ModelName }}Store } from '@/stores/{{ module-name }}'
+  import { onMounted } from 'vue'
+  import { use{{ ModelName }}Store } from '@/stores/{{ module-name }}'
 
-const {{ modelName }}Store = use{{ ModelName }}Store()
+  const {{ modelName }}Store = use{{ ModelName }}Store()
 
-const { {{ modelNames }}, loading, error } = storeToRefs({{ modelName }}Store)
+  const { {{ modelNames }}, loading, error } = storeToRefs({{ modelName }}Store)
 
-onMounted(async () => {
-  await {{ modelName }}Store.fetch{{ ModelName }}s()
-})
+  onMounted(async () => {
+    await {{ modelName }}Store.fetch{{ ModelName }}s()
+  })
 </script>
 ```
 
@@ -587,7 +600,8 @@ onMounted(async () => {
 ## 注意事项
 
 {{ storeNotes }}
-```
+
+````
 
 ## 类型文档生成
 
@@ -602,12 +616,13 @@ onMounted(async () => {
 
 ```typescript
 {{ typeDefinition }}
-```
+````
 
 ## 属性说明
 
 | 属性名 | 类型 | 必填 | 默认值 | 说明 |
-|--------|------|------|--------|------|
+| ------ | ---- | ---- | ------ | ---- |
+
 {{ propertiesTable }}
 
 ## 使用示例
@@ -632,19 +647,20 @@ function processData(data: {{ TypeName }}) {
 
 ```vue
 <script setup lang="ts">
-import type { {{ TypeName }} } from '@/types'
+  import type { {{ TypeName }} } from '@/types'
 
-interface Props {
-  data: {{ TypeName }}
-}
+  interface Props {
+    data: {{ TypeName }}
+  }
 
-const props = defineProps<Props>()
+  const props = defineProps<Props>()
 </script>
 ```
 
 ## 相关类型
 
 {{ relatedTypes }}
+
 ```
 
 ## 文档生成规则
@@ -670,25 +686,33 @@ const props = defineProps<Props>()
 ### 组件文档
 
 ```
+
 docs/components/{{ type }}/{{ ComponentName }}.md
+
 ```
 
 ### API 文档
 
 ```
+
 docs/api/{{ module-name }}.md
+
 ```
 
 ### Store 文档
 
 ```
+
 docs/stores/{{ module-name }}.md
+
 ```
 
 ### 类型文档
 
 ```
+
 docs/types/{{ type-name }}.md
+
 ```
 
 ## 最佳实践
@@ -725,3 +749,4 @@ docs/types/{{ type-name }}.md
 - [Vue 3 文档](https://vuejs.org/)
 - [TypeScript 文档](https://www.typescriptlang.org/)
 - [Pinia 文档](https://pinia.vuejs.org/)
+```

@@ -35,6 +35,7 @@ description: Vue 3 + TypeScript 代码审查技能。检查代码是否符合项
 ### 步骤 1: 识别文件类型
 
 根据文件扩展名识别文件类型：
+
 - `.vue` - Vue 组件
 - `.ts` - TypeScript 文件
 - `.scss` / `.css` - 样式文件
@@ -46,6 +47,7 @@ description: Vue 3 + TypeScript 代码审查技能。检查代码是否符合项
 ### 步骤 3: 生成审查报告
 
 生成结构化的审查报告，包含：
+
 - 检查项
 - 问题列表
 - 修复建议
@@ -62,10 +64,12 @@ description: Vue 3 + TypeScript 代码审查技能。检查代码是否符合项
 #### 1. 组件命名规范
 
 **规则**：
+
 - 文件名必须使用 PascalCase
 - 组件内部名称必须使用 PascalCase
 
 **检查代码**：
+
 ```typescript
 function checkComponentNaming(filePath: string): ReviewResult {
   const fileName = path.basename(filePath, '.vue')
@@ -75,7 +79,7 @@ function checkComponentNaming(filePath: string): ReviewResult {
       rule: 'component-naming',
       severity: 'error',
       message: `组件文件名必须使用 PascalCase，当前为：${fileName}`,
-      suggestion: `重命名为 ${toPascalCase(fileName)}`
+      suggestion: `重命名为 ${toPascalCase(fileName)}`,
     }
   }
 
@@ -86,10 +90,12 @@ function checkComponentNaming(filePath: string): ReviewResult {
 #### 2. Props 类型定义
 
 **规则**：
+
 - Props 必须使用 TypeScript 接口定义
 - Props 必须有默认值（如果适用）
 
 **检查代码**：
+
 ```typescript
 function checkPropsDefinition(content: string): ReviewResult {
   // 检查是否使用 defineProps
@@ -98,7 +104,7 @@ function checkPropsDefinition(content: string): ReviewResult {
       rule: 'props-definition',
       severity: 'error',
       message: '组件必须使用 defineProps 定义 Props',
-      suggestion: '添加 Props 定义'
+      suggestion: '添加 Props 定义',
     }
   }
 
@@ -108,7 +114,7 @@ function checkPropsDefinition(content: string): ReviewResult {
       rule: 'props-type',
       severity: 'warning',
       message: 'Props 应该使用 TypeScript 接口定义',
-      suggestion: '添加 Props 接口定义'
+      suggestion: '添加 Props 接口定义',
     }
   }
 
@@ -119,10 +125,12 @@ function checkPropsDefinition(content: string): ReviewResult {
 #### 3. Emits 类型定义
 
 **规则**：
+
 - Emits 必须使用 TypeScript 接口定义
 - 事件名必须使用 kebab-case
 
 **检查代码**：
+
 ```typescript
 function checkEmitsDefinition(content: string): ReviewResult {
   if (!content.includes('defineEmits')) {
@@ -130,7 +138,7 @@ function checkEmitsDefinition(content: string): ReviewResult {
       rule: 'emits-definition',
       severity: 'warning',
       message: '组件应该使用 defineEmits 定义 Emits',
-      suggestion: '添加 Emits 定义'
+      suggestion: '添加 Emits 定义',
     }
   }
 
@@ -139,7 +147,7 @@ function checkEmitsDefinition(content: string): ReviewResult {
       rule: 'emits-type',
       severity: 'warning',
       message: 'Emits 应该使用 TypeScript 接口定义',
-      suggestion: '添加 Emits 接口定义'
+      suggestion: '添加 Emits 接口定义',
     }
   }
 
@@ -150,11 +158,13 @@ function checkEmitsDefinition(content: string): ReviewResult {
 #### 4. 组件结构规范
 
 **规则**：
+
 - 组件必须包含 template、script、style 三个部分
 - script 必须使用 setup 语法
 - script 必须使用 TypeScript
 
 **检查代码**：
+
 ```typescript
 function checkComponentStructure(content: string): ReviewResult {
   if (!content.includes('<template>')) {
@@ -191,9 +201,11 @@ function checkComponentStructure(content: string): ReviewResult {
 #### 5. 样式隔离
 
 **规则**：
+
 - 组件样式必须使用 scoped
 
 **检查代码**：
+
 ```typescript
 function checkScopedStyle(content: string): ReviewResult {
   const styleMatch = content.match(/<style[^>]*>/g)
@@ -205,7 +217,7 @@ function checkScopedStyle(content: string): ReviewResult {
           rule: 'scoped-style',
           severity: 'warning',
           message: '组件样式应该使用 scoped',
-          suggestion: '在 style 标签上添加 scoped 属性'
+          suggestion: '在 style 标签上添加 scoped 属性',
         }
       }
     }
@@ -220,10 +232,12 @@ function checkScopedStyle(content: string): ReviewResult {
 #### 1. 类型定义
 
 **规则**：
+
 - 函数必须有返回类型
 - 参数必须有类型定义
 
 **检查代码**：
+
 ```typescript
 function checkTypeDefinition(content: string): ReviewResult {
   // 检查函数是否有返回类型
@@ -237,7 +251,7 @@ function checkTypeDefinition(content: string): ReviewResult {
         rule: 'function-return-type',
         severity: 'warning',
         message: `函数 ${funcName} 应该有返回类型`,
-        suggestion: '添加函数返回类型'
+        suggestion: '添加函数返回类型',
       }
     }
 
@@ -247,7 +261,7 @@ function checkTypeDefinition(content: string): ReviewResult {
         rule: 'parameter-type',
         severity: 'warning',
         message: `函数 ${funcName} 的参数应该有类型定义`,
-        suggestion: '添加参数类型'
+        suggestion: '添加参数类型',
       }
     }
   }
@@ -259,9 +273,11 @@ function checkTypeDefinition(content: string): ReviewResult {
 #### 2. 避免使用 any
 
 **规则**：
+
 - 避免使用 any 类型
 
 **检查代码**：
+
 ```typescript
 function checkAnyUsage(content: string): ReviewResult {
   const anyMatches = content.matchAll(/:\s*any/g)
@@ -272,7 +288,7 @@ function checkAnyUsage(content: string): ReviewResult {
       rule: 'avoid-any',
       severity: 'warning',
       message: `发现 ${matches.length} 处使用 any 类型`,
-      suggestion: '使用具体的类型替代 any'
+      suggestion: '使用具体的类型替代 any',
     }
   }
 
@@ -285,9 +301,11 @@ function checkAnyUsage(content: string): ReviewResult {
 #### 1. BEM 命名规范
 
 **规则**：
+
 - CSS 类名应该遵循 BEM 命名规范
 
 **检查代码**：
+
 ```typescript
 function checkBEMNaming(content: string): ReviewResult {
   const classMatches = content.matchAll(/\.([a-z][a-z0-9_-]*)/g)
@@ -300,7 +318,7 @@ function checkBEMNaming(content: string): ReviewResult {
         rule: 'bem-naming',
         severity: 'warning',
         message: `类名 ${className} 不符合 BEM 命名规范`,
-        suggestion: '使用 BEM 命名规范：.block__element--modifier'
+        suggestion: '使用 BEM 命名规范：.block__element--modifier',
       }
     }
   }
@@ -312,9 +330,11 @@ function checkBEMNaming(content: string): ReviewResult {
 #### 2. 使用 CSS 变量
 
 **规则**：
+
 - 优先使用 CSS 变量而非硬编码值
 
 **检查代码**：
+
 ```typescript
 function checkCSSVariables(content: string): ReviewResult {
   // 检查硬编码的颜色值
@@ -326,7 +346,7 @@ function checkCSSVariables(content: string): ReviewResult {
       rule: 'css-variables',
       severity: 'info',
       message: `发现 ${matches.length} 处硬编码的颜色值`,
-      suggestion: '使用 CSS 变量替代硬编码值'
+      suggestion: '使用 CSS 变量替代硬编码值',
     }
   }
 
@@ -338,7 +358,7 @@ function checkCSSVariables(content: string): ReviewResult {
 
 ### 报告格式
 
-```markdown
+````markdown
 ## 🤖 代码审查报告
 
 **文件**: `src/components/UserCard.vue`
@@ -360,22 +380,27 @@ function checkCSSVariables(content: string): ReviewResult {
 ### 🔍 详细检查
 
 #### 1. 组件命名规范 <✅>
+
 - 文件名: UserCard.vue
 - 组件名: UserCard
 - 状态: 符合规范
 
 #### 2. Props 类型定义 <⚠️>
+
 - 状态: 部分符合
 - 问题: Props 缺少默认值
 - 建议: 为 Props 添加默认值
 
 #### 3. Emits 类型定义 <✅>
+
 - 状态: 符合规范
 
 #### 4. 组件结构规范 <✅>
+
 - 状态: 符合规范
 
 #### 5. 样式隔离 <⚠️>
+
 - 状态: 部分符合
 - 问题: 部分样式未使用 scoped
 - 建议: 为所有样式添加 scoped
@@ -387,14 +412,15 @@ function checkCSSVariables(content: string): ReviewResult {
 1. **Props 默认值**:
    ```typescript
    const props = withDefaults(defineProps<Props>(), {
-     disabled: false
+     disabled: false,
    })
    ```
+````
 
 2. **Scoped 样式**:
    ```vue
    <style scoped lang="scss">
-   // 样式
+     // 样式
    </style>
    ```
 
@@ -409,7 +435,8 @@ function checkCSSVariables(content: string): ReviewResult {
 ---
 
 **总体评价**: 组件整体质量良好，建议添加 Props 默认值和确保样式隔离。
-```
+
+````
 
 ## 自动化修复
 
@@ -434,7 +461,7 @@ async function autoFix(filePath: string, issues: ReviewIssue[]): Promise<void> {
 
   await writeFile(filePath, content, 'utf-8')
 }
-```
+````
 
 ## 检查清单
 

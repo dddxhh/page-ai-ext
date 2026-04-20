@@ -2,7 +2,7 @@ export default {
   app: {
     title: 'AI Assistant',
     chat: 'Chat',
-    settings: 'Settings'
+    settings: 'Settings',
   },
   chat: {
     conversation: 'Conversation',
@@ -12,7 +12,7 @@ export default {
     noMessages: 'No messages yet. Start a conversation!',
     typeMessage: 'Type your message...',
     send: 'Send',
-    conversationCleared: 'Conversation cleared'
+    conversationCleared: 'Conversation cleared',
   },
   settings: {
     title: 'Settings',
@@ -45,7 +45,7 @@ export default {
     invalidShortcutFormat: 'Invalid shortcut format',
     shortcutPlaceholder: 'e.g., Ctrl+Shift+A',
     shortcutFormat: 'Format: Ctrl+Shift+A (Windows/Linux), Cmd+Shift+A (Mac)',
-    shortcutConflict: 'Shortcut conflict'
+    shortcutConflict: 'Shortcut conflict',
   },
   model: {
     selectModel: 'Select Model',
@@ -73,24 +73,25 @@ export default {
     editKey: 'Edit',
     enterApiKey: 'Enter API Key',
     save: 'Save',
-    apiKeySaved: 'API Key saved successfully'
+    apiKeySaved: 'API Key saved successfully',
   },
   skill: {
     selectSkill: 'Select Skill',
     searchSkills: 'Search skills...',
     examples: 'Examples',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
   },
   message: {
     you: 'You',
     ai: 'AI',
-    system: 'System'
+    system: 'System',
   },
   about: {
     title: 'AI Assistant Extension',
     version: 'Version',
     versionNumber: '1.0.0',
-    description: 'A Chrome extension that enables AI-powered page interaction using WebMCP protocol.',
-    builtWith: 'Built with WXT, Vue 3, TypeScript, and Element Plus.'
-  }
+    description:
+      'A Chrome extension that enables AI-powered page interaction using WebMCP protocol.',
+    builtWith: 'Built with WXT, Vue 3, TypeScript, and Element Plus.',
+  },
 }

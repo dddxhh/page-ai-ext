@@ -2,7 +2,7 @@ export default {
   app: {
     title: 'AI 助手',
     chat: '聊天',
-    settings: '设置'
+    settings: '设置',
   },
   chat: {
     conversation: '对话',
@@ -12,7 +12,7 @@ export default {
     noMessages: '暂无消息，开始对话吧！',
     typeMessage: '输入消息...',
     send: '发送',
-    conversationCleared: '对话已清空'
+    conversationCleared: '对话已清空',
   },
   settings: {
     title: '设置',
@@ -45,7 +45,7 @@ export default {
     invalidShortcutFormat: '快捷键格式无效',
     shortcutPlaceholder: '例如：Ctrl+Shift+A',
     shortcutFormat: '格式：Ctrl+Shift+A (Windows/Linux), Cmd+Shift+A (Mac)',
-    shortcutConflict: '快捷键冲突'
+    shortcutConflict: '快捷键冲突',
   },
   model: {
     selectModel: '选择模型',
@@ -73,24 +73,24 @@ export default {
     editKey: '修改',
     enterApiKey: '输入 API Key',
     save: '保存',
-    apiKeySaved: 'API Key 已保存'
+    apiKeySaved: 'API Key 已保存',
   },
   skill: {
     selectSkill: '选择技能',
     searchSkills: '搜索技能...',
     examples: '示例',
-    cancel: '取消'
+    cancel: '取消',
   },
   message: {
     you: '你',
     ai: 'AI',
-    system: '系统'
+    system: '系统',
   },
   about: {
     title: 'AI 助手扩展',
     version: '版本',
     versionNumber: '1.0.0',
     description: '一个使用 WebMCP 协议实现 AI 页面交互的 Chrome 扩展。',
-    builtWith: '使用 WXT、Vue 3、TypeScript 和 Element Plus 构建。'
-  }
+    builtWith: '使用 WXT、Vue 3、TypeScript 和 Element Plus 构建。',
+  },
 }

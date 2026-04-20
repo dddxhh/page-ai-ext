@@ -52,6 +52,22 @@ A Chrome extension that enables users to interact with AI models on any webpage,
 - `npm run build` - Build for production
 - `npm run zip` - Create zip for distribution
 
+- `npm run test` - Vitest watch mode
+- `npm run test:run` - Run tests once
+- `npm run test:coverage` - Coverage report
+
+- `npm run lint` - ESLint check
+- `npm run lint:fix` - ESLint auto-fix
+- `npm run format` - Prettier format all files
+- `npm run format:check` - Prettier check
+
+### Code Quality
+
+Pre-commit hooks automatically run lint-staged:
+
+- ESLint + Prettier on `.js/.ts/.vue` files
+- Prettier on `.json/.css/.md` files
+
 ## License
 
 MIT

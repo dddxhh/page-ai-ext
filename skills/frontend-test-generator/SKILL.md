@@ -36,6 +36,7 @@ description: Vue 3 + TypeScript 测试生成技能。为组件、API、Store 自
 ### 步骤 1: 识别目标类型
 
 根据文件路径识别目标类型：
+
 - Vue 组件 → 组件测试
 - API 模块 → API 测试
 - Store 模块 → Store 测试
@@ -43,6 +44,7 @@ description: Vue 3 + TypeScript 测试生成技能。为组件、API、Store 自
 ### 步骤 2: 分析目标文件
 
 分析目标文件的结构：
+
 - Props 定义
 - Events 定义
 - Methods 定义
@@ -583,18 +585,23 @@ npm run test:coverage
 ## 最佳实践
 
 ### 1. 测试隔离
+
 每个测试应该独立运行，不依赖其他测试。
 
 ### 2. Mock 外部依赖
+
 使用 Mock 隔离外部依赖。
 
 ### 3. 测试边界情况
+
 测试正常情况和边界情况。
 
 ### 4. 使用描述性测试
+
 使用清晰的测试描述。
 
 ### 5. 测试异步操作
+
 正确测试异步操作。
 
 ## 检查清单

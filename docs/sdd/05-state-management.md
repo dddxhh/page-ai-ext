@@ -121,7 +121,7 @@ export const useUserStore = defineStore('user', () => {
     login,
     logout,
     updateUser,
-    initialize
+    initialize,
   }
 })
 ```
@@ -180,28 +180,36 @@ export default pinia
 
 ```typescript
 // stores/user.ts
-export const useUserStore = defineStore('user', () => {
-  // ... store 实现
-}, {
-  persist: {
-    key: 'user-store',
-    storage: localStorage,
-    paths: ['user', 'token'] // 只持久化指定的状态
+export const useUserStore = defineStore(
+  'user',
+  () => {
+    // ... store 实现
+  },
+  {
+    persist: {
+      key: 'user-store',
+      storage: localStorage,
+      paths: ['user', 'token'], // 只持久化指定的状态
+    },
   }
-})
+)
 ```
 
 ### Session Storage
 
 ```typescript
-export const useCartStore = defineStore('cart', () => {
-  // ... store 实现
-}, {
-  persist: {
-    key: 'cart-store',
-    storage: sessionStorage
+export const useCartStore = defineStore(
+  'cart',
+  () => {
+    // ... store 实现
+  },
+  {
+    persist: {
+      key: 'cart-store',
+      storage: sessionStorage,
+    },
   }
-})
+)
 ```
 
 ## Store 通信
@@ -226,13 +234,13 @@ export const useCartStore = defineStore('cart', () => {
     items.value.push({
       productId: product.id,
       userId: userStore.user!.id,
-      quantity: 1
+      quantity: 1,
     })
   }
 
   return {
     items,
-    addItem
+    addItem,
   }
 })
 ```
@@ -265,7 +273,7 @@ export const useProductStore = defineStore('product', () => {
     products,
     loading,
     error,
-    fetchProducts
+    fetchProducts,
   }
 })
 ```
@@ -286,7 +294,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const { list, total: totalCount } = await productApi.list({
         page: page.value,
-        pageSize: pageSize.value
+        pageSize: pageSize.value,
       })
 
       products.value = list
@@ -310,7 +318,7 @@ export const useProductStore = defineStore('product', () => {
     pageSize,
     loading,
     fetchProducts,
-    nextPage
+    nextPage,
   }
 })
 ```
@@ -336,7 +344,7 @@ export const useCartStore = defineStore('cart', () => {
   return {
     items,
     totalItems,
-    totalPrice
+    totalPrice,
   }
 })
 ```
@@ -356,35 +364,39 @@ const expensiveValue = computed(() => {
 
 ```typescript
 // stores/modules/settings.ts
-export const useSettingsStore = defineStore('settings', () => {
-  const theme = ref<'light' | 'dark'>('light')
-  const language = ref('zh-CN')
-  const notifications = ref(true)
+export const useSettingsStore = defineStore(
+  'settings',
+  () => {
+    const theme = ref<'light' | 'dark'>('light')
+    const language = ref('zh-CN')
+    const notifications = ref(true)
 
-  function setTheme(newTheme: 'light' | 'dark') {
-    theme.value = newTheme
-    document.documentElement.setAttribute('data-theme', newTheme)
-  }
+    function setTheme(newTheme: 'light' | 'dark') {
+      theme.value = newTheme
+      document.documentElement.setAttribute('data-theme', newTheme)
+    }
 
-  function setLanguage(newLanguage: string) {
-    language.value = newLanguage
-  }
+    function setLanguage(newLanguage: string) {
+      language.value = newLanguage
+    }
 
-  function toggleNotifications() {
-    notifications.value = !notifications.value
-  }
+    function toggleNotifications() {
+      notifications.value = !notifications.value
+    }
 
-  return {
-    theme,
-    language,
-    notifications,
-    setTheme,
-    setLanguage,
-    toggleNotifications
+    return {
+      theme,
+      language,
+      notifications,
+      setTheme,
+      setLanguage,
+      toggleNotifications,
+    }
+  },
+  {
+    persist: true,
   }
-}, {
-  persist: true
-})
+)
 ```
 
 ## Store 测试
@@ -417,7 +429,7 @@ describe('User Store', () => {
     const mockUser = {
       id: '1',
       name: 'John Doe',
-      email: 'john@example.com'
+      email: 'john@example.com',
     }
 
     vi.mocked(userApi.getCurrentUser).mockResolvedValue(mockUser)
@@ -430,9 +442,7 @@ describe('User Store', () => {
   })
 
   it('should handle fetch user error', async () => {
-    vi.mocked(userApi.getCurrentUser).mockRejectedValue(
-      new Error('Failed to fetch user')
-    )
+    vi.mocked(userApi.getCurrentUser).mockRejectedValue(new Error('Failed to fetch user'))
 
     const store = useUserStore()
 
@@ -448,29 +458,37 @@ describe('User Store', () => {
 ## 最佳实践
 
 ### 1. 保持 Store 简单
+
 每个 Store 只负责一个领域的状态。
 
 ### 2. 使用 TypeScript
+
 为 State、Getters、Actions 定义类型。
 
 ### 3. 避免深层嵌套
+
 保持状态结构扁平，便于管理。
 
 ### 4. 使用计算属性
+
 使用 computed 派生状态，避免重复计算。
 
 ### 5. 持久化关键状态
+
 只持久化必要的状态，避免存储过多数据。
 
 ### 6. 错误处理
+
 在异步操作中添加适当的错误处理。
 
 ### 7. 加载状态
+
 为异步操作添加加载状态，提升用户体验。
 
 ## 性能优化
 
 ### 1. 使用 shallowRef
+
 对于大型对象，使用 shallowRef 减少响应式开销。
 
 ```typescript
@@ -478,18 +496,21 @@ const largeData = shallowRef<LargeDataType>({})
 ```
 
 ### 2. 避免不必要的响应式
+
 对于不需要响应式的数据，使用普通变量。
 
 ```typescript
 const staticConfig = {
-  apiUrl: 'https://api.example.com'
+  apiUrl: 'https://api.example.com',
 }
 ```
 
 ### 3. 使用 computed 缓存
+
 使用 computed 缓存计算结果。
 
 ### 4. 批量更新
+
 对于多个状态更新，使用批量更新。
 
 ```typescript
@@ -520,58 +541,62 @@ function updateMultipleStates() {
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export const useAppStore = defineStore('app', () => {
-  // State
-  const sidebarCollapsed = ref(false)
-  const loading = ref(false)
-  const message = ref<string | null>(null)
+export const useAppStore = defineStore(
+  'app',
+  () => {
+    // State
+    const sidebarCollapsed = ref(false)
+    const loading = ref(false)
+    const message = ref<string | null>(null)
 
-  // Getters
-  const sidebarWidth = computed(() => {
-    return sidebarCollapsed.value ? '64px' : '256px'
-  })
+    // Getters
+    const sidebarWidth = computed(() => {
+      return sidebarCollapsed.value ? '64px' : '256px'
+    })
 
-  // Actions
-  function toggleSidebar() {
-    sidebarCollapsed.value = !sidebarCollapsed.value
-  }
+    // Actions
+    function toggleSidebar() {
+      sidebarCollapsed.value = !sidebarCollapsed.value
+    }
 
-  function setSidebarCollapsed(collapsed: boolean) {
-    sidebarCollapsed.value = collapsed
-  }
+    function setSidebarCollapsed(collapsed: boolean) {
+      sidebarCollapsed.value = collapsed
+    }
 
-  function showLoading() {
-    loading.value = true
-  }
+    function showLoading() {
+      loading.value = true
+    }
 
-  function hideLoading() {
-    loading.value = false
-  }
+    function hideLoading() {
+      loading.value = false
+    }
 
-  function showMessage(msg: string) {
-    message.value = msg
-    setTimeout(() => {
-      message.value = null
-    }, 3000)
-  }
+    function showMessage(msg: string) {
+      message.value = msg
+      setTimeout(() => {
+        message.value = null
+      }, 3000)
+    }
 
-  return {
-    sidebarCollapsed,
-    loading,
-    message,
-    sidebarWidth,
-    toggleSidebar,
-    setSidebarCollapsed,
-    showLoading,
-    hideLoading,
-    showMessage
+    return {
+      sidebarCollapsed,
+      loading,
+      message,
+      sidebarWidth,
+      toggleSidebar,
+      setSidebarCollapsed,
+      showLoading,
+      hideLoading,
+      showMessage,
+    }
+  },
+  {
+    persist: {
+      key: 'app-store',
+      paths: ['sidebarCollapsed'],
+    },
   }
-}, {
-  persist: {
-    key: 'app-store',
-    paths: ['sidebarCollapsed']
-  }
-})
+)
 ```
 
 ## 参考资源

@@ -84,45 +84,45 @@ tests/components/{type}/{ComponentName}.test.ts
 </template>
 
 <script setup lang="ts">
-// 1. Imports
-import { ref, computed } from 'vue'
+  // 1. Imports
+  import { ref, computed } from 'vue'
 
-// 2. Props 定义
-interface Props {
-  {{ propsDefinition }}
-}
-const props = withDefaults(defineProps<Props>(), {
-  {{ propsDefaults }}
-})
+  // 2. Props 定义
+  interface Props {
+    {{ propsDefinition }}
+  }
+  const props = withDefaults(defineProps<Props>(), {
+    {{ propsDefaults }}
+  })
 
-// 3. Emits 定义
-interface Emits {
-  {{ emitsDefinition }}
-}
-const emit = defineEmits<Emits>()
+  // 3. Emits 定义
+  interface Emits {
+    {{ emitsDefinition }}
+  }
+  const emit = defineEmits<Emits>()
 
-// 4. 响应式数据
-{{ reactiveData }}
+  // 4. 响应式数据
+  {{ reactiveData }}
 
-// 5. 计算属性
-{{ computedProperties }}
+  // 5. 计算属性
+  {{ computedProperties }}
 
-// 6. 方法
-{{ methods }}
+  // 6. 方法
+  {{ methods }}
 
-// 7. 生命周期
-{{ lifecycleHooks }}
+  // 7. 生命周期
+  {{ lifecycleHooks }}
 
-// 8. 暴露方法
-defineExpose({
-  {{ exposedMethods }}
-})
+  // 8. 暴露方法
+  defineExpose({
+    {{ exposedMethods }}
+  })
 </script>
 
 <style scoped lang="scss">
-.{{ componentNameKebab }} {
-  // 组件样式
-}
+  .{{ componentNameKebab }} {
+    // 组件样式
+  }
 </style>
 ```
 
@@ -136,31 +136,31 @@ defineExpose({
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import type { {{ componentTypes }} } from '@/types'
+  import { ref, computed, onMounted } from 'vue'
+  import type { {{ componentTypes }} } from '@/types'
 
-interface Props {
-  {{ propsDefinition }}
-}
+  interface Props {
+    {{ propsDefinition }}
+  }
 
-interface Emits {
-  {{ emitsDefinition }}
-}
+  interface Emits {
+    {{ emitsDefinition }}
+  }
 
-const props = withDefaults(defineProps<Props>(), {
-  {{ propsDefaults }}
-})
+  const props = withDefaults(defineProps<Props>(), {
+    {{ propsDefaults }}
+  })
 
-const emit = defineEmits<Emits>()
+  const emit = defineEmits<Emits>()
 
-// 业务逻辑
-{{ businessLogic }}
+  // 业务逻辑
+  {{ businessLogic }}
 </script>
 
 <style scoped lang="scss">
-.{{ componentNameKebab }} {
-  // 业务组件样式
-}
+  .{{ componentNameKebab }} {
+    // 业务组件样式
+  }
 </style>
 ```
 
@@ -189,6 +189,7 @@ describe('{{ ComponentName }}', () => {
 ## 命名规范
 
 ### 组件命名
+
 - 文件名：PascalCase
 - 组件注册名：kebab-case
 - CSS 类名：kebab-case
@@ -231,7 +232,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   count: 0,
   disabled: false,
-  items: () => []
+  items: () => [],
 })
 ```
 
@@ -315,7 +316,7 @@ tests/components/{type}/{ComponentName}.test.ts
 </template>
 
 <script setup lang="ts">
-import { ElButton } from 'element-plus'
+  import { ElButton } from 'element-plus'
 </script>
 ```
 
@@ -331,21 +332,27 @@ import { ElButton } from 'element-plus'
 ## 最佳实践
 
 ### 1. 单一职责
+
 每个组件只负责一个功能。
 
 ### 2. Props 验证
+
 为 Props 添加类型验证。
 
 ### 3. 事件命名
+
 使用 kebab-case 命名事件。
 
 ### 4. 样式隔离
+
 使用 scoped 样式。
 
 ### 5. 类型安全
+
 使用 TypeScript 定义类型。
 
 ### 6. 可测试性
+
 为组件编写测试用例。
 
 ## 输出示例
@@ -367,79 +374,79 @@ import { ElButton } from 'element-plus'
 </template>
 
 <script setup lang="ts">
-import type { User } from '@/types'
+  import type { User } from '@/types'
 
-interface Props {
-  user: User
-  disabled?: boolean
-}
-
-interface Emits {
-  (e: 'click', user: User): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false
-})
-
-const emit = defineEmits<Emits>()
-
-function handleClick() {
-  if (!props.disabled) {
-    emit('click', props.user)
+  interface Props {
+    user: User
+    disabled?: boolean
   }
-}
+
+  interface Emits {
+    (e: 'click', user: User): void
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    disabled: false,
+  })
+
+  const emit = defineEmits<Emits>()
+
+  function handleClick() {
+    if (!props.disabled) {
+      emit('click', props.user)
+    }
+  }
 </script>
 
 <style scoped lang="scss">
-.user-card {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  .user-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
 
-  &:hover {
-    background: #f5f5f5;
-  }
+    &:hover {
+      background: #f5f5f5;
+    }
 
-  &--disabled {
-    opacity: 0.6;
-    pointer-events: none;
-  }
+    &--disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
-  &__avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: 12px;
+    &__avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 12px;
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    &__info {
+      flex: 1;
+    }
+
+    &__name {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    &__email {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
     }
   }
-
-  &__info {
-    flex: 1;
-  }
-
-  &__name {
-    margin: 0 0 4px 0;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  &__email {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
-  }
-}
 </style>
 ```
 

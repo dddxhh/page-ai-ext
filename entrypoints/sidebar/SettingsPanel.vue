@@ -32,8 +32,8 @@
       <el-tab-pane :label="t('settings.shortcuts')" name="shortcuts">
         <el-form :model="config.shortcuts" label-width="150px">
           <el-form-item :label="t('settings.toggleSidebar')">
-            <el-input 
-              v-model="config.shortcuts.toggleSidebar" 
+            <el-input
+              v-model="config.shortcuts.toggleSidebar"
               :placeholder="t('settings.shortcutPlaceholder')"
             />
             <el-text type="info" size="small" style="margin-top: 4px">
@@ -42,12 +42,13 @@
           </el-form-item>
 
           <el-form-item :label="t('settings.newConversation')">
-            <el-input 
+            <el-input
               v-model="config.shortcuts.newConversation"
               :placeholder="t('settings.shortcutPlaceholder')"
             />
             <el-text type="info" size="small" style="margin-top: 4px">
-              {{ t('settings.shortcutFormat') }}: Ctrl+Shift+O (Windows/Linux), Command+Shift+O (Mac)
+              {{ t('settings.shortcutFormat') }}: Ctrl+Shift+O (Windows/Linux), Command+Shift+O
+              (Mac)
             </el-text>
           </el-form-item>
         </el-form>
@@ -57,12 +58,12 @@
           type="error"
           :title="shortcutError"
           :closable="true"
-          @close="shortcutError = null"
           style="margin-top: 12px"
+          @close="shortcutError = null"
         />
       </el-tab-pane>
 
-.
+      .
 
       <el-tab-pane :label="t('settings.privacy')" name="privacy">
         <el-form :model="config.privacy" label-width="150px">
@@ -99,7 +100,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <div class="settings-footer" v-if="config">
+    <div v-if="config" class="settings-footer">
       <el-button type="primary" @click="saveSettings">
         {{ t('settings.saveSettings') }}
       </el-button>
@@ -108,141 +109,143 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { ElMessage } from 'element-plus/es';
-import { storage } from '~/modules/storage';
-import { Config } from '~/types';
+  import { ref, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
+  import { ElMessage } from 'element-plus/es'
+  import { storage } from '~/modules/storage'
+  import { Config } from '~/types'
 
-const { t } = useI18n();
+  const { t } = useI18n()
 
-const activeTab = ref('general');
-const config = ref<Config | null>(null);
-const shortcutError = ref<string | null>(null);
+  const activeTab = ref('general')
+  const config = ref<Config | null>(null)
+  const shortcutError = ref<string | null>(null)
 
-const emit = defineEmits<{
-  close: 'close';
-}>();
+  const emit = defineEmits<{
+    close: 'close'
+  }>()
 
-onMounted(async () => {
-  config.value = await storage.getConfig();
-});
+  onMounted(async () => {
+    config.value = await storage.getConfig()
+  })
 
-async function saveSettings(): Promise<void> {
-  if (!config.value) return;
+  async function saveSettings(): Promise<void> {
+    if (!config.value) return
 
-  try {
-    if (!validateShortcuts()) {
-      return;
+    try {
+      if (!validateShortcuts()) {
+        return
+      }
+
+      await storage.updateConfig(config.value)
+      ElMessage.success(t('settings.settingsSaved'))
+    } catch (error) {
+      console.error('Failed to save settings:', error)
+      ElMessage.error(t('settings.settingsSaveFailed'))
+    }
+  }
+
+  function validateShortcuts(): boolean {
+    if (!config.value) return false
+
+    const { toggleSidebar, newConversation } = config.value.shortcuts
+
+    const shortcutPattern =
+      /^(Ctrl|Command|Cmd|Alt|Meta|Shift)(\+(Ctrl|Command|Cmd|Alt|Meta|Shift))*\+([A-Za-z0-9])$/
+
+    if (toggleSidebar && !shortcutPattern.test(toggleSidebar)) {
+      shortcutError.value = t('settings.invalidShortcutFormat') + ': ' + t('settings.toggleSidebar')
+      return false
     }
 
-    await storage.updateConfig(config.value);
-    ElMessage.success(t('settings.settingsSaved'));
-  } catch (error) {
-    console.error('Failed to save settings:', error);
-    ElMessage.error(t('settings.settingsSaveFailed'));
-  }
-}
+    if (newConversation && !shortcutPattern.test(newConversation)) {
+      shortcutError.value =
+        t('settings.invalidShortcutFormat') + ': ' + t('settings.newConversation')
+      return false
+    }
 
-function validateShortcuts(): boolean {
-  if (!config.value) return false;
+    if (toggleSidebar && newConversation && toggleSidebar === newConversation) {
+      shortcutError.value = t('settings.shortcutConflict')
+      return false
+    }
 
-  const { toggleSidebar, newConversation } = config.value.shortcuts;
-  
-  const shortcutPattern = /^(Ctrl|Command|Cmd|Alt|Meta|Shift)(\+(Ctrl|Command|Cmd|Alt|Meta|Shift))*\+([A-Za-z0-9])$/;
-  
-  if (toggleSidebar && !shortcutPattern.test(toggleSidebar)) {
-    shortcutError.value = t('settings.invalidShortcutFormat') + ': ' + t('settings.toggleSidebar');
-    return false;
+    shortcutError.value = null
+    return true
   }
 
-  if (newConversation && !shortcutPattern.test(newConversation)) {
-    shortcutError.value = t('settings.invalidShortcutFormat') + ': ' + t('settings.newConversation');
-    return false;
+  async function exportSkills(): Promise<void> {
+    const skills = await storage.exportSkills()
+    const blob = new Blob([JSON.stringify(skills, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'skills.json'
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
-  if (toggleSidebar && newConversation && toggleSidebar === newConversation) {
-    shortcutError.value = t('settings.shortcutConflict');
-    return false;
+  async function importSkills(): Promise<void> {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+
+      const text = await file.text()
+      const skills = JSON.parse(text)
+      await storage.importSkills(skills)
+      ElMessage.success(t('settings.skillsImported'))
+    }
+
+    input.click()
   }
 
-  shortcutError.value = null;
-  return true;
-}
-
-async function exportSkills(): Promise<void> {
-  const skills = await storage.exportSkills();
-  const blob = new Blob([JSON.stringify(skills, null, 2)], {
-    type: 'application/json'
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'skills.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-async function importSkills(): Promise<void> {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-
-  input.onchange = async (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-
-    const text = await file.text();
-    const skills = JSON.parse(text);
-    await storage.importSkills(skills);
-    ElMessage.success(t('settings.skillsImported'));
-  };
-
-  input.click();
-}
-
-function handleClose(): void {
-  emit('close');
-}
+  function handleClose(): void {
+    emit('close')
+  }
 </script>
 
 <style scoped>
-.settings-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 16px;
-}
+  .settings-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+  }
 
-.settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
+  .settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
 
-h3 {
-  margin: 0;
-}
+  h3 {
+    margin: 0;
+  }
 
-.settings-footer {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid #ddd;
-}
+  .settings-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+  }
 
-.skills-section {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-}
+  .skills-section {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
 
-.about-section h4 {
-  margin: 0 0 8px 0;
-}
+  .about-section h4 {
+    margin: 0 0 8px 0;
+  }
 
-.about-section p {
-  margin: 8px 0;
-  color: #666;
-}
+  .about-section p {
+    margin: 8px 0;
+    color: #666;
+  }
 </style>

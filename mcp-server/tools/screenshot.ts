@@ -1,4 +1,4 @@
-import { mcpServer } from '../server';
+import { mcpServer } from '../server'
 
 mcpServer.registerTool({
   name: 'take_screenshot',
@@ -8,14 +8,14 @@ mcpServer.registerTool({
     properties: {
       selector: {
         type: 'string',
-        description: 'CSS selector for an element (optional, full page if omitted)'
+        description: 'CSS selector for an element (optional, full page if omitted)',
       },
       format: {
         type: 'string',
         enum: ['png', 'jpeg'],
         description: 'Image format',
-        default: 'png'
-      }
-    }
-  }
-});
+        default: 'png',
+      },
+    },
+  },
+})

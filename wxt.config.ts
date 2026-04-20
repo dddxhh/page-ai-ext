@@ -1,40 +1,34 @@
-import { defineConfig } from 'wxt';
-import vue from '@vitejs/plugin-vue';
-import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import { defineConfig } from 'wxt'
+import vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
   manifest: {
     version: '1.0.0',
-    permissions: [
-      'storage',
-      'activeTab',
-      'scripting',
-      'tabs',
-      'sidePanel'
-    ],
+    permissions: ['storage', 'activeTab', 'scripting', 'tabs', 'sidePanel'],
     host_permissions: ['*://*/*'],
     side_panel: {
       default_title: 'AI Assistant',
-      default_path: 'sidebar.html'
+      default_path: 'sidebar.html',
     },
     commands: {
       toggleSidebar: {
         description: '切换侧边栏',
         suggested_key: {
           default: 'Ctrl+Shift+A',
-          mac: 'Command+Shift+A'
-        }
+          mac: 'Command+Shift+A',
+        },
       },
       newConversation: {
         description: '新建对话',
         suggested_key: {
           default: 'Ctrl+Shift+O',
-          mac: 'Command+Shift+O'
-        }
-      }
-    }
+          mac: 'Command+Shift+O',
+        },
+      },
+    },
   },
   vite: () => ({
     plugins: [
@@ -50,5 +44,5 @@ export default defineConfig({
         ],
       }),
     ],
-  })
-});
+  }),
+})

@@ -1,4 +1,4 @@
-import { Skill } from '../types';
+import { Skill } from '../types'
 
 export const BUILT_IN_SKILLS: Skill[] = [
   {
@@ -16,15 +16,11 @@ Focus on accuracy and clarity.`,
       author: 'AI Assistant',
       version: '1.0.0',
       tags: ['analysis', 'summary', 'content'],
-      examples: [
-        'Summarize this article',
-        'What are the key points?',
-        'Extract all links'
-      ],
-      category: 'Analysis'
+      examples: ['Summarize this article', 'What are the key points?', 'Extract all links'],
+      category: 'Analysis',
     },
     isBuiltIn: true,
-    createdAt: Date.now()
+    createdAt: Date.now(),
   },
   {
     id: 'form-filler',
@@ -44,12 +40,12 @@ Always ask for confirmation before submitting.`,
       examples: [
         'Fill out this registration form',
         'Complete the checkout process',
-        'Submit this application'
+        'Submit this application',
       ],
-      category: 'Automation'
+      category: 'Automation',
     },
     isBuiltIn: true,
-    createdAt: Date.now()
+    createdAt: Date.now(),
   },
   {
     id: 'data-extractor',
@@ -69,11 +65,11 @@ Focus on accuracy and completeness.`,
       examples: [
         'Extract all product information',
         'Get the table data as JSON',
-        'List all contact information'
+        'List all contact information',
       ],
-      category: 'Data'
+      category: 'Data',
     },
     isBuiltIn: true,
-    createdAt: Date.now()
-  }
-];
+    createdAt: Date.now(),
+  },
+]

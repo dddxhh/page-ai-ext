@@ -29,16 +29,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'tests/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/mockData',
-        'dist/'
-      ]
+      exclude: ['node_modules/', 'tests/', '**/*.d.ts', '**/*.config.*', '**/mockData', 'dist/'],
     },
-    setupFiles: ['./tests/setup.ts']
+    setupFiles: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {
@@ -47,9 +40,9 @@ export default defineConfig({
       '@utils': resolve(__dirname, 'src/utils'),
       '@api': resolve(__dirname, 'src/api'),
       '@stores': resolve(__dirname, 'src/stores'),
-      '@types': resolve(__dirname, 'src/types')
-    }
-  }
+      '@types': resolve(__dirname, 'src/types'),
+    },
+  },
 })
 ```
 
@@ -93,13 +86,13 @@ vi.mock('@/api/user', () => ({
   userApi: {
     getCurrentUser: vi.fn(),
     login: vi.fn(),
-    logout: vi.fn()
-  }
+    logout: vi.fn(),
+  },
 }))
 
 // 全局组件配置
 config.global.mocks = {
-  $t: (key: string) => key
+  $t: (key: string) => key,
 }
 ```
 
@@ -113,7 +106,7 @@ export const mockUser = {
   email: 'john@example.com',
   role: 'admin',
   createdAt: '2024-01-01',
-  updatedAt: '2024-01-01'
+  updatedAt: '2024-01-01',
 }
 
 export const mockProduct = {
@@ -122,7 +115,7 @@ export const mockProduct = {
   description: 'Description',
   price: 100,
   stock: 10,
-  category: 'electronics'
+  category: 'electronics',
 }
 
 export const mockUsers = [
@@ -133,8 +126,8 @@ export const mockUsers = [
     email: 'jane@example.com',
     role: 'user',
     createdAt: '2024-01-02',
-    updatedAt: '2024-01-02'
-  }
+    updatedAt: '2024-01-02',
+  },
 ]
 ```
 
@@ -212,7 +205,7 @@ describe('User API', () => {
         list: mockUsers,
         total: 2,
         page: 1,
-        pageSize: 10
+        pageSize: 10,
       }
 
       vi.mocked(request.get).mockResolvedValue(mockResponse)
@@ -221,7 +214,7 @@ describe('User API', () => {
 
       expect(result).toEqual(mockResponse)
       expect(request.get).toHaveBeenCalledWith('/users', {
-        params: { page: 1, pageSize: 10 }
+        params: { page: 1, pageSize: 10 },
       })
     })
   })
@@ -242,8 +235,8 @@ describe('Button Component', () => {
   it('renders correctly', () => {
     const wrapper = mount(Button, {
       props: {
-        text: 'Click me'
-      }
+        text: 'Click me',
+      },
     })
 
     expect(wrapper.text()).toBe('Click me')
@@ -252,8 +245,8 @@ describe('Button Component', () => {
   it('emits click event', async () => {
     const wrapper = mount(Button, {
       props: {
-        text: 'Click me'
-      }
+        text: 'Click me',
+      },
     })
 
     await wrapper.find('button').trigger('click')
@@ -265,8 +258,8 @@ describe('Button Component', () => {
     const wrapper = mount(Button, {
       props: {
         text: 'Click me',
-        disabled: true
-      }
+        disabled: true,
+      },
     })
 
     expect(wrapper.find('button').attributes('disabled')).toBeDefined()
@@ -276,8 +269,8 @@ describe('Button Component', () => {
     const wrapper = mount(Button, {
       props: {
         text: 'Click me',
-        type: 'primary'
-      }
+        type: 'primary',
+      },
     })
 
     expect(wrapper.find('button').classes()).toContain('button--primary')
@@ -298,8 +291,8 @@ describe('UserCard Component', () => {
   it('renders user information', () => {
     const wrapper = mount(UserCard, {
       props: {
-        user: mockUser
-      }
+        user: mockUser,
+      },
     })
 
     expect(wrapper.text()).toContain(mockUser.name)
@@ -310,8 +303,8 @@ describe('UserCard Component', () => {
     const wrapper = mount(UserCard, {
       props: {
         user: mockUser,
-        clickable: true
-      }
+        clickable: true,
+      },
     })
 
     await wrapper.find('.user-card').trigger('click')
@@ -324,8 +317,8 @@ describe('UserCard Component', () => {
     const wrapper = mount(UserCard, {
       props: {
         user: mockUser,
-        clickable: false
-      }
+        clickable: false,
+      },
     })
 
     await wrapper.find('.user-card').trigger('click')
@@ -362,7 +355,7 @@ describe('UserList Component', () => {
       list: mockUsers,
       total: 2,
       page: 1,
-      pageSize: 10
+      pageSize: 10,
     })
 
     const wrapper = mount(UserList)
@@ -422,9 +415,7 @@ describe('User Store', () => {
   })
 
   it('handles fetch user error', async () => {
-    vi.mocked(userApi.getCurrentUser).mockRejectedValue(
-      new Error('Failed to fetch user')
-    )
+    vi.mocked(userApi.getCurrentUser).mockRejectedValue(new Error('Failed to fetch user'))
 
     const store = useUserStore()
 
@@ -438,12 +429,12 @@ describe('User Store', () => {
   it('logs in successfully', async () => {
     const credentials = {
       email: 'john@example.com',
-      password: 'password'
+      password: 'password',
     }
 
     vi.mocked(userApi.login).mockResolvedValue({
       user: mockUser,
-      token: 'mock-token'
+      token: 'mock-token',
     })
 
     const store = useUserStore()

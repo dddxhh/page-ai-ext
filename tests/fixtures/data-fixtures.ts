@@ -1,19 +1,19 @@
-import { Config, Conversation, Skill, Message, ModelConfig } from '../../types';
+import { Config, Conversation, Skill, Message, ModelConfig } from '../../types'
 
 export const mockConfig: Config = {
   models: [],
   currentModelId: '',
   shortcuts: {
     toggleSidebar: 'Cmd+Shift+A',
-    newConversation: 'Cmd+Shift+N'
+    newConversation: 'Cmd+Shift+N',
   },
   theme: 'auto',
   language: 'zh-CN',
   privacy: {
     encryptHistory: false,
-    allowPageContentUpload: true
-  }
-};
+    allowPageContentUpload: true,
+  },
+}
 
 export const mockModelConfig: ModelConfig = {
   id: 'test-model-1',
@@ -23,9 +23,9 @@ export const mockModelConfig: ModelConfig = {
   model: 'gpt-4',
   parameters: {
     temperature: 0.7,
-    maxTokens: 2000
-  }
-};
+    maxTokens: 2000,
+  },
+}
 
 export const mockConversation: Conversation = {
   id: 'test-conv-1',
@@ -33,22 +33,22 @@ export const mockConversation: Conversation = {
   title: 'Test Page',
   messages: [],
   createdAt: Date.now(),
-  updatedAt: Date.now()
-};
+  updatedAt: Date.now(),
+}
 
 export const mockMessage: Message = {
   id: 'test-msg-1',
   role: 'user',
   content: 'Hello, how are you?',
-  timestamp: Date.now()
-};
+  timestamp: Date.now(),
+}
 
 export const mockAssistantMessage: Message = {
   id: 'test-msg-2',
   role: 'assistant',
   content: 'I am doing well, thank you!',
-  timestamp: Date.now()
-};
+  timestamp: Date.now(),
+}
 
 export const mockSkill: Skill = {
   id: 'test-skill-1',
@@ -60,11 +60,11 @@ export const mockSkill: Skill = {
     version: '1.0.0',
     tags: ['test', 'helper'],
     examples: ['Example 1', 'Example 2'],
-    category: 'general'
+    category: 'general',
   },
   isBuiltIn: false,
-  createdAt: Date.now()
-};
+  createdAt: Date.now(),
+}
 
 export const mockBuiltInSkill: Skill = {
   id: 'built-in-skill-1',
@@ -76,8 +76,8 @@ export const mockBuiltInSkill: Skill = {
     version: '1.0.0',
     tags: ['built-in'],
     examples: [],
-    category: 'system'
+    category: 'system',
   },
   isBuiltIn: true,
-  createdAt: Date.now()
-};
+  createdAt: Date.now(),
+}

@@ -13,12 +13,14 @@
 ## 文件结构
 
 **新增文件：**
+
 - `entrypoints/sidebar/locales/zh-CN.ts` - 中文翻译
 - `entrypoints/sidebar/locales/en-US.ts` - 英文翻译
 - `entrypoints/sidebar/locales/index.ts` - 语言加载器
 - `entrypoints/sidebar/composables/useLocale.ts` - 语言切换 composable
 
 **修改文件：**
+
 - `package.json` - 添加 vue-i18n 依赖
 - `entrypoints/sidebar/main.ts` - 配置 i18n
 - `entrypoints/sidebar/App.vue` - 监听语言变化、传递 locale 给 Element Plus
@@ -34,6 +36,7 @@
 ## Task 1: 安装 vue-i18n 依赖
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: 安装 vue-i18n**
@@ -58,6 +61,7 @@ git commit -m "feat: add vue-i18n dependency"
 ## Task 2: 创建中文语言文件
 
 **Files:**
+
 - Create: `entrypoints/sidebar/locales/zh-CN.ts`
 
 - [ ] **Step 1: 创建 zh-CN.ts**
@@ -67,7 +71,7 @@ export default {
   app: {
     title: 'AI 助手',
     chat: '聊天',
-    settings: '设置'
+    settings: '设置',
   },
   chat: {
     conversation: '对话',
@@ -76,7 +80,7 @@ export default {
     clear: '清空',
     noMessages: '暂无消息，开始对话吧！',
     typeMessage: '输入消息...',
-    send: '发送'
+    send: '发送',
   },
   settings: {
     title: '设置',
@@ -102,7 +106,7 @@ export default {
     saveSettings: '保存设置',
     settingsSaved: '设置已保存',
     settingsSaveFailed: '保存失败',
-    skillsManagementComing: '技能管理界面即将推出...'
+    skillsManagementComing: '技能管理界面即将推出...',
   },
   model: {
     selectModel: '选择模型',
@@ -123,26 +127,26 @@ export default {
     cancel: '取消',
     modelAdded: '模型添加成功',
     modelAddFailed: '模型添加失败',
-    fillRequired: '请填写所有必填项'
+    fillRequired: '请填写所有必填项',
   },
   skill: {
     selectSkill: '选择技能',
     searchSkills: '搜索技能...',
     examples: '示例',
-    cancel: '取消'
+    cancel: '取消',
   },
   message: {
     you: '你',
     ai: 'AI',
-    system: '系统'
+    system: '系统',
   },
   about: {
     title: 'AI 助手扩展',
     version: '版本',
     versionNumber: '1.0.0',
     description: '一个使用 WebMCP 协议实现 AI 页面交互的 Chrome 扩展。',
-    builtWith: '使用 WXT、Vue 3、TypeScript 和 Element Plus 构建。'
-  }
+    builtWith: '使用 WXT、Vue 3、TypeScript 和 Element Plus 构建。',
+  },
 }
 ```
 
@@ -158,6 +162,7 @@ git commit -m "feat: add Chinese locale file"
 ## Task 3: 创建英文语言文件
 
 **Files:**
+
 - Create: `entrypoints/sidebar/locales/en-US.ts`
 
 - [ ] **Step 1: 创建 en-US.ts**
@@ -167,7 +172,7 @@ export default {
   app: {
     title: 'AI Assistant',
     chat: 'Chat',
-    settings: 'Settings'
+    settings: 'Settings',
   },
   chat: {
     conversation: 'Conversation',
@@ -176,7 +181,7 @@ export default {
     clear: 'Clear',
     noMessages: 'No messages yet. Start a conversation!',
     typeMessage: 'Type your message...',
-    send: 'Send'
+    send: 'Send',
   },
   settings: {
     title: 'Settings',
@@ -202,7 +207,7 @@ export default {
     saveSettings: 'Save Settings',
     settingsSaved: 'Settings saved successfully',
     settingsSaveFailed: 'Failed to save settings',
-    skillsManagementComing: 'Skills management UI coming soon...'
+    skillsManagementComing: 'Skills management UI coming soon...',
   },
   model: {
     selectModel: 'Select Model',
@@ -223,26 +228,27 @@ export default {
     cancel: 'Cancel',
     modelAdded: 'Model added successfully',
     modelAddFailed: 'Failed to add model',
-    fillRequired: 'Please fill in all required fields'
+    fillRequired: 'Please fill in all required fields',
   },
   skill: {
     selectSkill: 'Select Skill',
     searchSkills: 'Search skills...',
     examples: 'Examples',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
   },
   message: {
     you: 'You',
     ai: 'AI',
-    system: 'System'
+    system: 'System',
   },
   about: {
     title: 'AI Assistant Extension',
     version: 'Version',
     versionNumber: '1.0.0',
-    description: 'A Chrome extension that enables AI-powered page interaction using WebMCP protocol.',
-    builtWith: 'Built with WXT, Vue 3, TypeScript, and Element Plus.'
-  }
+    description:
+      'A Chrome extension that enables AI-powered page interaction using WebMCP protocol.',
+    builtWith: 'Built with WXT, Vue 3, TypeScript, and Element Plus.',
+  },
 }
 ```
 
@@ -258,25 +264,26 @@ git commit -m "feat: add English locale file"
 ## Task 4: 创建语言加载器
 
 **Files:**
+
 - Create: `entrypoints/sidebar/locales/index.ts`
 
 - [ ] **Step 1: 创建 index.ts**
 
 ```typescript
-import zhCN from './zh-CN';
-import enUS from './en-US';
+import zhCN from './zh-CN'
+import enUS from './en-US'
 
 export const messages = {
   'zh-CN': zhCN,
-  'en-US': enUS
-};
+  'en-US': enUS,
+}
 
-export type LocaleCode = 'zh-CN' | 'en-US';
+export type LocaleCode = 'zh-CN' | 'en-US'
 
-export const defaultLocale: LocaleCode = 'zh-CN';
+export const defaultLocale: LocaleCode = 'zh-CN'
 
 export function getLocaleMessages(locale: LocaleCode) {
-  return messages[locale] || messages[defaultLocale];
+  return messages[locale] || messages[defaultLocale]
 }
 ```
 
@@ -292,6 +299,7 @@ git commit -m "feat: add locale loader"
 ## Task 5: 创建 useLocale composable
 
 **Files:**
+
 - Create: `entrypoints/sidebar/composables/useLocale.ts`
 
 - [ ] **Step 1: 创建 composables 目录**
@@ -302,47 +310,47 @@ Expected: 目录创建成功
 - [ ] **Step 2: 创建 useLocale.ts**
 
 ```typescript
-import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { storage } from '~/modules/storage';
-import { LocaleCode, defaultLocale } from '../locales';
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { storage } from '~/modules/storage'
+import { LocaleCode, defaultLocale } from '../locales'
 
 export function useLocale() {
-  const { locale } = useI18n();
-  const currentLocale = ref<LocaleCode>(defaultLocale);
+  const { locale } = useI18n()
+  const currentLocale = ref<LocaleCode>(defaultLocale)
 
   async function loadSavedLocale(): Promise<void> {
     try {
-      const config = await storage.getConfig();
+      const config = await storage.getConfig()
       if (config.language) {
-        currentLocale.value = config.language;
-        locale.value = config.language;
+        currentLocale.value = config.language
+        locale.value = config.language
       }
     } catch (error) {
-      console.error('Failed to load saved locale:', error);
+      console.error('Failed to load saved locale:', error)
     }
   }
 
   async function setLocale(newLocale: LocaleCode): Promise<void> {
-    currentLocale.value = newLocale;
-    locale.value = newLocale;
-    
+    currentLocale.value = newLocale
+    locale.value = newLocale
+
     try {
-      await storage.updateConfig({ language: newLocale });
+      await storage.updateConfig({ language: newLocale })
     } catch (error) {
-      console.error('Failed to save locale:', error);
+      console.error('Failed to save locale:', error)
     }
   }
 
   watch(currentLocale, (newLocale) => {
-    locale.value = newLocale;
-  });
+    locale.value = newLocale
+  })
 
   return {
     currentLocale,
     loadSavedLocale,
-    setLocale
-  };
+    setLocale,
+  }
 }
 ```
 
@@ -358,34 +366,35 @@ git commit -m "feat: add useLocale composable"
 ## Task 6: 配置 main.ts
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/main.ts`
 
 - [ ] **Step 1: 修改 main.ts 配置 i18n**
 
 ```typescript
-import { createApp } from 'vue';
-import { createPinia } from 'pinia';
-import { createI18n } from 'vue-i18n';
-import ElementPlus from 'element-plus';
-import 'element-plus/dist/index.css';
-import App from './App.vue';
-import { messages, defaultLocale } from './locales';
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import { createI18n } from 'vue-i18n'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import App from './App.vue'
+import { messages, defaultLocale } from './locales'
 
-const app = createApp(App);
-const pinia = createPinia();
+const app = createApp(App)
+const pinia = createPinia()
 
 const i18n = createI18n({
   legacy: false,
   locale: defaultLocale,
   fallbackLocale: 'en-US',
-  messages
-});
+  messages,
+})
 
-app.use(pinia);
-app.use(i18n);
-app.use(ElementPlus);
+app.use(pinia)
+app.use(i18n)
+app.use(ElementPlus)
 
-app.mount('#app');
+app.mount('#app')
 ```
 
 - [ ] **Step 2: Commit**
@@ -400,6 +409,7 @@ git commit -m "feat: configure i18n in main.ts"
 ## Task 7: 修改 App.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/App.vue`
 
 - [ ] **Step 1: 修改 App.vue，添加语言切换监听和 Element Plus locale**
@@ -415,13 +425,19 @@ git commit -m "feat: configure i18n in main.ts"
             <el-button-group>
               <el-button
                 type="primary"
-                @click="showChat = true; showSettings = false"
+                @click="
+                  showChat = true
+                  showSettings = false
+                "
                 :disabled="showChat"
               >
                 {{ t('app.chat') }}
               </el-button>
               <el-button
-                @click="showSettings = true; showChat = false"
+                @click="
+                  showSettings = true
+                  showChat = false
+                "
                 :disabled="showSettings"
               >
                 {{ t('app.settings') }}
@@ -431,14 +447,8 @@ git commit -m "feat: configure i18n in main.ts"
         </el-header>
 
         <el-main>
-          <ChatPanel
-            v-if="showChat"
-            @toggle-settings="showSettings = true"
-          />
-          <SettingsPanel
-            v-if="showSettings"
-            @close="showSettings = false"
-          />
+          <ChatPanel v-if="showChat" @toggle-settings="showSettings = true" />
+          <SettingsPanel v-if="showSettings" @close="showSettings = false" />
         </el-main>
       </el-container>
     </div>
@@ -446,86 +456,87 @@ git commit -m "feat: configure i18n in main.ts"
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { storage } from '~/modules/storage';
-import { Config } from '~/types';
-import ChatPanel from './ChatPanel.vue';
-import SettingsPanel from './SettingsPanel.vue';
-import { useLocale } from './composables/useLocale';
-import zhCn from 'element-plus/es/locale/lang/zh-cn';
-import en from 'element-plus/es/locale/lang/en';
+  import { ref, computed, onMounted, watch } from 'vue'
+  import { useI18n } from 'vue-i18n'
+  import { storage } from '~/modules/storage'
+  import { Config } from '~/types'
+  import ChatPanel from './ChatPanel.vue'
+  import SettingsPanel from './SettingsPanel.vue'
+  import { useLocale } from './composables/useLocale'
+  import zhCn from 'element-plus/es/locale/lang/zh-cn'
+  import en from 'element-plus/es/locale/lang/en'
 
-const { t } = useI18n();
-const { currentLocale, loadSavedLocale } = useLocale();
+  const { t } = useI18n()
+  const { currentLocale, loadSavedLocale } = useLocale()
 
-const showChat = ref(true);
-const showSettings = ref(false);
-const config = ref<Config | null>(null);
+  const showChat = ref(true)
+  const showSettings = ref(false)
+  const config = ref<Config | null>(null)
 
-const elementLocale = computed(() => {
-  return currentLocale.value === 'zh-CN' ? zhCn : en;
-});
+  const elementLocale = computed(() => {
+    return currentLocale.value === 'zh-CN' ? zhCn : en
+  })
 
-const themeClass = computed(() => {
-  if (!config.value) return 'light';
-  const theme = config.value.theme;
-  if (theme === 'auto') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-  }
-  return theme;
-});
-
-onMounted(async () => {
-  console.log('App mounted, loading config...');
-  try {
-    config.value = await storage.getConfig();
-    console.log('Config loaded:', config.value);
-    if (config.value.language) {
-      currentLocale.value = config.value.language;
+  const themeClass = computed(() => {
+    if (!config.value) return 'light'
+    const theme = config.value.theme
+    if (theme === 'auto') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
-    await loadSavedLocale();
-  } catch (error) {
-    console.error('Failed to load config:', error);
-  }
-});
+    return theme
+  })
 
-watch(() => config.value?.language, (newLanguage) => {
-  if (newLanguage) {
-    currentLocale.value = newLanguage;
-  }
-});
+  onMounted(async () => {
+    console.log('App mounted, loading config...')
+    try {
+      config.value = await storage.getConfig()
+      console.log('Config loaded:', config.value)
+      if (config.value.language) {
+        currentLocale.value = config.value.language
+      }
+      await loadSavedLocale()
+    } catch (error) {
+      console.error('Failed to load config:', error)
+    }
+  })
+
+  watch(
+    () => config.value?.language,
+    (newLanguage) => {
+      if (newLanguage) {
+        currentLocale.value = newLanguage
+      }
+    }
+  )
 </script>
 
 <style scoped>
-#app {
-  width: 100%;
-  height: 100vh;
-}
+  #app {
+    width: 100%;
+    height: 100vh;
+  }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-}
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
 
-h2 {
-  margin: 0;
-  font-size: 18px;
-}
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
 
-.dark {
-  background: #1a1a1a;
-  color: #fff;
-}
+  .dark {
+    background: #1a1a1a;
+    color: #fff;
+  }
 
-.light {
-  background: #fff;
-  color: #333;
-}
+  .light {
+    background: #fff;
+    color: #333;
+  }
 </style>
 ```
 
@@ -541,6 +552,7 @@ git commit -m "feat: integrate i18n and Element locale in App.vue"
 ## Task 8: 修改 ChatPanel.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/ChatPanel.vue`
 
 - [ ] **Step 1: 替换 ChatPanel.vue 硬编码文本**
@@ -581,7 +593,7 @@ git commit -m "feat: integrate i18n and Element locale in App.vue"
 将第 32-34 行替换为：
 
 ```vue
-    <div v-if="messages.length === 0" class="empty-state">
+<div v-if="messages.length === 0" class="empty-state">
       <p>{{ t('chat.noMessages') }}</p>
     </div>
 ```
@@ -589,21 +601,21 @@ git commit -m "feat: integrate i18n and Element locale in App.vue"
 将第 42 行替换为：
 
 ```vue
-        placeholder="{{ t('chat.typeMessage') }}"
+placeholder="{{ t('chat.typeMessage') }}"
 ```
 
 将第 49 行替换为：
 
 ```vue
-        {{ t('chat.send') }}
+{{ t('chat.send') }}
 ```
 
 在 script setup 部分添加：
 
 ```typescript
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 ```
 
 - [ ] **Step 2: Commit**
@@ -618,6 +630,7 @@ git commit -m "feat: add i18n to ChatPanel"
 ## Task 9: 修改 SettingsPanel.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/SettingsPanel.vue`
 
 - [ ] **Step 1: 替换 SettingsPanel.vue 硬编码文本**
@@ -625,7 +638,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 3-6 行替换为：
 
 ```vue
-    <div class="settings-header">
+<div class="settings-header">
       <h3>{{ t('settings.title') }}</h3>
       <el-button @click="handleClose">{{ t('settings.close') }}</el-button>
     </div>
@@ -634,7 +647,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 8-10 行替换为：
 
 ```vue
-    <div v-if="!config" class="loading">
+<div v-if="!config" class="loading">
       {{ t('settings.loading') }}
     </div>
 ```
@@ -642,7 +655,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 13-29 行替换为：
 
 ```vue
-      <el-tab-pane :label="t('settings.general')" name="general">
+<el-tab-pane :label="t('settings.general')" name="general">
         <el-form :model="config" label-width="150px">
           <el-form-item :label="t('settings.theme')">
             <el-select v-model="config.theme">
@@ -665,7 +678,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 32-42 行替换为：
 
 ```vue
-      <el-tab-pane :label="t('settings.shortcuts')" name="shortcuts">
+<el-tab-pane :label="t('settings.shortcuts')" name="shortcuts">
         <el-form :model="config.shortcuts" label-width="150px">
           <el-form-item :label="t('settings.toggleSidebar')">
             <el-input v-model="config.shortcuts.toggleSidebar" />
@@ -681,7 +694,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 44-54 行替换为：
 
 ```vue
-      <el-tab-pane :label="t('settings.privacy')" name="privacy">
+<el-tab-pane :label="t('settings.privacy')" name="privacy">
         <el-form :model="config.privacy" label-width="150px">
           <el-form-item :label="t('settings.encryptHistory')">
             <el-switch v-model="config.privacy.encryptHistory" />
@@ -697,7 +710,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 56-67 行替换为：
 
 ```vue
-      <el-tab-pane :label="t('settings.skills')" name="skills">
+<el-tab-pane :label="t('settings.skills')" name="skills">
         <div class="skills-section">
           <el-button type="primary" @click="exportSkills">
             {{ t('settings.exportSkills') }}
@@ -714,7 +727,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 69-81 行替换为：
 
 ```vue
-      <el-tab-pane :label="t('settings.about')" name="about">
+<el-tab-pane :label="t('settings.about')" name="about">
         <div class="about-section">
           <h4>{{ t('about.title') }}</h4>
           <p>{{ t('about.version') }}: {{ t('about.versionNumber') }}</p>
@@ -727,7 +740,7 @@ git commit -m "feat: add i18n to ChatPanel"
 将第 85-87 行替换为：
 
 ```vue
-      <el-button type="primary" @click="saveSettings">
+<el-button type="primary" @click="saveSettings">
         {{ t('settings.saveSettings') }}
       </el-button>
 ```
@@ -735,25 +748,25 @@ git commit -m "feat: add i18n to ChatPanel"
 在 script setup 部分添加：
 
 ```typescript
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 ```
 
 将 saveSettings 函数中的 alert 替换为 ElMessage：
 
 ```typescript
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
 
 async function saveSettings(): Promise<void> {
-  if (!config.value) return;
+  if (!config.value) return
 
   try {
-    await storage.updateConfig(config.value);
-    ElMessage.success(t('settings.settingsSaved'));
+    await storage.updateConfig(config.value)
+    ElMessage.success(t('settings.settingsSaved'))
   } catch (error) {
-    console.error('Failed to save settings:', error);
-    ElMessage.error(t('settings.settingsSaveFailed'));
+    console.error('Failed to save settings:', error)
+    ElMessage.error(t('settings.settingsSaveFailed'))
   }
 }
 ```
@@ -770,6 +783,7 @@ git commit -m "feat: add i18n to SettingsPanel"
 ## Task 10: 修改 SkillSelector.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/SkillSelector.vue`
 
 - [ ] **Step 1: 替换 SkillSelector.vue 硬编码文本**
@@ -777,33 +791,33 @@ git commit -m "feat: add i18n to SettingsPanel"
 将第 4 行替换为：
 
 ```vue
-    :title="t('skill.selectSkill')"
+:title="t('skill.selectSkill')"
 ```
 
 将第 10 行替换为：
 
 ```vue
-      :placeholder="t('skill.searchSkills')"
+:placeholder="t('skill.searchSkills')"
 ```
 
 将第 39 行替换为：
 
 ```vue
-            <strong>{{ t('skill.examples') }}</strong>
+<strong>{{ t('skill.examples') }}</strong>
 ```
 
 将第 51 行替换为：
 
 ```vue
-      <el-button @click="handleClose">{{ t('skill.cancel') }}</el-button>
+<el-button @click="handleClose">{{ t('skill.cancel') }}</el-button>
 ```
 
 在 script setup 部分添加：
 
 ```typescript
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 ```
 
 - [ ] **Step 2: Commit**
@@ -818,6 +832,7 @@ git commit -m "feat: add i18n to SkillSelector"
 ## Task 11: 修改 ModelSelector.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/ModelSelector.vue`
 
 - [ ] **Step 1: 替换 ModelSelector.vue 硬编码文本**
@@ -825,7 +840,7 @@ git commit -m "feat: add i18n to SkillSelector"
 将第 4 行替换为：
 
 ```vue
-    :title="t('model.selectModel')"
+:title="t('model.selectModel')"
 ```
 
 将第 8 行替换为：
@@ -837,7 +852,7 @@ git commit -m "feat: add i18n to SkillSelector"
 将第 20-22 行替换为：
 
 ```vue
-            <el-tag type="success" v-if="currentModelId === model.id">
+<el-tag type="success" v-if="currentModelId === model.id">
               {{ t('model.active') }}
             </el-tag>
 ```
@@ -851,22 +866,19 @@ git commit -m "feat: add i18n to SkillSelector"
 将第 43 行替换为：
 
 ```vue
-                {{ t('model.select') }}
+{{ t('model.select') }}
 ```
 
 将第 50 行替换为：
 
 ```vue
-                {{ t('model.delete') }}
+{{ t('model.delete') }}
 ```
 
 将第 58-61 行替换为：
 
 ```vue
-        <el-button
-          type="primary"
-          @click="handleShowAddModel"
-        >
+<el-button type="primary" @click="handleShowAddModel">
           {{ t('model.addCustomModel') }}
         </el-button>
 ```
@@ -874,32 +886,32 @@ git commit -m "feat: add i18n to SkillSelector"
 将第 71 行替换为：
 
 ```vue
-      <el-button @click="handleClose">{{ t('model.close') }}</el-button>
+<el-button @click="handleClose">{{ t('model.close') }}</el-button>
 ```
 
 在 script setup 部分添加：
 
 ```typescript
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 ```
 
 将 handleAddModel 函数中的 ElMessage 替换为国际化：
 
 ```typescript
 async function handleAddModel(model: ModelConfig): Promise<void> {
-  console.log('handleAddModel called with:', model);
+  console.log('handleAddModel called with:', model)
   try {
-    const config = await storage.getConfig();
-    const updatedModels = [...config.models, model];
-    await storage.updateConfig({ models: updatedModels });
-    customModels.value = updatedModels.filter(m => !builtinModelIds.includes(m.id));
-    showAddModel.value = false;
-    ElMessage.success(t('model.modelAdded'));
+    const config = await storage.getConfig()
+    const updatedModels = [...config.models, model]
+    await storage.updateConfig({ models: updatedModels })
+    customModels.value = updatedModels.filter((m) => !builtinModelIds.includes(m.id))
+    showAddModel.value = false
+    ElMessage.success(t('model.modelAdded'))
   } catch (error) {
-    ElMessage.error(t('model.modelAddFailed'));
-    console.error('Error adding model:', error);
+    ElMessage.error(t('model.modelAddFailed'))
+    console.error('Error adding model:', error)
   }
 }
 ```
@@ -916,6 +928,7 @@ git commit -m "feat: add i18n to ModelSelector"
 ## Task 12: 修改 AddModelDialog.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/AddModelDialog.vue`
 
 - [ ] **Step 1: 替换 AddModelDialog.vue 硬编码文本**
@@ -923,17 +936,17 @@ git commit -m "feat: add i18n to ModelSelector"
 将第 4 行替换为：
 
 ```vue
-    :title="t('model.addModel')"
+:title="t('model.addModel')"
 ```
 
 将第 8-33 行替换为：
 
 ```vue
-      <el-form-item :label="t('model.name')" required>
+<el-form-item :label="t('model.name')" required>
         <el-input v-model="form.name" placeholder="My Custom Model" />
       </el-form-item>
 
-      <el-form-item :label="t('model.provider')" required>
+<el-form-item :label="t('model.provider')" required>
         <el-select v-model="form.provider">
           <el-option label="OpenAI" value="openai" />
           <el-option label="Anthropic" value="anthropic" />
@@ -942,21 +955,21 @@ git commit -m "feat: add i18n to ModelSelector"
         </el-select>
       </el-form-item>
 
-      <el-form-item :label="t('model.baseUrl')" v-if="form.provider === 'custom'">
+<el-form-item :label="t('model.baseUrl')" v-if="form.provider === 'custom'">
         <el-input
           v-model="form.baseURL"
           placeholder="https://api.example.com/v1"
         />
       </el-form-item>
 
-      <el-form-item :label="t('model.modelId')" required>
+<el-form-item :label="t('model.modelId')" required>
         <el-input
           v-model="form.model"
           placeholder="gpt-4"
         />
       </el-form-item>
 
-      <el-form-item :label="t('model.apiKey')" required>
+<el-form-item :label="t('model.apiKey')" required>
         <el-input
           v-model="form.apiKey"
           type="password"
@@ -969,26 +982,26 @@ git commit -m "feat: add i18n to ModelSelector"
 将第 46-47 行替换为：
 
 ```vue
-      <el-button @click="handleClose">{{ t('model.cancel') }}</el-button>
-      <el-button type="primary" @click="handleSubmit">{{ t('model.add') }}</el-button>
+<el-button @click="handleClose">{{ t('model.cancel') }}</el-button>
+<el-button type="primary" @click="handleSubmit">{{ t('model.add') }}</el-button>
 ```
 
 在 script setup 部分添加：
 
 ```typescript
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 ```
 
 将 handleSubmit 函数中的 ElMessage 替换为国际化：
 
 ```typescript
 function handleSubmit(): void {
-  console.log('handleSubmit called, form:', form.value);
+  console.log('handleSubmit called, form:', form.value)
   if (!form.value.name || !form.value.model || !form.value.apiKey) {
-    ElMessage.error(t('model.fillRequired'));
-    return;
+    ElMessage.error(t('model.fillRequired'))
+    return
   }
 
   const model: ModelConfig = {
@@ -998,12 +1011,12 @@ function handleSubmit(): void {
     baseURL: form.value.baseURL,
     model: form.value.model!,
     apiKey: form.value.apiKey!,
-    parameters: {}
-  };
+    parameters: {},
+  }
 
-  console.log('Emitting add event with model:', model);
-  emit('add', model);
-  visible.value = false;
+  console.log('Emitting add event with model:', model)
+  emit('add', model)
+  visible.value = false
 }
 ```
 
@@ -1019,6 +1032,7 @@ git commit -m "feat: add i18n to AddModelDialog"
 ## Task 13: 修改 MessageList.vue
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/MessageList.vue`
 
 - [ ] **Step 1: 替换 MessageList.vue 硬编码文本**
@@ -1026,20 +1040,20 @@ git commit -m "feat: add i18n to AddModelDialog"
 将 roleLabel 函数替换为使用 i18n：
 
 ```typescript
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 function roleLabel(role: string): string {
   switch (role) {
     case 'user':
-      return t('message.you');
+      return t('message.you')
     case 'assistant':
-      return t('message.ai');
+      return t('message.ai')
     case 'system':
-      return t('message.system');
+      return t('message.system')
     default:
-      return role;
+      return role
   }
 }
 ```
@@ -1056,6 +1070,7 @@ git commit -m "feat: add i18n to MessageList"
 ## Task 14: 添加 settings.loading 翻译
 
 **Files:**
+
 - Modify: `entrypoints/sidebar/locales/zh-CN.ts`
 - Modify: `entrypoints/sidebar/locales/en-US.ts`
 
@@ -1095,6 +1110,7 @@ git commit -m "feat: add settings.loading translation"
 ## Task 15: 构建和测试
 
 **Files:**
+
 - N/A
 
 - [ ] **Step 1: 运行开发服务器**

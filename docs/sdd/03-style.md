@@ -37,6 +37,7 @@ src/styles/
 ## CSS 变量规范
 
 ### 变量命名
+
 使用 `--` 前缀，按类别分组：
 
 ```scss
@@ -65,7 +66,8 @@ src/styles/
   --color-border-secondary: #e8e8e8;
 
   // 字体
-  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-base:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-family-code: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 
   --font-size-xs: 12px;
@@ -195,12 +197,8 @@ src/styles/
     <div class="card__header">
       <h3 class="card__title card__title--center">Card Title</h3>
     </div>
-    <div class="card__body">
-      Card content
-    </div>
-    <div class="card__footer">
-      Card footer
-    </div>
+    <div class="card__body">Card content</div>
+    <div class="card__footer">Card footer</div>
   </div>
 </template>
 ```
@@ -217,7 +215,7 @@ $breakpoints: (
   md: 768px,
   lg: 992px,
   xl: 1200px,
-  xxl: 1600px
+  xxl: 1600px,
 );
 
 @mixin respond-to($breakpoint) {
@@ -324,12 +322,17 @@ $breakpoints: (
 ```scss
 // 移动设备优先
 $breakpoints: (
-  xs: 0,      // 手机竖屏
-  sm: 576px,  // 手机横屏
-  md: 768px,  // 平板
-  lg: 992px,  // 桌面
-  xl: 1200px, // 大桌面
-  xxl: 1600px // 超大桌面
+  xs: 0,
+  // 手机竖屏
+  sm: 576px,
+  // 手机横屏
+  md: 768px,
+  // 平板
+  lg: 992px,
+  // 桌面
+  xl: 1200px,
+  // 大桌面
+  xxl: 1600px, // 超大桌面
 );
 ```
 
@@ -394,7 +397,7 @@ export function useTheme() {
   return {
     theme,
     setTheme,
-    toggleTheme
+    toggleTheme,
   }
 }
 ```
@@ -434,15 +437,13 @@ export function useTheme() {
 
 ```vue
 <template>
-  <div class="my-component">
-    Component content
-  </div>
+  <div class="my-component">Component content</div>
 </template>
 
 <style scoped lang="scss">
-.my-component {
-  padding: var(--spacing-md);
-}
+  .my-component {
+    padding: var(--spacing-md);
+  }
 </style>
 ```
 
@@ -450,15 +451,13 @@ export function useTheme() {
 
 ```vue
 <template>
-  <div :class="$style.myComponent">
-    Component content
-  </div>
+  <div :class="$style.myComponent">Component content</div>
 </template>
 
 <style module lang="scss">
-.myComponent {
-  padding: var(--spacing-md);
-}
+  .myComponent {
+    padding: var(--spacing-md);
+  }
 </style>
 ```
 
@@ -466,10 +465,10 @@ export function useTheme() {
 
 ```vue
 <style lang="scss">
-// 不使用 scoped，样式会全局生效
-.global-style {
-  // 全局样式
-}
+  // 不使用 scoped，样式会全局生效
+  .global-style {
+    // 全局样式
+  }
 </style>
 ```
 
@@ -560,30 +559,60 @@ export function useTheme() {
 ```scss
 // utilities.scss
 // 间距
-.u-mt-xs { margin-top: var(--spacing-xs); }
-.u-mt-sm { margin-top: var(--spacing-sm); }
-.u-mt-md { margin-top: var(--spacing-md); }
-.u-mt-lg { margin-top: var(--spacing-lg); }
+.u-mt-xs {
+  margin-top: var(--spacing-xs);
+}
+.u-mt-sm {
+  margin-top: var(--spacing-sm);
+}
+.u-mt-md {
+  margin-top: var(--spacing-md);
+}
+.u-mt-lg {
+  margin-top: var(--spacing-lg);
+}
 
-.u-mb-xs { margin-bottom: var(--spacing-xs); }
-.u-mb-sm { margin-bottom: var(--spacing-sm); }
-.u-mb-md { margin-bottom: var(--spacing-md); }
-.u-mb-lg { margin-bottom: var(--spacing-lg); }
+.u-mb-xs {
+  margin-bottom: var(--spacing-xs);
+}
+.u-mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+.u-mb-md {
+  margin-bottom: var(--spacing-md);
+}
+.u-mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
 
 // 文本
-.u-text-center { text-align: center; }
-.u-text-left { text-align: left; }
-.u-text-right { text-align: right; }
+.u-text-center {
+  text-align: center;
+}
+.u-text-left {
+  text-align: left;
+}
+.u-text-right {
+  text-align: right;
+}
 
 .u-text-truncate {
   @include text-truncate;
 }
 
 // 显示
-.u-hidden { display: none; }
-.u-block { display: block; }
-.u-inline-block { display: inline-block; }
-.u-flex { display: flex; }
+.u-hidden {
+  display: none;
+}
+.u-block {
+  display: block;
+}
+.u-inline-block {
+  display: inline-block;
+}
+.u-flex {
+  display: flex;
+}
 
 // Flex
 .u-flex-center {
@@ -599,15 +628,19 @@ export function useTheme() {
 ## 最佳实践
 
 ### 1. 使用语义化类名
+
 ```scss
 // ✅ 好
-.card { }
+.card {
+}
 
 // ❌ 差
-.red-box { }
+.red-box {
+}
 ```
 
 ### 2. 保持样式简洁
+
 ```scss
 // ✅ 好
 .button {
@@ -632,6 +665,7 @@ export function useTheme() {
 ```
 
 ### 3. 使用相对单位
+
 ```scss
 // ✅ 好
 .container {
@@ -648,6 +682,7 @@ export function useTheme() {
 ```
 
 ### 4. 避免魔法值
+
 ```scss
 // ✅ 好
 .component {

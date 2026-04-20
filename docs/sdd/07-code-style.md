@@ -9,97 +9,121 @@
 ### 安装依赖
 
 ```bash
-npm install -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-vue
+npm install -D eslint @eslint/js typescript-eslint eslint-plugin-vue \
+  eslint-config-prettier eslint-plugin-prettier
 ```
 
-### ESLint 配置文件
+### ESLint 配置文件 (Flat Config)
+
+项目使用 ESLint 9 flat config 格式：
 
 ```javascript
-// .eslintrc.cjs
-module.exports = {
-  root: true,
-  env: {
-    browser: true,
-    es2021: true,
-    node: true
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:vue/vue3-recommended',
-    'plugin:prettier/recommended'
-  ],
-  parser: 'vue-eslint-parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    parser: '@typescript-eslint/parser',
-    sourceType: 'module'
-  },
-  plugins: ['@typescript-eslint', 'vue'],
-  rules: {
-    // TypeScript 规则
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'warn',
+// eslint.config.js
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import pluginVue from 'eslint-plugin-vue'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import eslintPluginPrettier from 'eslint-plugin-prettier'
 
-    // Vue 规则
-    'vue/multi-word-component-names': 'off',
-    'vue/no-v-html': 'warn',
-    'vue/require-default-prop': 'off',
-    'vue/require-prop-types': 'off',
-
-    // 通用规则
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
-    'no-debugger': 'warn',
-    'no-unused-vars': 'off',
-    'prefer-const': 'error',
-    'no-var': 'error'
-  }
-}
+export default [
+  {
+    ignores: [
+      '.output/**',
+      '.wxt/**',
+      'node_modules/**',
+      'coverage/**',
+      'auto-imports.d.ts',
+      'components.d.ts',
+    ],
+  },
+  {
+    languageOptions: {
+      globals: {
+        chrome: 'readonly',
+      },
+    },
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...pluginVue.configs['flat/recommended'],
+  eslintConfigPrettier,
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
+    plugins: {
+      prettier: eslintPluginPrettier,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': 'off',
+      'vue/multi-word-component-names': 'off',
+      'prettier/prettier': 'error',
+    },
+  },
+]
 ```
+
+**关键规则说明：**
+
+| 规则                                 | 设置    | 说明                           |
+| ------------------------------------ | ------- | ------------------------------ |
+| `@typescript-eslint/no-explicit-any` | `off`   | Chrome API 类型有时需要 any    |
+| `@typescript-eslint/no-unused-vars`  | `warn`  | 未使用变量警告，`_` 前缀忽略   |
+| `vue/multi-word-component-names`     | `off`   | 允许短组件名                   |
+| `prettier/prettier`                  | `error` | 格式不符合 Prettier 规则时报错 |
 
 ## Prettier 配置
 
 ### 安装依赖
 
 ```bash
-npm install -D prettier eslint-plugin-prettier
+npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 ```
 
 ### Prettier 配置文件
 
-```javascript
-// .prettierrc.cjs
-module.exports = {
-  semi: false,
-  singleQuote: true,
-  printWidth: 100,
-  tabWidth: 2,
-  useTabs: false,
-  trailingComma: 'es5',
-  bracketSpacing: true,
-  bracketSameLine: false,
-  arrowParens: 'avoid',
-  endOfLine: 'lf',
-  vueIndentScriptAndStyle: false
+```json
+// .prettierrc
+{
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "vueIndentScriptAndStyle": true,
+  "endOfLine": "lf"
 }
 ```
+
+**配置说明：**
+
+| 选项                      | 值      | 说明         |
+| ------------------------- | ------- | ------------ |
+| `semi`                    | `false` | 无分号       |
+| `singleQuote`             | `true`  | 单引号       |
+| `tabWidth`                | `2`     | 2空格缩进    |
+| `trailingComma`           | `es5`   | ES5 尾逗号   |
+| `printWidth`              | `100`   | 行宽100字符  |
+| `vueIndentScriptAndStyle` | `true`  | Vue SFC 缩进 |
+| `endOfLine`               | `lf`    | Unix换行     |
 
 ### Prettier 忽略文件
 
 ```
 # .prettierignore
-node_modules
-dist
-build
-coverage
-*.min.js
-*.min.css
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
+.output/
+.wxt/
+node_modules/
+coverage/
+auto-imports.d.ts
+components.d.ts
 ```
 
 ## TypeScript 配置
@@ -185,8 +209,8 @@ OrderList.vue
 ProductDetail.vue
 
 // TypeScript 文件：kebab-case
-user-api.ts
-date-utils.ts
+user - api.ts
+date - utils.ts
 validation.ts
 
 // 样式文件：kebab-case
@@ -195,9 +219,9 @@ variables.scss
 mixins.scss
 
 // 类型定义文件：kebab-case
-user-types.ts
-api-types.ts
-common-types.ts
+user - types.ts
+api - types.ts
+common - types.ts
 ```
 
 ### 变量命名
@@ -244,18 +268,23 @@ app.component('user-card', UserCard)
 
 ```scss
 // BEM 命名规范
-.card {}
-.card__header {}
-.card__title {}
-.card--primary {}
-.card__title--center {}
+.card {
+}
+.card__header {
+}
+.card__title {
+}
+.card--primary {
+}
+.card__title--center {
+}
 ```
 
 ## 注释规范
 
 ### JSDoc 注释
 
-```typescript
+````typescript
 /**
  * 获取用户信息
  *
@@ -272,7 +301,7 @@ app.component('user-card', UserCard)
 async function getUserById(id: string): Promise<User> {
   // 实现
 }
-```
+````
 
 ### 单行注释
 
@@ -361,10 +390,10 @@ module.exports = {
     'type-enum': [
       2,
       'always',
-      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'revert']
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'revert'],
     ],
-    'subject-case': [0]
-  }
+    'subject-case': [0],
+  },
 }
 ```
 
@@ -376,9 +405,10 @@ module.exports = {
 // package.json
 {
   "scripts": {
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "format": "prettier --write src/**/*.{vue,js,ts,jsx,tsx,css,scss,md,json}",
-    "format:check": "prettier --check src/**/*.{vue,js,ts,jsx,tsx,css,scss,md,json}"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   }
 }
 ```
@@ -402,13 +432,7 @@ module.exports = {
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "vue"
-  ]
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"]
 }
 ```
 
@@ -420,6 +444,9 @@ module.exports = {
 # ESLint 检查
 npm run lint
 
+# ESLint 自动修复
+npm run lint:fix
+
 # Prettier 格式化
 npm run format
 
@@ -427,7 +454,7 @@ npm run format
 npm run format:check
 
 # TypeScript 类型检查
-npm run type-check
+npm run compile
 ```
 
 ### Git Hooks
@@ -437,26 +464,19 @@ npm install -D husky lint-staged
 ```
 
 ```json
-// package.json
+// .lintstagedrc
 {
-  "lint-staged": {
-    "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{css,scss,md,json}": [
-      "prettier --write"
-    ]
-  }
+  "*.{js,ts,vue}": ["eslint --fix", "prettier --write"],
+  "*.{json,css,md}": ["prettier --write"]
 }
 ```
 
 ```bash
 # 初始化 husky
-npx husky install
+npx husky init
 
-# 添加 pre-commit hook
-npx husky add .husky/pre-commit "npx lint-staged"
+# pre-commit hook (自动生成)
+echo "npx lint-staged" > .husky/pre-commit
 ```
 
 ## 最佳实践

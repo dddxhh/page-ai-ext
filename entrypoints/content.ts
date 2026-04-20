@@ -1,326 +1,326 @@
-import { messaging } from '~/modules/messaging';
-import { ExtensionMessage } from '~/types';
-import { defineContentScript } from 'wxt/sandbox';
+import { messaging } from '~/modules/messaging'
+import { ExtensionMessage } from '~/types'
+import { defineContentScript } from 'wxt/sandbox'
 
 export default defineContentScript({
   matches: ['<all_urls>'],
   main() {
     // Initialize messaging
-    messaging.initialize();
+    messaging.initialize()
 
     // Handle tool execution
     messaging.onMessage('EXECUTE_TOOL', async (data, sender) => {
-      const { tool, params } = data;
+      const { tool, params } = data
 
       try {
-        let result: any;
+        let result: any
 
         switch (tool) {
           case 'click_element':
-            result = await handleClickElement(params);
-            break;
+            result = await handleClickElement(params)
+            break
           case 'fill_form':
-            result = await handleFillForm(params);
-            break;
+            result = await handleFillForm(params)
+            break
           case 'extract_content':
-            result = await handleExtractContent(params);
-            break;
+            result = await handleExtractContent(params)
+            break
           case 'scroll_page':
-            result = await handleScrollPage(params);
-            break;
+            result = await handleScrollPage(params)
+            break
           case 'execute_script':
-            result = await handleExecuteScript(params);
-            break;
+            result = await handleExecuteScript(params)
+            break
           case 'get_page_content':
-            result = await handleGetPageContent(params);
-            break;
+            result = await handleGetPageContent(params)
+            break
           case 'take_screenshot':
-            result = await handleTakeScreenshot(params);
-            break;
+            result = await handleTakeScreenshot(params)
+            break
           default:
-            throw new Error(`Unknown tool: ${tool}`);
+            throw new Error(`Unknown tool: ${tool}`)
         }
 
-        return { success: true, result };
+        return { success: true, result }
       } catch (error) {
-        console.error('Tool execution error:', error);
-        return { success: false, error: (error as Error).message };
+        console.error('Tool execution error:', error)
+        return { success: false, error: (error as Error).message }
       }
-    });
+    })
 
     // Handle page content request
     messaging.onMessage('GET_PAGE_CONTENT', async (data, sender) => {
-      const { format = 'text' } = data;
+      const { format = 'text' } = data
 
       try {
-        let content: string;
+        let content: string
 
         switch (format) {
           case 'text':
-            content = document.body.innerText;
-            break;
+            content = document.body.innerText
+            break
           case 'html':
-            content = document.body.innerHTML;
-            break;
+            content = document.body.innerHTML
+            break
           case 'markdown':
-            content = convertToMarkdown(document.body);
-            break;
+            content = convertToMarkdown(document.body)
+            break
           default:
-            throw new Error(`Unknown format: ${format}`);
+            throw new Error(`Unknown format: ${format}`)
         }
 
-        return { success: true, content };
+        return { success: true, content }
       } catch (error) {
-        console.error('Get page content error:', error);
-        return { success: false, error: (error as Error).message };
+        console.error('Get page content error:', error)
+        return { success: false, error: (error as Error).message }
       }
-    });
+    })
 
     // Tool handlers
     async function handleClickElement(params: any): Promise<any> {
-      const { selector } = params;
-      const element = document.querySelector(selector);
+      const { selector } = params
+      const element = document.querySelector(selector)
 
       if (!element) {
-        throw new Error('Element not found');
+        throw new Error('Element not found')
       }
 
       // Highlight element
-      highlightElement(element);
+      highlightElement(element)
 
       // Wait for user confirmation
-      const confirmed = await confirmAction('Click this element?');
+      const confirmed = await confirmAction('Click this element?')
       if (!confirmed) {
-        return { cancelled: true };
+        return { cancelled: true }
       }
 
       // Click element
-      (element as HTMLElement).click();
-      return { clicked: true };
+      ;(element as HTMLElement).click()
+      return { clicked: true }
     }
 
     async function handleFillForm(params: any): Promise<any> {
-      const { selector, value, submit = false } = params;
-      const element = document.querySelector(selector) as HTMLInputElement;
+      const { selector, value, submit = false } = params
+      const element = document.querySelector(selector) as HTMLInputElement
 
       if (!element) {
-        throw new Error('Element not found');
+        throw new Error('Element not found')
       }
 
-      highlightElement(element);
-      const confirmed = await confirmAction(`Fill "${value}" into this field?`);
+      highlightElement(element)
+      const confirmed = await confirmAction(`Fill "${value}" into this field?`)
       if (!confirmed) {
-        return { cancelled: true };
+        return { cancelled: true }
       }
 
-      element.value = value;
-      element.dispatchEvent(new Event('input', { bubbles: true }));
+      element.value = value
+      element.dispatchEvent(new Event('input', { bubbles: true }))
 
       if (submit) {
-        const form = element.closest('form');
+        const form = element.closest('form')
         if (form) {
-          form.dispatchEvent(new Event('submit', { bubbles: true }));
+          form.dispatchEvent(new Event('submit', { bubbles: true }))
         }
       }
 
-      return { filled: true };
+      return { filled: true }
     }
 
     async function handleExtractContent(params: any): Promise<any> {
-      const { selector, format = 'text' } = params;
-      const element = selector ? document.querySelector(selector) : document.body;
+      const { selector, format = 'text' } = params
+      const element = selector ? document.querySelector(selector) : document.body
 
       if (!element) {
-        throw new Error('Element not found');
+        throw new Error('Element not found')
       }
 
-      let content: string;
+      let content: string
 
       switch (format) {
         case 'text':
-          content = element.textContent || '';
-          break;
+          content = element.textContent || ''
+          break
         case 'html':
-          content = element.innerHTML;
-          break;
+          content = element.innerHTML
+          break
         case 'markdown':
-          content = convertToMarkdown(element);
-          break;
+          content = convertToMarkdown(element)
+          break
         default:
-          throw new Error(`Unknown format: ${format}`);
+          throw new Error(`Unknown format: ${format}`)
       }
 
-      return { content };
+      return { content }
     }
 
     async function handleScrollPage(params: any): Promise<any> {
-      const { direction = 'down', amount = 500 } = params;
+      const { direction = 'down', amount = 500 } = params
 
       switch (direction) {
         case 'up':
-          window.scrollBy(0, -amount);
-          break;
+          window.scrollBy(0, -amount)
+          break
         case 'down':
-          window.scrollBy(0, amount);
-          break;
+          window.scrollBy(0, amount)
+          break
         case 'top':
-          window.scrollTo(0, 0);
-          break;
+          window.scrollTo(0, 0)
+          break
         case 'bottom':
-          window.scrollTo(0, document.body.scrollHeight);
-          break;
+          window.scrollTo(0, document.body.scrollHeight)
+          break
         default:
-          throw new Error(`Unknown direction: ${direction}`);
+          throw new Error(`Unknown direction: ${direction}`)
       }
 
-      return { scrolled: true, scrollY: window.scrollY };
+      return { scrolled: true, scrollY: window.scrollY }
     }
 
     async function handleExecuteScript(params: any): Promise<any> {
-      const { script } = params;
+      const { script } = params
 
       // Security validation - prevent dangerous operations
       const dangerousPatterns = [
-        /chrome\./i,             // Block chrome API access
-        /fetch\(/i,              // Block network requests
-        /XMLHttpRequest/i,       // Block XHR
-        /document\.cookie/i,     // Block cookie access
-        /localStorage/i,         // Block local storage
-        /sessionStorage/i,       // Block session storage
-        /window\.location/i,     // Block navigation
-        /eval\(/i,               // Block nested eval
-        /Function\(/i            // Block nested Function
-      ];
+        /chrome\./i, // Block chrome API access
+        /fetch\(/i, // Block network requests
+        /XMLHttpRequest/i, // Block XHR
+        /document\.cookie/i, // Block cookie access
+        /localStorage/i, // Block local storage
+        /sessionStorage/i, // Block session storage
+        /window\.location/i, // Block navigation
+        /eval\(/i, // Block nested eval
+        /Function\(/i, // Block nested Function
+      ]
 
       for (const pattern of dangerousPatterns) {
         if (pattern.test(script)) {
-          throw new Error('脚本包含禁止的操作');
+          throw new Error('脚本包含禁止的操作')
         }
       }
 
       try {
         // Use Function constructor instead of eval for better security
         // Note: Still has security implications, but more controlled than eval
-        const fn = new Function('return ' + script);
-        const result = fn();
-        return { result };
+        const fn = new Function('return ' + script)
+        const result = fn()
+        return { result }
       } catch (error) {
-        throw new Error(`脚本执行错误: ${(error as Error).message}`);
+        throw new Error(`脚本执行错误: ${(error as Error).message}`)
       }
     }
 
     async function handleGetPageContent(params: any): Promise<any> {
-      const { format = 'text' } = params;
+      const { format = 'text' } = params
 
       switch (format) {
         case 'text':
-          return { content: document.body.innerText };
+          return { content: document.body.innerText }
         case 'html':
-          return { content: document.body.innerHTML };
+          return { content: document.body.innerHTML }
         case 'markdown':
-          return { content: convertToMarkdown(document.body) };
+          return { content: convertToMarkdown(document.body) }
         case 'dom':
-          return { structure: getDOMStructure(document.body, 3, true) };
+          return { structure: getDOMStructure(document.body, 3, true) }
         default:
-          throw new Error(`Unknown format: ${format}`);
+          throw new Error(`Unknown format: ${format}`)
       }
     }
 
     async function handleTakeScreenshot(params: any): Promise<any> {
-      const { selector, format = 'png' } = params;
+      const { selector, format = 'png' } = params
 
       // Use chrome.tabs.captureVisibleTab
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab.id) {
-        throw new Error('No active tab');
+        throw new Error('No active tab')
       }
 
-      const dataUrl = await chrome.tabs.captureVisibleTab(tab.id, { format });
-      return { dataUrl };
+      const dataUrl = await chrome.tabs.captureVisibleTab(tab.id, { format })
+      return { dataUrl }
     }
 
     // Helper functions
     function highlightElement(element: Element): void {
-      const originalStyle = element.getAttribute('style');
-      element.setAttribute('style', 'outline: 3px solid red !important;');
+      const originalStyle = element.getAttribute('style')
+      element.setAttribute('style', 'outline: 3px solid red !important;')
 
       setTimeout(() => {
         if (originalStyle) {
-          element.setAttribute('style', originalStyle);
+          element.setAttribute('style', originalStyle)
         } else {
-          element.removeAttribute('style');
+          element.removeAttribute('style')
         }
-      }, 2000);
+      }, 2000)
     }
 
     function confirmAction(message: string): Promise<boolean> {
       return new Promise((resolve) => {
-        const confirmed = window.confirm(message);
-        resolve(confirmed);
-      });
+        const confirmed = window.confirm(message)
+        resolve(confirmed)
+      })
     }
 
     function convertToMarkdown(element: Element): string {
-      let markdown = '';
+      let markdown = ''
 
       element.childNodes.forEach((node) => {
         if (node.nodeType === Node.TEXT_NODE) {
-          markdown += node.textContent;
+          markdown += node.textContent
         } else if (node.nodeType === Node.ELEMENT_NODE) {
-          const el = node as Element;
-          const tag = el.tagName.toLowerCase();
+          const el = node as Element
+          const tag = el.tagName.toLowerCase()
 
           switch (tag) {
             case 'h1':
-              markdown += `# ${el.textContent}\n\n`;
-              break;
+              markdown += `# ${el.textContent}\n\n`
+              break
             case 'h2':
-              markdown += `## ${el.textContent}\n\n`;
-              break;
+              markdown += `## ${el.textContent}\n\n`
+              break
             case 'h3':
-              markdown += `### ${el.textContent}\n\n`;
-              break;
+              markdown += `### ${el.textContent}\n\n`
+              break
             case 'p':
-              markdown += `${el.textContent}\n\n`;
-              break;
+              markdown += `${el.textContent}\n\n`
+              break
             case 'a':
-              markdown += `[${el.textContent}](${el.getAttribute('href')})`;
-              break;
+              markdown += `[${el.textContent}](${el.getAttribute('href')})`
+              break
             case 'ul':
-              markdown += '\n';
+              markdown += '\n'
               el.querySelectorAll('li').forEach((li) => {
-                markdown += `- ${li.textContent}\n`;
-              });
-              markdown += '\n';
-              break;
+                markdown += `- ${li.textContent}\n`
+              })
+              markdown += '\n'
+              break
             case 'ol':
-              markdown += '\n';
+              markdown += '\n'
               el.querySelectorAll('li').forEach((li, index) => {
-                markdown += `${index + 1}. ${li.textContent}\n`;
-              });
-              markdown += '\n';
-              break;
+                markdown += `${index + 1}. ${li.textContent}\n`
+              })
+              markdown += '\n'
+              break
             case 'code':
-              markdown += `\`${el.textContent}\``;
-              break;
+              markdown += `\`${el.textContent}\``
+              break
             case 'pre':
-              markdown += `\`\`\`\n${el.textContent}\n\`\`\`\n\n`;
-              break;
+              markdown += `\`\`\`\n${el.textContent}\n\`\`\`\n\n`
+              break
             case 'strong':
             case 'b':
-              markdown += `**${el.textContent}**`;
-              break;
+              markdown += `**${el.textContent}**`
+              break
             case 'em':
             case 'i':
-              markdown += `*${el.textContent}*`;
-              break;
+              markdown += `*${el.textContent}*`
+              break
             default:
-              markdown += convertToMarkdown(el);
+              markdown += convertToMarkdown(el)
           }
         }
-      });
+      })
 
-      return markdown;
+      return markdown
     }
 
     function getDOMStructure(
@@ -330,7 +330,7 @@ export default defineContentScript({
       currentDepth: number = 0
     ): any {
       if (currentDepth >= depth) {
-        return includeText ? { text: element.textContent } : {};
+        return includeText ? { text: element.textContent } : {}
       }
 
       return {
@@ -338,10 +338,10 @@ export default defineContentScript({
         id: element.id,
         className: element.className,
         ...(includeText && { text: element.textContent?.slice(0, 100) }),
-        children: Array.from(element.children).map(child =>
+        children: Array.from(element.children).map((child) =>
           getDOMStructure(child, depth, includeText, currentDepth + 1)
-        )
-      };
+        ),
+      }
     }
-  }
-});
+  },
+})

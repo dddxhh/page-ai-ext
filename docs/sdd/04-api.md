@@ -41,8 +41,8 @@ const instance: AxiosInstance = axios.create({
   baseURL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 })
 
 // 请求拦截器
@@ -134,7 +134,7 @@ export const request = {
 
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     return instance.patch(url, data, config)
-  }
+  },
 }
 ```
 
@@ -308,7 +308,7 @@ export const userApi = {
   // 修改密码
   changePassword(data: { oldPassword: string; newPassword: string }): Promise<void> {
     return request.post('/users/change-password', data)
-  }
+  },
 }
 ```
 
@@ -317,7 +317,13 @@ export const userApi = {
 ```typescript
 // api/modules/product.ts
 import request from '../request'
-import type { Product, CreateProductDto, UpdateProductDto, ProductListParams, PageResponse } from '../types'
+import type {
+  Product,
+  CreateProductDto,
+  UpdateProductDto,
+  ProductListParams,
+  PageResponse,
+} from '../types'
 
 export const productApi = {
   // 获取产品列表
@@ -361,10 +367,10 @@ export const productApi = {
     formData.append('file', file)
     return request.post('/products/upload', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     })
-  }
+  },
 }
 ```
 
@@ -399,7 +405,7 @@ export enum ErrorCode {
   USER_ALREADY_EXISTS = 1002,
   INVALID_PASSWORD = 1003,
   PRODUCT_NOT_FOUND = 2001,
-  PRODUCT_OUT_OF_STOCK = 2002
+  PRODUCT_OUT_OF_STOCK = 2002,
 }
 
 export class ApiError extends Error {
@@ -496,7 +502,7 @@ import { API_VERSION, API_BASE_URL } from './config'
 
 const instance: AxiosInstance = axios.create({
   baseURL: `${API_BASE_URL}/${API_VERSION}`,
-  timeout: 10000
+  timeout: 10000,
 })
 ```
 
@@ -515,8 +521,8 @@ const mockUsers: User[] = [
     email: 'john@example.com',
     role: 'admin',
     createdAt: '2024-01-01',
-    updatedAt: '2024-01-01'
-  }
+    updatedAt: '2024-01-01',
+  },
 ]
 
 export const mockUserApi = {
@@ -526,14 +532,13 @@ export const mockUserApi = {
     let filteredUsers = [...mockUsers]
 
     if (params.keyword) {
-      filteredUsers = filteredUsers.filter(user =>
-        user.name.includes(params.keyword!) ||
-        user.email.includes(params.keyword!)
+      filteredUsers = filteredUsers.filter(
+        (user) => user.name.includes(params.keyword!) || user.email.includes(params.keyword!)
       )
     }
 
     if (params.role) {
-      filteredUsers = filteredUsers.filter(user => user.role === params.role)
+      filteredUsers = filteredUsers.filter((user) => user.role === params.role)
     }
 
     const start = (params.page - 1) * params.pageSize
@@ -543,14 +548,14 @@ export const mockUserApi = {
       list: filteredUsers.slice(start, end),
       total: filteredUsers.length,
       page: params.page,
-      pageSize: params.pageSize
+      pageSize: params.pageSize,
     }
   },
 
   async detail(id: string): Promise<User> {
     await delay(300)
 
-    const user = mockUsers.find(u => u.id === id)
+    const user = mockUsers.find((u) => u.id === id)
     if (!user) {
       throw new Error('User not found')
     }
@@ -567,16 +572,16 @@ export const mockUserApi = {
       email: data.email,
       role: data.role || 'user',
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
 
     mockUsers.push(newUser)
     return newUser
-  }
+  },
 }
 
 function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 ```
 
@@ -590,20 +595,25 @@ import type { User, CreateUserDto, UpdateUserDto, UserListParams, PageResponse }
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 
-export const userApi = USE_MOCK ? mockUserApi : {
-  // 真实 API 实现
-}
+export const userApi = USE_MOCK
+  ? mockUserApi
+  : {
+      // 真实 API 实现
+    }
 ```
 
 ## 最佳实践
 
 ### 1. 类型安全
+
 始终使用 TypeScript 定义 API 接口的类型。
 
 ### 2. 错误处理
+
 统一处理 API 错误，提供友好的错误提示。
 
 ### 3. 请求取消
+
 使用 Axios CancelToken 取消未完成的请求。
 
 ```typescript
@@ -613,7 +623,7 @@ const CancelToken = axios.CancelToken
 const source = CancelToken.source()
 
 request.get('/users', {
-  cancelToken: source.token
+  cancelToken: source.token,
 })
 
 // 取消请求
@@ -621,6 +631,7 @@ source.cancel('Request canceled')
 ```
 
 ### 4. 请求重试
+
 对于失败的请求，实现自动重试机制。
 
 ```typescript
@@ -638,23 +649,21 @@ async function requestWithRetry(
       if (i === maxRetries - 1) {
         throw error
       }
-      await new Promise(resolve => setTimeout(resolve, delay))
+      await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
 }
 ```
 
 ### 5. 请求缓存
+
 对于不经常变化的数据，实现请求缓存。
 
 ```typescript
 const cache = new Map<string, { data: any; timestamp: number }>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 分钟
 
-async function cachedRequest<T>(
-  key: string,
-  fn: () => Promise<T>
-): Promise<T> {
+async function cachedRequest<T>(key: string, fn: () => Promise<T>): Promise<T> {
   const cached = cache.get(key)
 
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {

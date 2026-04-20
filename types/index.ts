@@ -72,6 +72,7 @@ export interface Skill {
   metadata: SkillMetadata
   isBuiltIn: boolean
   createdAt: number
+  updatedAt?: number
 }
 
 export interface SkillMetadata {

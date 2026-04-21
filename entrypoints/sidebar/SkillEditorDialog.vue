@@ -176,7 +176,7 @@
     }
   })
 
-  function generateSkillPreview(skill: Skill): string {
+  function generateYamlFields(skill: Skill): Record<string, any> {
     const yamlFields: Record<string, any> = {
       name: skill.name,
       description: skill.description,
@@ -188,16 +188,26 @@
     if (skill.metadata.tags?.length) yamlFields.tags = skill.metadata.tags
     if (skill.metadata.examples?.length) yamlFields.examples = skill.metadata.examples
 
-    const yamlContent = yaml.dump(yamlFields, { skipInvalid: true, indent: 2 })
-    const markdownBody = skill.systemPrompt
-
-    return `---\n${yamlContent}---\n\n${markdownBody}`
+    return yamlFields
   }
 
   const skillPreviewHtml = computed(() => {
-    const rawSkillMd = generateSkillPreview(formData.value)
-    const rawHtml = marked(rawSkillMd) as string
-    return DOMPurify.sanitize(rawHtml)
+    const yamlFields = generateYamlFields(formData.value)
+    const yamlContent = yaml.dump(yamlFields, { skipInvalid: true, indent: 2 })
+    const yamlFrontMatter = `---\n${yamlContent}---`
+
+    const yamlHtml = `<pre class="yaml-front-matter"><code>${yamlFrontMatter}</code></pre>`
+
+    let bodyHtml = ''
+    if (formData.value.systemPrompt) {
+      const parsedBody = marked.parse(formData.value.systemPrompt, {
+        breaks: true,
+        gfm: true,
+      }) as string
+      bodyHtml = DOMPurify.sanitize(parsedBody)
+    }
+
+    return yamlHtml + bodyHtml
   })
 
   const validateNameUnique = (rule: any, value: string, callback: any) => {
@@ -354,6 +364,22 @@
     border-radius: 8px;
     font-size: 13px;
     line-height: 1.6;
+  }
+
+  .skill-md-preview :deep(.yaml-front-matter) {
+    background: var(--el-fill-color-dark);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    overflow-x: auto;
+  }
+
+  .skill-md-preview :deep(.yaml-front-matter code) {
+    color: var(--el-text-color-primary);
+    background: transparent;
+    padding: 0;
   }
 
   .skill-md-preview :deep(h1) {

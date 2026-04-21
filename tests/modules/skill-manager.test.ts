@@ -36,6 +36,7 @@ vi.mock('../../skills/built-in-skills', () => ({
         category: 'System',
       },
       isBuiltIn: true,
+      enabled: true,
       createdAt: Date.now(),
     },
   ],
@@ -77,6 +78,7 @@ describe('SkillManager', () => {
             category: 'System',
           },
           isBuiltIn: true,
+          enabled: true,
           createdAt: Date.now(),
         },
       ])
@@ -297,6 +299,70 @@ describe('SkillManager', () => {
       const results = await skillManager.getSkillsByCategory('general')
 
       expect(results).toHaveLength(2)
+    })
+  })
+
+  describe('toggleSkillEnabled', () => {
+    it('should toggle skill from enabled to disabled', async () => {
+      mockGetAllSkills.mockResolvedValue([])
+      mockGetSkill.mockResolvedValue(mockSkill)
+
+      await skillManager.toggleSkillEnabled(mockSkill.id)
+
+      expect(mockGetSkill).toHaveBeenCalledWith(mockSkill.id)
+      expect(mockSaveSkill).toHaveBeenCalledWith({
+        ...mockSkill,
+        enabled: false,
+        updatedAt: expect.any(Number),
+      })
+    })
+
+    it('should toggle skill from disabled to enabled', async () => {
+      const disabledSkill = { ...mockSkill, enabled: false }
+      mockGetAllSkills.mockResolvedValue([])
+      mockGetSkill.mockResolvedValue(disabledSkill)
+
+      await skillManager.toggleSkillEnabled(disabledSkill.id)
+
+      expect(mockSaveSkill).toHaveBeenCalledWith({
+        ...disabledSkill,
+        enabled: true,
+        updatedAt: expect.any(Number),
+      })
+    })
+
+    it('should do nothing if skill not found', async () => {
+      mockGetAllSkills.mockResolvedValue([
+        {
+          id: 'built-in-1',
+          name: 'Built-in Skill 1',
+          description: 'A built-in skill',
+          systemPrompt: 'Test prompt',
+          metadata: {
+            author: 'System',
+            version: '1.0.0',
+            tags: ['built-in'],
+            examples: [],
+            category: 'System',
+          },
+          isBuiltIn: true,
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ])
+      mockGetSkill.mockResolvedValue(null)
+
+      await skillManager.toggleSkillEnabled('non-existent')
+
+      expect(mockGetSkill).toHaveBeenCalledWith('non-existent')
+    })
+
+    it('should initialize before toggling', async () => {
+      mockGetAllSkills.mockResolvedValueOnce([])
+
+      await skillManager.toggleSkillEnabled('test')
+
+      expect(mockGetAllSkills).toHaveBeenCalled()
     })
   })
 })

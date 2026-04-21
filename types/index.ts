@@ -71,6 +71,7 @@ export interface Skill {
   systemPrompt: string
   metadata: SkillMetadata
   isBuiltIn: boolean
+  enabled: boolean
   createdAt: number
   updatedAt?: number
 }

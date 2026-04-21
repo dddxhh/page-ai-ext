@@ -63,6 +63,7 @@ export const mockSkill: Skill = {
     category: 'general',
   },
   isBuiltIn: false,
+  enabled: true,
   createdAt: Date.now(),
 }
 
@@ -79,5 +80,6 @@ export const mockBuiltInSkill: Skill = {
     category: 'system',
   },
   isBuiltIn: true,
+  enabled: true,
   createdAt: Date.now(),
 }

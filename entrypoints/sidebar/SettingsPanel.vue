@@ -103,14 +103,31 @@
 
         <el-scrollbar max-height="300px">
           <div class="skill-cards">
-            <div v-for="skill in filteredSkills" :key="skill.id" class="skill-card">
+            <div
+              v-for="skill in filteredSkills"
+              :key="skill.id"
+              class="skill-card"
+              :class="{ 'skill-card-disabled': !skill.enabled }"
+            >
               <div class="skill-card-header">
-                <span class="skill-name">{{ skill.name }}</span>
+                <div class="skill-card-header-left">
+                  <el-switch
+                    :model-value="skill.enabled"
+                    size="small"
+                    @change="toggleSkillEnabled(skill)"
+                  />
+                  <span class="skill-name" :class="{ 'skill-name-disabled': !skill.enabled }">
+                    {{ skill.name }}
+                  </span>
+                  <el-tag v-if="!skill.enabled" size="small" type="info">
+                    {{ t('skill.disabled') }}
+                  </el-tag>
+                </div>
                 <el-tag size="small" :type="skill.isBuiltIn ? 'info' : 'success'">
                   {{ skill.isBuiltIn ? t('skill.builtIn') : t('skill.custom') }}
                 </el-tag>
               </div>
-              <p class="skill-card-desc">{{ skill.description }}</p>
+              <p class="skill-card-desc" v-html="renderSkillDescription(skill.description)"></p>
               <div class="skill-card-meta">
                 <el-tag v-if="skill.metadata.category" size="small" type="warning">
                   {{ skill.metadata.category }}
@@ -198,6 +215,9 @@
   import { ref, onMounted } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { ElMessage, ElMessageBox } from 'element-plus/es'
+  import { marked } from 'marked'
+  import DOMPurify from 'dompurify'
+  import yaml from 'js-yaml'
   import { storage } from '~/modules/storage'
   import { skillManager } from '~/modules/skill-manager'
   import { Config, Skill } from '~/types'
@@ -361,6 +381,36 @@
   function handleClose(): void {
     emit('close')
   }
+
+  function renderSkillDescription(description: string): string {
+    const yamlMatch = description.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
+
+    if (yamlMatch) {
+      try {
+        const metadata = yaml.load(yamlMatch[1]) as Record<string, any>
+        const markdownBody = yamlMatch[2]
+        const metadataHtml = Object.entries(metadata)
+          .map(
+            ([key, value]) =>
+              `<span class="yaml-key">${key}:</span> <span class="yaml-value">${value}</span>`
+          )
+          .join(' | ')
+        const bodyHtml = DOMPurify.sanitize(marked(markdownBody) as string)
+        return `<div class="yaml-inline">${metadataHtml}</div>${bodyHtml}`
+      } catch {
+        return DOMPurify.sanitize(marked(description) as string)
+      }
+    }
+
+    return DOMPurify.sanitize(marked(description) as string)
+  }
+
+  async function toggleSkillEnabled(skill: Skill): Promise<void> {
+    await skillManager.toggleSkillEnabled(skill.id)
+    await loadSkills()
+    await handleSearch()
+    ElMessage.success(skill.enabled ? t('skill.disableSkill') : t('skill.enableSkill'))
+  }
 </script>
 
 <style scoped>
@@ -459,5 +509,46 @@
   .about-section p {
     margin: 8px 0;
     color: #666;
+  }
+
+  .skill-card-disabled {
+    opacity: 0.6;
+  }
+
+  .skill-name-disabled {
+    text-decoration: line-through;
+  }
+
+  .skill-card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .skill-card-desc :deep(code) {
+    background: var(--el-fill-color);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .skill-card-desc :deep(pre) {
+    background: var(--el-fill-color-dark);
+    padding: 8px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 12px;
+  }
+
+  .yaml-inline {
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+    margin-bottom: 4px;
+    font-family: monospace;
+  }
+
+  .yaml-inline :deep(.yaml-key) {
+    color: var(--el-color-primary);
   }
 </style>

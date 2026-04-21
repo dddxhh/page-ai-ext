@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createI18n } from 'vue-i18n'
 import ChatPanel from '../../entrypoints/sidebar/ChatPanel.vue'
+import { testI18n } from '../fixtures/i18n-fixture'
+import { elementPlusStubs } from '../fixtures/vue-stubs'
 
 const mockGetSkill = vi.hoisted(() => vi.fn())
 const mockSendToBackground = vi.hoisted(() => vi.fn())
 const mockGetConfig = vi.hoisted(() => vi.fn())
+const mockGetConversation = vi.hoisted(() => vi.fn())
 
 vi.mock('../../modules/skill-manager', () => ({
   skillManager: {
@@ -22,6 +24,11 @@ vi.mock('../../modules/messaging', () => ({
 vi.mock('../../modules/storage', () => ({
   storage: {
     getConfig: mockGetConfig,
+    getConversation: mockGetConversation,
+    saveConversation: vi.fn().mockResolvedValue(undefined),
+    deleteConversation: vi.fn().mockResolvedValue(undefined),
+    exportSkills: vi.fn().mockResolvedValue([]),
+    importSkills: vi.fn().mockResolvedValue(undefined),
   },
 }))
 
@@ -71,50 +78,17 @@ const mockConfig = {
   },
 }
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'en-US',
-  messages: {
-    'en-US': {
-      chat: {
-        conversation: 'Conversation',
-        selectSkill: 'Select Skill',
-        changeModel: 'Change Model',
-        clear: 'Clear',
-        noMessages: 'No messages',
-        typeMessage: 'Type a message',
-        send: 'Send',
-      },
-    },
-  },
-})
+const i18n = testI18n
 
 function createWrapper() {
   return mount(ChatPanel, {
     global: {
       plugins: [i18n],
       stubs: {
+        ...elementPlusStubs,
         MessageList: true,
         SkillSelector: true,
         ModelSelector: true,
-        ElTag: {
-          template:
-            '<span class="el-tag" :class="type ? \'el-tag--\' + type : \'\'"><slot /></span>',
-          props: ['type', 'size'],
-        },
-        ElButton: {
-          template:
-            '<button class="el-button" :class="{ \'is-loading\': loading }"><slot /></button>',
-          props: ['type', 'size', 'loading'],
-        },
-        ElButtonGroup: {
-          template: '<div class="el-button-group"><slot /></div>',
-        },
-        ElInput: {
-          template: '<textarea class="el-input"></textarea>',
-          props: ['modelValue', 'type', 'rows', 'placeholder'],
-          emits: ['update:modelValue'],
-        },
       },
     },
   })
@@ -126,6 +100,7 @@ describe('Skill Application', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetConfig.mockResolvedValue(mockConfig)
+    mockGetConversation.mockResolvedValue(null)
     mockSendToBackground.mockResolvedValue(undefined)
   })
 

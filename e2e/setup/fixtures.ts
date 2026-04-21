@@ -1,4 +1,4 @@
-import { test as base, BrowserContext, Page } from '@playwright/test'
+import { test as base, BrowserContext } from '@playwright/test'
 import path from 'path'
 
 const extensionPath = path.resolve('.output/chrome-mv3')

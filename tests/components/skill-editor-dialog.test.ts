@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createI18n } from 'vue-i18n'
 import SkillEditorDialog from '../../entrypoints/sidebar/SkillEditorDialog.vue'
 import { nextTick } from 'vue'
 import { generateIdFromName } from '../../utils/id'
+import { testI18n } from '../fixtures/i18n-fixture'
+import { elementPlusStubs } from '../fixtures/vue-stubs'
 
 const mockSaveSkill = vi.hoisted(() => vi.fn())
 
@@ -13,44 +14,7 @@ vi.mock('../../modules/skill-manager', () => ({
   },
 }))
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'zh-CN',
-  messages: {
-    'zh-CN': {
-      skill: {
-        createTitle: '新增技能',
-        editorTitle: '编辑技能',
-        copyTitle: '复制技能',
-        basicInfo: '基础信息',
-        systemPrompt: '系统提示词',
-        metadata: '元数据',
-        nameRequired: '请输入技能名称',
-        nameMinLength: '名称至少需要 2 个字符',
-        nameDuplicate: '技能名称已存在',
-        descriptionRequired: '请输入描述',
-        descriptionMinLength: '描述至少需要 10 个字符',
-        promptRequired: '请输入系统提示词',
-        promptMinLength: '系统提示词至少需要 20 个字符',
-        versionFormat: '版本号格式错误：如 1.0.0',
-        saveSuccess: '技能保存成功',
-        operationFailed: '操作失败',
-        cancel: '取消',
-        save: '保存',
-        name: '名称',
-        description: '描述',
-        category: '分类',
-        author: '作者',
-        version: '版本',
-        tags: '标签',
-        examplesLabel: '使用示例',
-        addExample: '添加示例',
-        delete: '删除',
-        copiedName: '{name} - 副本',
-      },
-    },
-  },
-})
+const i18n = testI18n
 
 const mockSkill = {
   id: 'test-skill',
@@ -73,53 +37,7 @@ function createWrapper(props = {}) {
     global: {
       plugins: [i18n],
       stubs: {
-        ElDialog: {
-          template:
-            '<div class="el-dialog" v-if="modelValue"><div class="dialog-title">{{ title }}</div><slot /><slot name="footer" /></div>',
-          props: ['modelValue', 'title', 'width'],
-          emits: ['update:modelValue', 'close'],
-        },
-        ElForm: {
-          template: '<form class="el-form"><slot /></form>',
-          props: ['model', 'rules', 'labelWidth'],
-          emits: ['validate'],
-          methods: {
-            resetFields: () => {},
-            validate: () => Promise.resolve(true),
-          },
-        },
-        ElFormItem: {
-          template: '<div class="el-form-item"><slot /></div>',
-          props: ['label', 'prop'],
-        },
-        ElInput: {
-          template:
-            '<input class="el-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-          props: ['modelValue', 'type', 'rows', 'placeholder'],
-          emits: ['update:modelValue'],
-        },
-        ElSelect: {
-          template: '<select class="el-select"><slot /></select>',
-          props: ['modelValue', 'multiple', 'filterable', 'allowCreate', 'placeholder'],
-          emits: ['update:modelValue'],
-        },
-        ElOption: {
-          template: '<option class="el-option" :value="value">{{ label }}</option>',
-          props: ['label', 'value'],
-        },
-        ElButton: {
-          template:
-            '<button class="el-button" :disabled="loading" @click="$emit(\'click\')"><slot /></button>',
-          props: ['type', 'size', 'loading'],
-          emits: ['click'],
-        },
-        ElDivider: {
-          template: '<div class="el-divider"><slot /></div>',
-          props: ['contentPosition'],
-        },
-        ElMessage: {
-          template: '<div class="el-message"></div>',
-        },
+        ...elementPlusStubs,
       },
     },
     props: {

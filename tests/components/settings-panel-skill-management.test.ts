@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createI18n } from 'vue-i18n'
 import SettingsPanel from '../../entrypoints/sidebar/SettingsPanel.vue'
+import { testI18n } from '../fixtures/i18n-fixture'
+import { elementPlusStubs } from '../fixtures/vue-stubs'
 
 const mockGetConfig = vi.hoisted(() => vi.fn())
 const mockGetAllSkills = vi.hoisted(() => vi.fn())
@@ -80,105 +81,14 @@ const mockSkills = [
   },
 ]
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'zh-CN',
-  messages: {
-    'zh-CN': {
-      settings: {
-        title: '设置',
-        close: '关闭',
-        skills: '技能',
-        general: '通用',
-        shortcuts: '快捷键',
-        privacy: '隐私',
-        about: '关于',
-        saveSettings: '保存设置',
-        exportSkills: '导出技能',
-        importSkills: '导入技能',
-      },
-      skill: {
-        add: '新增技能',
-        edit: '编辑',
-        copy: '复制',
-        delete: '删除',
-        builtIn: '内置',
-        custom: '自定义',
-        searchPlaceholder: '搜索技能...',
-        categoryFilter: '分类筛选',
-        allCategories: '全部',
-        confirmDelete: '确认删除',
-        confirmDeleteMessage: '确定要删除技能 "{name}" 吗？',
-        deleteSuccess: '技能删除成功',
-        noEditBuiltIn: '内置技能不可编辑',
-        noDeleteBuiltIn: '内置技能不可删除',
-      },
-    },
-  },
-})
+const i18n = testI18n
 
 function createWrapper() {
   return mount(SettingsPanel, {
     global: {
       plugins: [i18n],
       stubs: {
-        ElTabs: {
-          template: '<div class="el-tabs"><slot /></div>',
-          props: ['modelValue'],
-        },
-        ElTabPane: {
-          template: '<div class="el-tab-pane"><slot /></div>',
-          props: ['label', 'name'],
-        },
-        ElForm: {
-          template: '<form class="el-form"><slot /></form>',
-          props: ['model', 'labelWidth'],
-        },
-        ElFormItem: {
-          template: '<div class="el-form-item"><slot /></div>',
-          props: ['label'],
-        },
-        ElSelect: {
-          template: '<select class="el-select"><slot /></select>',
-          props: ['modelValue'],
-          emits: ['update:modelValue', 'change'],
-        },
-        ElOption: {
-          template: '<option class="el-option">{{ label }}</option>',
-          props: ['label', 'value'],
-        },
-        ElInput: {
-          template: '<input class="el-input" />',
-          props: ['modelValue', 'placeholder', 'clearable'],
-          emits: ['update:modelValue', 'input'],
-        },
-        ElButton: {
-          template:
-            '<button class="el-button" :class="{ \'is-disabled\': disabled }" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
-          props: ['type', 'size', 'disabled'],
-          emits: ['click'],
-        },
-        ElTag: {
-          template:
-            '<span class="el-tag" :class="type ? \'el-tag--\' + type : \'\'"><slot /></span>',
-          props: ['type', 'size'],
-        },
-        ElTooltip: {
-          template: '<div class="el-tooltip"><slot /></div>',
-          props: ['content', 'placement'],
-        },
-        ElScrollbar: {
-          template: '<div class="el-scrollbar"><slot /></div>',
-          props: ['maxHeight'],
-        },
-        ElSwitch: {
-          template: '<input type="checkbox" class="el-switch" />',
-          props: ['modelValue'],
-          emits: ['update:modelValue'],
-        },
-        ElDivider: {
-          template: '<hr class="el-divider" />',
-        },
+        ...elementPlusStubs,
         SkillEditorDialog: true,
       },
     },

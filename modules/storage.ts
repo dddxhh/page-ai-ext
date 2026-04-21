@@ -119,7 +119,11 @@ export class Storage {
   }
 
   async getAllSkills(): Promise<Skill[]> {
-    return (await this.get<Skill[]>(STORAGE_KEYS.SKILLS)) || []
+    const skills = (await this.get<Skill[]>(STORAGE_KEYS.SKILLS)) || []
+    return skills.map((skill) => ({
+      ...skill,
+      enabled: skill.enabled ?? true,
+    }))
   }
 
   async deleteSkill(id: string): Promise<void> {

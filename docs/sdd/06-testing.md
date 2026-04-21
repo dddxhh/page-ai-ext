@@ -49,27 +49,41 @@ export default defineConfig({
 ## 测试目录结构
 
 ```
-tests/
-├── setup.ts              # 测试配置
-├── mocks/                # Mock 数据
+tests/                  # Vitest 单元测试
+├── setup.ts            # 测试配置
+├── mocks/              # Mock 数据
 │   ├── chrome-api.mock.ts
 │   └── api.mock.ts
-├── fixtures/             # 测试数据
+├── fixtures/           # 测试数据
 │   └── data-fixtures.ts
-├── unit/                 # 单元测试
+├── unit/               # 单元测试
 │   ├── utils/
 │   │   └── date-utils.test.ts
 │   └── api/
 │       └── user-api.test.ts
-├── components/           # 组件测试
+├── components/         # 组件测试
 │   ├── base/
 │   │   └── Button.test.ts
 │   └── business/
 │       └── UserCard.test.ts
-├── stores/               # Store 测试
-│   └── user.test.ts
-└── e2e/                  # E2E 测试
-    └── login.spec.ts
+└── stores/             # Store 测试
+    └── user.test.ts
+
+e2e/                    # Playwright E2E 测试
+├── setup/
+│   ├── fixtures.ts     # Playwright fixtures（扩展加载）
+│   ├── global-setup.ts # 构建扩展
+│   └── helpers.ts      # 辅助函数
+├── tests/
+│   ├── sidebar/        # sidePanel UI 测试
+│   │   ├── chat.spec.ts
+│   │   ├── settings.spec.ts
+│   │   └── skill-management.spec.ts
+│   ├── background/     # Service worker 测试
+│   │   └── commands.spec.ts
+│   └── integration/    # 集成测试
+│       └── full-flow.spec.ts
+└── playwright.config.ts
 ```
 
 ## 测试配置
@@ -461,80 +475,102 @@ describe('User Store', () => {
 
 ## E2E 测试
 
-### Playwright 配置
+### Playwright 配置（Chrome 扩展）
 
 ```typescript
 // playwright.config.ts
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './tests/e2e',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  testDir: './e2e/tests',
+  fullyParallel: false, // 扩展测试需要串行执行
+  forbidOnly: true,
+  retries: 0,
+  workers: 1,
+  reporter: 'list',
+  timeout: 60000,
   use: {
-    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
     },
   ],
+  globalSetup: './e2e/setup/global-setup.ts',
 })
 ```
 
-### E2E 测试示例
+### Chrome 扩展 E2E 测试示例
 
 ```typescript
-// tests/e2e/login.spec.ts
-import { test, expect } from '@playwright/test'
+// e2e/tests/sidebar/chat.spec.ts
+import { test, expect } from '../../setup/fixtures'
+import { openSidePanel, clearStorage } from '../../setup/helpers'
 
-test.describe('Login Flow', () => {
-  test('should login successfully with valid credentials', async ({ page }) => {
-    await page.goto('/login')
+test.beforeEach(async ({ page, extensionId }) => {
+  await openSidePanel(page, extensionId)
+  await clearStorage(page)
+})
 
-    await page.fill('input[name="email"]', 'test@example.com')
-    await page.fill('input[name="password"]', 'password')
-    await page.click('button[type="submit"]')
-
-    await expect(page).toHaveURL('/dashboard')
-    await expect(page.locator('.user-name')).toContainText('Test User')
+test.describe('Chat Flow', () => {
+  test('should display chat panel on load', async ({ page }) => {
+    await expect(page.locator('.chat-panel')).toBeVisible()
+    await expect(page.locator('.empty-state')).toBeVisible()
   })
 
-  test('should show error with invalid credentials', async ({ page }) => {
-    await page.goto('/login')
-
-    await page.fill('input[name="email"]', 'invalid@example.com')
-    await page.fill('input[name="password"]', 'wrong-password')
-    await page.click('button[type="submit"]')
-
-    await expect(page.locator('.error-message')).toBeVisible()
-    await expect(page.locator('.error-message')).toContainText('Invalid credentials')
-  })
-
-  test('should validate email format', async ({ page }) => {
-    await page.goto('/login')
-
-    await page.fill('input[name="email"]', 'invalid-email')
-    await page.fill('input[name="password"]', 'password')
-    await page.click('button[type="submit"]')
-
-    await expect(page.locator('.email-error')).toBeVisible()
-    await expect(page.locator('.email-error')).toContainText('Invalid email format')
+  test('should have input area visible', async ({ page }) => {
+    await expect(page.locator('.input-area textarea')).toBeVisible()
+    await expect(page.locator('.input-area .el-button--primary')).toBeVisible()
   })
 })
+```
+
+### E2E 测试 fixtures
+
+```typescript
+// e2e/setup/fixtures.ts
+import { test as base, BrowserContext } from '@playwright/test'
+import path from 'path'
+
+const extensionPath = path.resolve('.output/chrome-mv3')
+
+export type ExtensionTestFixtures = {
+  context: BrowserContext
+  extensionId: string
+}
+
+export const test = base.extend<ExtensionTestFixtures>({
+  browser: async ({ playwright }, use) => {
+    const browser = await playwright.chromium.launchPersistentContext(
+      '/tmp/playwright-extension-test',
+      {
+        headless: false,
+        args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+      }
+    )
+    await use(browser)
+    await browser.close()
+  },
+  context: async ({ browser }, use) => {
+    await use(browser as unknown as BrowserContext)
+  },
+  extensionId: async ({ context }, use) => {
+    // 获取扩展 ID（从 service worker）
+    const serviceWorkers = context.serviceWorkers()
+    if (serviceWorkers.length > 0) {
+      const url = serviceWorkers[0].url()
+      const match = url.match(/chrome-extension:\/\/([a-zA-Z0-9-]+)/)
+      await use(match ? match[1] : '')
+      return
+    }
+    throw new Error('Could not find extension service worker')
+  },
+})
+
+export { expect } from '@playwright/test'
 ```
 
 ## 测试覆盖率

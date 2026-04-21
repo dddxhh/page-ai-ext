@@ -56,6 +56,10 @@ A Chrome extension that enables users to interact with AI models on any webpage,
 - `npm run test:run` - Run tests once
 - `npm run test:coverage` - Coverage report
 
+- `npm run test:e2e` - E2E tests (Playwright)
+- `npm run test:e2e:ui` - E2E tests UI mode
+- `npm run test:e2e:report` - E2E test report
+
 - `npm run lint` - ESLint check
 - `npm run lint:fix` - ESLint auto-fix
 - `npm run format` - Prettier format all files

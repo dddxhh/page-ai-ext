@@ -32,6 +32,10 @@ yarn-error.log*
 # Testing
 coverage/
 
+# E2E Testing (Playwright)
+test-results/
+playwright-report/
+
 # Auto-generated type declarations
 auto-imports.d.ts
 components.d.ts

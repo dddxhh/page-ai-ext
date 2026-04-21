@@ -1,0 +1,49 @@
+{
+  "skills": [
+    {
+      "id": "test-custom-skill",
+      "name": "Test Custom Skill",
+      "description": "A test skill for E2E testing purposes",
+      "systemPrompt": "You are a test assistant. Respond with test messages.",
+      "metadata": {
+        "author": "E2E Test",
+        "version": "1.0.0",
+        "tags": ["test", "e2e"],
+        "examples": ["Test example 1", "Test example 2"],
+        "category": "Testing"
+      },
+      "isBuiltIn": false,
+      "createdAt": 1700000000000
+    },
+    {
+      "id": "test-skill-for-edit",
+      "name": "Skill To Edit",
+      "description": "This skill will be edited in tests",
+      "systemPrompt": "Original prompt to be modified",
+      "metadata": {
+        "author": "E2E Test",
+        "version": "1.0.0",
+        "tags": ["editable"],
+        "examples": [],
+        "category": "Testing"
+      },
+      "isBuiltIn": false,
+      "createdAt": 1700000000000
+    },
+    {
+      "id": "test-skill-for-delete",
+      "name": "Skill To Delete",
+      "description": "This skill will be deleted in tests",
+      "systemPrompt": "Prompt for skill to be deleted",
+      "metadata": {
+        "author": "E2E Test",
+        "version": "1.0.0",
+        "tags": ["deletable"],
+        "examples": [],
+        "category": "Testing"
+      },
+      "isBuiltIn": false,
+      "createdAt": 1700000000000
+    }
+  ]
+}

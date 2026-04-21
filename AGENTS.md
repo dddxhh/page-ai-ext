@@ -17,6 +17,10 @@ npm run test             # Vitest 监听模式
 npm run test:run         # 单次运行测试
 npm run test:coverage    # 覆盖率报告
 
+npm run test:e2e         # E2E 测试 (Playwright)
+npm run test:e2e:ui      # E2E 测试 UI 模式
+npm run test:e2e:report  # E2E 测试报告
+
 npm run lint             # ESLint 检查代码问题
 npm run lint:fix         # ESLint 自动修复
 npm run format           # Prettier 格式化所有文件
@@ -32,6 +36,7 @@ npm run format:check     # Prettier 检查格式
 | `mcp-server/`  | MCP 工具，用于 DOM/页面操作                             |
 | `types/`       | TypeScript 类型定义中心                                 |
 | `tests/`       | Vitest 测试，setup.ts 已 mock Chrome API                |
+| `e2e/`         | E2E 测试 (Playwright)，验证 UI 交互流程                 |
 
 **关键文件：**
 
@@ -64,10 +69,19 @@ import { storage } from '~/modules/storage'
 
 ## 测试说明
 
+### Vitest 单元测试
+
 - `tests/setup.ts` 已全局 mock Chrome API（storage, runtime, tabs）
 - Vitest 使用 jsdom 环境
 - 组件测试需要 stub Element Plus 组件
 - 提交前运行测试确认
+
+### Playwright E2E 测试
+
+- 测试 Chrome 扩展 UI 交互流程
+- 使用生产构建（`npm run build`）
+- 共 38 个测试用例覆盖聊天、设置、技能管理
+- 详细设计见 `docs/superpowers/specs/2026-04-20-e2e-testing-design.md`
 
 ## 开发规范文档
 

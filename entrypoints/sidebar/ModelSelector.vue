@@ -225,7 +225,6 @@
   }
 
   async function handleAddModel(model: ModelConfig): Promise<void> {
-    console.log('handleAddModel called with:', model)
     try {
       const config = await storage.getConfig()
       const updatedModels = [...config.models, model]
@@ -240,9 +239,7 @@
   }
 
   function handleShowAddModel(): void {
-    console.log('handleShowAddModel called')
     showAddModel.value = true
-    console.log('showAddModel set to:', showAddModel.value)
   }
 
   function handleClose(): void {

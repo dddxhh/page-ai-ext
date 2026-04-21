@@ -4,6 +4,7 @@ import { apiClient } from '../modules/api-client'
 import { skillManager } from '../modules/skill-manager'
 import { mcpServer } from '../mcp-server/server'
 import { Message } from '../types'
+import { generateId } from '~/utils/id'
 import { defineBackground } from 'wxt/sandbox'
 
 export default defineBackground(() => {
@@ -176,11 +177,6 @@ export default defineBackground(() => {
       data: {},
     })
   })
-
-  // Helper functions
-  function generateId(): string {
-    return Math.random().toString(36).substring(2, 15)
-  }
 
   async function getPageContent(): Promise<string | null> {
     try {

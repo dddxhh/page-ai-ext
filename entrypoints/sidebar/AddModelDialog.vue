@@ -40,6 +40,7 @@
   import { ElMessage } from 'element-plus/es'
   import { useI18n } from 'vue-i18n'
   import { ModelConfig } from '~/types'
+  import { generateId } from '~/utils/id'
 
   const { t } = useI18n()
 
@@ -59,14 +60,12 @@
   }>()
 
   watch(visible, (newVal) => {
-    console.log('AddModelDialog visible changed to:', newVal)
     if (!newVal) {
       resetForm()
     }
   })
 
   function handleSubmit(): void {
-    console.log('handleSubmit called, form:', form.value)
     if (!form.value.name || !form.value.model || !form.value.apiKey) {
       ElMessage.error(t('model.fillRequired'))
       return
@@ -82,18 +81,15 @@
       parameters: {},
     }
 
-    console.log('Emitting add event with model:', model)
     emit('add', model)
     visible.value = false
   }
 
   function handleClose(): void {
-    console.log('handleClose called')
     visible.value = false
   }
 
   function resetForm(): void {
-    console.log('resetForm called')
     form.value = {
       name: '',
       provider: 'openai',
@@ -102,9 +98,5 @@
       apiKey: '',
       parameters: {},
     }
-  }
-
-  function generateId(): string {
-    return Math.random().toString(36).substring(2, 15)
   }
 </script>

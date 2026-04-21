@@ -1,4 +1,21 @@
 import { messaging } from '~/modules/messaging'
+import {
+  type ClickElementParams,
+  type ClickElementResult,
+  type FillFormParams,
+  type FillFormResult,
+  type ExtractContentParams,
+  type ExtractContentResult,
+  type ScrollPageParams,
+  type ScrollPageResult,
+  type ExecuteScriptParams,
+  type ExecuteScriptResult,
+  type GetPageContentParams,
+  type GetPageContentResult,
+  type TakeScreenshotParams,
+  type TakeScreenshotResult,
+  type DOMStructureNode,
+} from '~/types/mcp-tools'
 import { defineContentScript } from 'wxt/sandbox'
 
 export default defineContentScript({
@@ -76,7 +93,7 @@ export default defineContentScript({
     })
 
     // Tool handlers
-    async function handleClickElement(params: any): Promise<any> {
+    async function handleClickElement(params: ClickElementParams): Promise<ClickElementResult> {
       const { selector } = params
       const element = document.querySelector(selector)
 
@@ -98,7 +115,7 @@ export default defineContentScript({
       return { clicked: true }
     }
 
-    async function handleFillForm(params: any): Promise<any> {
+    async function handleFillForm(params: FillFormParams): Promise<FillFormResult> {
       const { selector, value, submit = false } = params
       const element = document.querySelector(selector) as HTMLInputElement
 
@@ -125,7 +142,9 @@ export default defineContentScript({
       return { filled: true }
     }
 
-    async function handleExtractContent(params: any): Promise<any> {
+    async function handleExtractContent(
+      params: ExtractContentParams
+    ): Promise<ExtractContentResult> {
       const { selector, format = 'text' } = params
       const element = selector ? document.querySelector(selector) : document.body
 
@@ -152,7 +171,7 @@ export default defineContentScript({
       return { content }
     }
 
-    async function handleScrollPage(params: any): Promise<any> {
+    async function handleScrollPage(params: ScrollPageParams): Promise<ScrollPageResult> {
       const { direction = 'down', amount = 500 } = params
 
       switch (direction) {
@@ -175,7 +194,7 @@ export default defineContentScript({
       return { scrolled: true, scrollY: window.scrollY }
     }
 
-    async function handleExecuteScript(params: any): Promise<any> {
+    async function handleExecuteScript(params: ExecuteScriptParams): Promise<ExecuteScriptResult> {
       const { script } = params
 
       // Security validation - prevent dangerous operations
@@ -208,7 +227,9 @@ export default defineContentScript({
       }
     }
 
-    async function handleGetPageContent(params: any): Promise<any> {
+    async function handleGetPageContent(
+      params: GetPageContentParams
+    ): Promise<GetPageContentResult> {
       const { format = 'text' } = params
 
       switch (format) {
@@ -225,7 +246,9 @@ export default defineContentScript({
       }
     }
 
-    async function handleTakeScreenshot(params: any): Promise<any> {
+    async function handleTakeScreenshot(
+      params: TakeScreenshotParams
+    ): Promise<TakeScreenshotResult> {
       const { format = 'png' } = params
 
       // Use chrome.tabs.captureVisibleTab
@@ -327,15 +350,19 @@ export default defineContentScript({
       depth: number,
       includeText: boolean,
       currentDepth: number = 0
-    ): any {
+    ): DOMStructureNode {
       if (currentDepth >= depth) {
-        return includeText ? { text: element.textContent } : {}
+        return {
+          tag: element.tagName.toLowerCase(),
+          children: [],
+          ...(includeText && { text: element.textContent || undefined }),
+        }
       }
 
       return {
         tag: element.tagName.toLowerCase(),
-        id: element.id,
-        className: element.className,
+        id: element.id || undefined,
+        className: element.className || undefined,
         ...(includeText && { text: element.textContent?.slice(0, 100) }),
         children: Array.from(element.children).map((child) =>
           getDOMStructure(child, depth, includeText, currentDepth + 1)

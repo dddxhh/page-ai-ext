@@ -68,6 +68,7 @@
   import { storage } from '~/modules/storage'
   import { skillManager } from '~/modules/skill-manager'
   import { Message } from '~/types'
+  import { generateId } from '~/utils/id'
 
   const MessageList = defineAsyncComponent(() => import('./MessageList.vue'))
   const SkillSelector = defineAsyncComponent(() => import('./SkillSelector.vue'))
@@ -114,7 +115,6 @@
   }
 
   onMounted(async () => {
-    console.log('ChatPanel mounted')
     await loadCurrentModelName()
     await loadConversation()
 
@@ -269,15 +269,10 @@
       console.error('Failed to load skill name:', error)
       selectedSkillName.value = skillId
     }
-    console.log('Skill selected:', skillId)
   }
 
   async function handleModelSelectorClose(): Promise<void> {
     await loadCurrentModelName()
-  }
-
-  function generateId(): string {
-    return Math.random().toString(36).substring(2, 15)
   }
 </script>
 

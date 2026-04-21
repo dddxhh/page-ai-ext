@@ -78,10 +78,8 @@
   }
 
   onMounted(async () => {
-    console.log('App mounted, loading config...')
     try {
       config.value = await storage.getConfig()
-      console.log('Config loaded:', config.value)
       if (config.value.language) {
         currentLocale.value = config.value.language
       }

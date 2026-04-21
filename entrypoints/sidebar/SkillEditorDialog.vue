@@ -90,6 +90,7 @@
   import { ElMessage } from 'element-plus/es'
   import { skillManager } from '~/modules/skill-manager'
   import { Skill, SkillMetadata } from '~/types'
+  import { generateIdFromName } from '~/utils/id'
 
   const { t } = useI18n()
 
@@ -182,16 +183,6 @@
     version: [{ validator: validateVersion, trigger: 'blur' }],
   }
 
-  function generateId(name: string): string {
-    const base = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .substring(0, 20)
-    const timestamp = Date.now().toString(36)
-    return `${base}-${timestamp}`
-  }
-
   function addExample(): void {
     formData.value.metadata.examples.push('')
   }
@@ -240,7 +231,7 @@
 
     try {
       if (!formData.value.id) {
-        formData.value.id = generateId(formData.value.name)
+        formData.value.id = generateIdFromName(formData.value.name)
       }
 
       formData.value.metadata.examples = formData.value.metadata.examples.filter((e) => e.trim())

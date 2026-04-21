@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createI18n } from 'vue-i18n'
 import SkillEditorDialog from '../../entrypoints/sidebar/SkillEditorDialog.vue'
 import { nextTick } from 'vue'
+import { generateIdFromName } from '../../utils/id'
 
 const mockSaveSkill = vi.hoisted(() => vi.fn())
 
@@ -308,30 +309,21 @@ describe('SkillEditorDialog', () => {
   })
 
   describe('ID generation', () => {
-    it('should generate valid ID from name', async () => {
-      const wrapper = createWrapper({ mode: 'create' })
-      await flushPromises()
-
-      const id = wrapper.vm.generateId('My Test Skill')
+    it('should generate valid ID from name', () => {
+      const id = generateIdFromName('My Test Skill')
 
       expect(id).toMatch(/^[a-z]/)
       expect(id).toMatch(/my-test-skill/)
     })
 
-    it('should include timestamp in generated ID', async () => {
-      const wrapper = createWrapper({ mode: 'create' })
-      await flushPromises()
-
-      const id = wrapper.vm.generateId('Test')
+    it('should include timestamp in generated ID', () => {
+      const id = generateIdFromName('Test')
 
       expect(id).toMatch(/-[a-z0-9]+$/)
     })
 
-    it('should handle special characters in name', async () => {
-      const wrapper = createWrapper({ mode: 'create' })
-      await flushPromises()
-
-      const id = wrapper.vm.generateId('Test!@#$%Skill')
+    it('should handle special characters in name', () => {
+      const id = generateIdFromName('Test!@#$%Skill')
 
       expect(id).toMatch(/^[a-z]/)
       expect(id).not.toContain('!')

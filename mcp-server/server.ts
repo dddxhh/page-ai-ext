@@ -39,13 +39,12 @@ class MCPServer {
       throw new Error(`Tool not found: ${name}`)
     }
 
-    // Send to content script for execution
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     if (!tab.id) {
       throw new Error('No active tab')
     }
 
-    return await messaging.sendToContentScript('EXECUTE_TOOL', {
+    return await messaging.sendToContentScript(tab.id, 'EXECUTE_TOOL', {
       tool: name,
       params: args,
     })
@@ -62,7 +61,7 @@ class MCPServer {
       throw new Error('No active tab')
     }
 
-    return await messaging.sendToContentScript('GET_PAGE_CONTENT', { uri })
+    return await messaging.sendToContentScript(tab.id, 'GET_PAGE_CONTENT', { uri })
   }
 }
 

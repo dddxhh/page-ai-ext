@@ -66,6 +66,19 @@ class SkillManager {
     const skills = await this.getAllSkills()
     return skills.filter((skill) => skill.metadata.category === category)
   }
+
+  async toggleSkillEnabled(id: string): Promise<void> {
+    await this.initialize()
+    const skill = await storage.getSkill(id)
+    if (!skill) return
+
+    const updatedSkill = {
+      ...skill,
+      enabled: !skill.enabled,
+      updatedAt: Date.now(),
+    }
+    await storage.saveSkill(updatedSkill)
+  }
 }
 
 export const skillManager = new SkillManager()

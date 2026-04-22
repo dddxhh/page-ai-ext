@@ -51,7 +51,7 @@
     </div>
 
     <SkillSelector
-      v-if="showSkillSelector"
+      v-model:visible="showSkillSelector"
       @close="showSkillSelector = false"
       @select="applySkill"
     />

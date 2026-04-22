@@ -17,8 +17,8 @@
         </el-header>
 
         <el-main>
-          <ChatPanel v-if="showChat" @toggle-settings="showSettings = true" />
-          <SettingsPanel v-if="showSettings" @close="showSettings = false" />
+          <ChatPanel v-if="showChat" @toggle-settings="handleShowSettings" />
+          <SettingsPanel v-if="showSettings" @close="handleShowChat" />
         </el-main>
       </el-container>
     </div>

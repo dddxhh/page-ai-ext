@@ -6,15 +6,12 @@ class SkillManager {
   private initialized = false
 
   async initialize(): Promise<void> {
-    if (this.initialized) return
-
     const existingSkills = await storage.getAllSkills()
     const existingIds = new Set(existingSkills.map((s) => s.id))
 
-    for (const skill of BUILT_IN_SKILLS) {
-      if (!existingIds.has(skill.id)) {
-        await storage.saveSkill(skill)
-      }
+    const missingSkills = BUILT_IN_SKILLS.filter((skill) => !existingIds.has(skill.id))
+    for (const skill of missingSkills) {
+      await storage.saveSkill(skill)
     }
 
     this.initialized = true

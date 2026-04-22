@@ -107,19 +107,23 @@
               v-for="skill in filteredSkills"
               :key="skill.id"
               class="skill-card"
-              :class="{ 'skill-card-disabled': !skill.enabled }"
+              :class="{ 'skill-card-disabled': !skill.enabled && !skill.isBuiltIn }"
             >
               <div class="skill-card-header">
                 <div class="skill-card-header-left">
                   <el-switch
+                    v-if="!skill.isBuiltIn"
                     :model-value="skill.enabled"
                     size="small"
                     @change="toggleSkillEnabled(skill)"
                   />
-                  <span class="skill-name" :class="{ 'skill-name-disabled': !skill.enabled }">
+                  <span
+                    class="skill-name"
+                    :class="{ 'skill-name-disabled': !skill.enabled && !skill.isBuiltIn }"
+                  >
                     {{ skill.name }}
                   </span>
-                  <el-tag v-if="!skill.enabled" size="small" type="info">
+                  <el-tag v-if="!skill.enabled && !skill.isBuiltIn" size="small" type="info">
                     {{ t('skill.disabled') }}
                   </el-tag>
                 </div>

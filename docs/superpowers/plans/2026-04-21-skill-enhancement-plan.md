@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 为技能系统添加禁用/启用控制和 YAML + Markdown 渲染支持
+**Goal:** 为技能系统添加禁用/启用控制（仅限自定义技能）和 YAML + Markdown 渲染支持
 
-**Architecture:** 在现有 Skill 类型中添加 enabled 字段，使用 js-yaml 解析 YAML front matter，复用 marked + DOMPurify 渲染 Markdown
+**Architecture:** 在现有 Skill 类型中添加 enabled 字段，使用 js-yaml 解析 YAML front matter，复用 marked + DOMPurify 渲染 Markdown。内置技能始终启用，不显示启用开关。
 
 **Tech Stack:** Vue 3 + TypeScript + Element Plus + js-yaml + marked + DOMPurify
 
@@ -686,7 +686,10 @@ const formData = ref<Skill>({
 
           <el-divider />
 
-          <el-form-item v-if="mode === 'edit'" :label="t('skill.enabledStatus')">
+          <el-form-item
+            v-if="mode === 'edit' && !formData.isBuiltIn"
+            :label="t('skill.enabledStatus')"
+          >
             <el-switch v-model="formData.enabled" />
             <el-text type="info" size="small" style="margin-left: 8px">
               {{ formData.enabled ? t('skill.enabled') : t('skill.disabled') }}
@@ -958,20 +961,22 @@ async function toggleSkillEnabled(skill: Skill): Promise<void> {
     <div 
       v-for="skill in filteredSkills" 
       :key="skill.id" 
-      :class="['skill-card', { 'skill-card-disabled': !skill.enabled }]"
+      :class="['skill-card', { 'skill-card-disabled': !skill.enabled && !skill.isBuiltIn }]"
     >
       <div class="skill-card-header">
         <el-switch 
+          v-if="!skill.isBuiltIn"
           v-model="skill.enabled" 
           size="small"
           @change="toggleSkillEnabled(skill)"
         />
-        <span :class="['skill-name', { 'skill-name-disabled': !skill.enabled }]">{{ skill.name }}</span>
+        <span :class="['skill-name', { 'skill-name-disabled': !skill.enabled && !skill.isBuiltIn }]">{{ skill.name }}</span>
+        <el-tag v-if="!skill.enabled && !skill.isBuiltIn" size="small" type="danger">
+          {{ t('skill.disabled') }}
+        </el-tag>
         <el-tag size="small" :type="skill.isBuiltIn ? 'info' : 'success'">
           {{ skill.isBuiltIn ? t('skill.builtIn') : t('skill.custom') }}
         </el-tag>
-        <el-tag v-if="!skill.enabled" size="small" type="danger">
-          {{ t('skill.disabled') }}
         </el-tag>
       </div>
       <p class="skill-card-desc" v-html="renderSkillDescription(skill.description)"></p>

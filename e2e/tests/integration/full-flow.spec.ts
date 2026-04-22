@@ -23,7 +23,7 @@ test.describe('Integration Tests', () => {
     await skillsTab.click({ timeout: 10000 })
     await page.waitForTimeout(500)
 
-    await expect(page.locator('.skill-cards')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.skill-card').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('skill selector dialog opens', async ({ page }) => {

@@ -84,7 +84,10 @@
 
           <el-divider />
 
-          <el-form-item v-if="mode === 'edit'" :label="t('skill.enabledStatus')">
+          <el-form-item
+            v-if="mode === 'edit' && !formData.isBuiltIn"
+            :label="t('skill.enabledStatus')"
+          >
             <el-switch v-model="formData.enabled" />
             <el-text type="info" size="small" style="margin-left: 8px">
               {{ formData.enabled ? t('skill.enabled') : t('skill.disabled') }}

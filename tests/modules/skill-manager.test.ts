@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { skillManager } from '../../modules/skill-manager'
 import { Skill } from '../../types'
 import { mockSkill } from '../fixtures/data-fixtures'
+import { BUILT_IN_SKILLS } from '../../skills/built-in-skills'
 
 const mockGetAllSkills = vi.hoisted(() => vi.fn())
 const mockGetSkill = vi.hoisted(() => vi.fn())
@@ -64,37 +65,28 @@ describe('SkillManager', () => {
     })
 
     it('should not save built-in skills if already exist', async () => {
-      mockGetAllSkills.mockResolvedValue([
-        {
-          id: 'built-in-1',
-          name: 'Built-in Skill 1',
-          description: 'A built-in skill',
-          systemPrompt: 'Test prompt',
-          metadata: {
-            author: 'System',
-            version: '1.0.0',
-            tags: ['built-in'],
-            examples: [],
-            category: 'System',
-          },
-          isBuiltIn: true,
-          enabled: true,
-          createdAt: Date.now(),
-        },
-      ])
+      mockGetAllSkills.mockResolvedValue(BUILT_IN_SKILLS)
 
       await skillManager.initialize()
 
       expect(mockSaveSkill).not.toHaveBeenCalled()
     })
 
-    it('should skip initialization if already initialized', async () => {
-      mockGetAllSkills.mockResolvedValue([])
+    it('should not save skills if all built-in skills exist', async () => {
+      mockGetAllSkills.mockResolvedValue(BUILT_IN_SKILLS)
 
       await skillManager.initialize()
+
+      expect(mockSaveSkill).not.toHaveBeenCalled()
+    })
+
+    it('should only save missing built-in skills', async () => {
+      const existingSkills = BUILT_IN_SKILLS.slice(0, 1)
+      mockGetAllSkills.mockResolvedValue(existingSkills)
+
       await skillManager.initialize()
 
-      expect(mockGetAllSkills).toHaveBeenCalledTimes(1)
+      expect(mockSaveSkill).toHaveBeenCalledTimes(BUILT_IN_SKILLS.length - 1)
     })
   })
 

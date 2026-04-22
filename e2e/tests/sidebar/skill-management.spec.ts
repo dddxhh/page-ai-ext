@@ -138,4 +138,53 @@ test.describe('Skill Management', () => {
       expect(fileName).toContain('.json')
     })
   })
+
+  test.describe('Enable/Disable Custom Skill', () => {
+    test('custom skill enable/disable flow', async ({ page }) => {
+      const firstSkill = page.locator('.skill-card').first()
+      const copyButton = firstSkill.locator('.el-button').filter({ hasText: '复制' })
+      await copyButton.click({ timeout: 10000 })
+      await expect(page.locator('.el-dialog')).toBeVisible({ timeout: 10000 })
+
+      const uniqueName = 'Test Enable Disable ' + Date.now()
+      const nameInput = page.locator('.editor-left .el-input input').first()
+      await nameInput.fill(uniqueName)
+
+      const textareas = page.locator('.editor-left .el-textarea textarea')
+      await textareas.first().fill('Test description for enable/disable testing')
+      await textareas.nth(1).fill('Test system prompt for enable/disable testing')
+
+      const saveButton = page.locator('.el-dialog .el-button').filter({ hasText: '保存' })
+      await saveButton.click({ timeout: 10000 })
+      await page.waitForTimeout(500)
+
+      const customSkill = page.locator('.skill-card').filter({ hasText: uniqueName })
+      await expect(customSkill).toBeVisible({ timeout: 10000 })
+
+      const enableSwitch = customSkill.locator('.el-switch')
+      await expect(enableSwitch).toBeVisible({ timeout: 10000 })
+      await expect(enableSwitch).toHaveClass(/is-checked/, { timeout: 10000 })
+
+      await enableSwitch.click({ timeout: 10000 })
+      await page.waitForTimeout(500)
+      await expect(enableSwitch).not.toHaveClass(/is-checked/, { timeout: 10000 })
+      await expect(customSkill).toHaveClass(/skill-card-disabled/, { timeout: 10000 })
+      await expect(customSkill.locator('.el-tag').filter({ hasText: '已禁用' })).toBeVisible({
+        timeout: 10000,
+      })
+
+      await enableSwitch.click({ timeout: 10000 })
+      await page.waitForTimeout(500)
+      await expect(enableSwitch).toHaveClass(/is-checked/, { timeout: 10000 })
+      await expect(customSkill.locator('.el-tag').filter({ hasText: '已禁用' })).not.toBeVisible({
+        timeout: 10000,
+      })
+    })
+
+    test('built-in skill has no enable switch', async ({ page }) => {
+      const firstSkill = page.locator('.skill-card').first()
+      const enableSwitch = firstSkill.locator('.el-switch')
+      await expect(enableSwitch).not.toBeVisible({ timeout: 10000 })
+    })
+  })
 })

@@ -275,7 +275,7 @@
         url: tab.url || '',
         title: tab.title || '',
         messages: toRaw(messages.value),
-        skillId: selectedSkill.value,
+        skillId: selectedSkill.value ?? undefined,
         createdAt,
         updatedAt: Date.now(),
       }

@@ -37,6 +37,9 @@ export const elementPlusStubs = {
     template: '<div class="el-form-item"><slot /></div>',
     props: ['label', 'prop'],
   },
+  ElIcon: {
+    template: '<i class="el-icon"><slot /></i>',
+  },
   ElInput: {
     template:
       '<input class="el-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
@@ -84,6 +87,9 @@ export const elementPlusStubs = {
   ElTooltip: {
     template: '<div class="el-tooltip"><slot /></div>',
     props: ['content', 'placement'],
+  },
+  SwitchButton: {
+    template: '<span class="switch-button">SwitchButton</span>',
   },
 }
 

@@ -122,10 +122,16 @@ function createWrapper() {
         ElButtonGroup: {
           template: '<div class="el-button-group"><slot /></div>',
         },
+        ElIcon: {
+          template: '<i class="el-icon"><slot /></i>',
+        },
         ElInput: {
           template: '<textarea class="el-input"></textarea>',
           props: ['modelValue', 'type', 'rows', 'placeholder'],
           emits: ['update:modelValue'],
+        },
+        SwitchButton: {
+          template: '<span class="switch-button">SwitchButton</span>',
         },
       },
     },

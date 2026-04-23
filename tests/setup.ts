@@ -6,8 +6,14 @@ config.global.stubs = {
     template: '<div class="el-alert" v-if="$props.title">{{ $props.title }}</div>',
     props: ['type', 'title', 'closable'],
   },
+  ElIcon: {
+    template: '<i class="el-icon"><slot /></i>',
+  },
   ElMessage: {
     template: '<div class="el-message">{{ message }}</div>',
+  },
+  SwitchButton: {
+    template: '<span class="switch-button">SwitchButton</span>',
   },
 }
 

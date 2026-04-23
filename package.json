@@ -1,6 +1,7 @@
 {
   "name": "chrome-ai-assistant",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.31.0",
   "description": "Chrome extension that enables AI-powered page interaction using WebMCP protocol",
   "type": "module",
   "scripts": {
@@ -43,6 +44,7 @@
     "@types/node": "^20.11.0",
     "@vitejs/plugin-vue": "^6.0.5",
     "@vitest/coverage-v8": "^1.6.1",
+    "@vitest/ui": "1.6.1",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",

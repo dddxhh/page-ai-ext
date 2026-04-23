@@ -64,7 +64,7 @@ export const elementPlusStubs = {
   },
   ElSwitch: {
     template: '<input type="checkbox" class="el-switch" />',
-    props: ['modelValue'],
+    props: ['modelValue', 'size'],
     emits: ['update:modelValue'],
   },
   ElTabPane: {

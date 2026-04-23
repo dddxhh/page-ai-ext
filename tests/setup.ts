@@ -1,6 +1,8 @@
 import { vi } from 'vitest'
 import { config } from '@vue/test-utils'
 
+vi.spyOn(console, 'error').mockImplementation(() => {})
+
 config.global.stubs = {
   ElAlert: {
     template: '<div class="el-alert" v-if="$props.title">{{ $props.title }}</div>',

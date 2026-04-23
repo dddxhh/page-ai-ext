@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createI18n } from 'vue-i18n'
 import ChatPanel from '../../entrypoints/sidebar/ChatPanel.vue'
+import { testI18n } from '../fixtures/i18n-fixture'
 
 const mockGetSkill = vi.hoisted(() => vi.fn())
 const mockSendToBackground = vi.hoisted(() => vi.fn())
@@ -83,23 +83,7 @@ const mockConfig = {
   privacy: {},
 }
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'en-US',
-  messages: {
-    'en-US': {
-      chat: {
-        conversation: 'Conversation',
-        selectSkill: 'Select Skill',
-        changeModel: 'Change Model',
-        clear: 'Clear',
-        noMessages: 'No messages',
-        typeMessage: 'Type a message',
-        send: 'Send',
-      },
-    },
-  },
-})
+const i18n = testI18n
 
 function createWrapper() {
   return mount(ChatPanel, {

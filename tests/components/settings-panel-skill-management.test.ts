@@ -8,12 +8,14 @@ const mockGetConfig = vi.hoisted(() => vi.fn())
 const mockGetAllSkills = vi.hoisted(() => vi.fn())
 const mockDeleteSkill = vi.hoisted(() => vi.fn())
 const mockExportSkills = vi.hoisted(() => vi.fn())
+const mockImportSkills = vi.hoisted(() => vi.fn())
+const mockToggleSkillEnabled = vi.hoisted(() => vi.fn())
 
 vi.mock('../../modules/storage', () => ({
   storage: {
     getConfig: mockGetConfig,
     exportSkills: mockExportSkills,
-    importSkills: vi.fn(),
+    importSkills: mockImportSkills,
     updateConfig: vi.fn(),
   },
 }))
@@ -22,6 +24,7 @@ vi.mock('../../modules/skill-manager', () => ({
   skillManager: {
     getAllSkills: mockGetAllSkills,
     deleteSkill: mockDeleteSkill,
+    toggleSkillEnabled: mockToggleSkillEnabled,
   },
 }))
 
@@ -30,6 +33,14 @@ vi.mock('../../entrypoints/sidebar/SkillEditorDialog.vue', () => ({
     template: '<div class="skill-editor-dialog-mock" v-if="visible"></div>',
     props: ['visible', 'skill', 'mode', 'skills'],
     emits: ['update:visible', 'save'],
+  },
+}))
+
+vi.mock('../../entrypoints/sidebar/components/SkillListPanel.vue', () => ({
+  default: {
+    template: '<div class="skill-list-panel-mock" :skills="skills"></div>',
+    props: ['skills'],
+    emits: ['create', 'toggleEnabled', 'edit', 'copy', 'delete', 'export', 'import'],
   },
 }))
 
@@ -62,6 +73,7 @@ const mockSkills = [
       category: 'Analysis',
     },
     isBuiltIn: true,
+    enabled: true,
     createdAt: Date.now(),
   },
   {
@@ -77,6 +89,7 @@ const mockSkills = [
       category: 'Automation',
     },
     isBuiltIn: false,
+    enabled: true,
     createdAt: Date.now(),
   },
 ]
@@ -90,81 +103,38 @@ function createWrapper() {
       stubs: {
         ...elementPlusStubs,
         SkillEditorDialog: true,
+        SkillListPanel: true,
       },
     },
   })
 }
 
 describe('SettingsPanel Skill Management', () => {
-  let wrapper: ReturnType<typeof createWrapper>
-
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetConfig.mockResolvedValue(mockConfig)
     mockGetAllSkills.mockResolvedValue(mockSkills)
     mockDeleteSkill.mockResolvedValue(undefined)
     mockExportSkills.mockResolvedValue(mockSkills)
+    mockImportSkills.mockResolvedValue(undefined)
+    mockToggleSkillEnabled.mockResolvedValue(undefined)
   })
 
   describe('loadSkills', () => {
     it('should load skills on mount', async () => {
-      wrapper = createWrapper()
+      const wrapper = createWrapper()
       await flushPromises()
 
       expect(mockGetAllSkills).toHaveBeenCalled()
       expect(wrapper.vm.skills.length).toBe(2)
     })
-
-    it('should extract categories from skills', async () => {
-      wrapper = createWrapper()
-      await flushPromises()
-
-      expect(wrapper.vm.categories).toContain('Analysis')
-      expect(wrapper.vm.categories).toContain('Automation')
-    })
-  })
-
-  describe('handleSearch', () => {
-    beforeEach(async () => {
-      wrapper = createWrapper()
-      await flushPromises()
-    })
-
-    it('should filter skills by search query', async () => {
-      wrapper.vm.searchQuery = 'Built'
-      wrapper.vm.handleSearch()
-      await flushPromises()
-
-      expect(wrapper.vm.filteredSkills.length).toBe(1)
-      expect(wrapper.vm.filteredSkills[0].name).toBe('Built-in Skill')
-    })
-
-    it('should filter skills by category', async () => {
-      wrapper.vm.selectedCategory = 'Analysis'
-      wrapper.vm.handleSearch()
-      await flushPromises()
-
-      expect(wrapper.vm.filteredSkills.length).toBe(1)
-      expect(wrapper.vm.filteredSkills[0].metadata.category).toBe('Analysis')
-    })
-
-    it('should show all skills when no filters', async () => {
-      wrapper.vm.searchQuery = ''
-      wrapper.vm.selectedCategory = ''
-      wrapper.vm.handleSearch()
-      await flushPromises()
-
-      expect(wrapper.vm.filteredSkills.length).toBe(2)
-    })
   })
 
   describe('openEditor', () => {
-    beforeEach(async () => {
-      wrapper = createWrapper()
-      await flushPromises()
-    })
-
     it('should open editor in create mode', async () => {
+      const wrapper = createWrapper()
+      await flushPromises()
+
       wrapper.vm.openEditor('create')
       await flushPromises()
 
@@ -174,6 +144,9 @@ describe('SettingsPanel Skill Management', () => {
     })
 
     it('should open editor in edit mode with skill', async () => {
+      const wrapper = createWrapper()
+      await flushPromises()
+
       const skill = mockSkills[1]
       wrapper.vm.openEditor('edit', skill)
       await flushPromises()
@@ -184,6 +157,9 @@ describe('SettingsPanel Skill Management', () => {
     })
 
     it('should open editor in copy mode with skill', async () => {
+      const wrapper = createWrapper()
+      await flushPromises()
+
       const skill = mockSkills[0]
       wrapper.vm.openEditor('copy', skill)
       await flushPromises()
@@ -194,38 +170,20 @@ describe('SettingsPanel Skill Management', () => {
   })
 
   describe('handleDelete', () => {
-    beforeEach(async () => {
-      wrapper = createWrapper()
-      await flushPromises()
-    })
-
     it('should not delete built-in skill', async () => {
+      const wrapper = createWrapper()
+      await flushPromises()
+
       const builtInSkill = mockSkills[0]
       await wrapper.vm.handleDelete(builtInSkill)
 
       expect(mockDeleteSkill).not.toHaveBeenCalled()
     })
-
-    it('should delete custom skill after confirmation', async () => {
-      const customSkill = mockSkills[1]
-
-      vi.spyOn(wrapper.vm, 'handleDelete').mockImplementation(async (skill: any) => {
-        if (skill.isBuiltIn) return
-        await mockDeleteSkill(skill.id)
-        wrapper.vm.loadSkills()
-      })
-
-      await wrapper.vm.handleDelete(customSkill)
-      await flushPromises()
-
-      expect(mockDeleteSkill).toHaveBeenCalledWith('custom-skill')
-      expect(mockGetAllSkills).toHaveBeenCalledTimes(2)
-    })
   })
 
   describe('handleEditorSave', () => {
     it('should reload skills after save', async () => {
-      wrapper = createWrapper()
+      const wrapper = createWrapper()
       await flushPromises()
 
       await wrapper.vm.handleEditorSave()
@@ -234,33 +192,32 @@ describe('SettingsPanel Skill Management', () => {
     })
   })
 
-  describe('built-in skill protection', () => {
-    beforeEach(async () => {
-      wrapper = createWrapper()
+  describe('handleToggleEnabled', () => {
+    it('should toggle skill enabled status', async () => {
+      const wrapper = createWrapper()
       await flushPromises()
-    })
 
+      const skill = mockSkills[1]
+      await wrapper.vm.handleToggleEnabled(skill)
+
+      expect(mockToggleSkillEnabled).toHaveBeenCalledWith(skill.id)
+      expect(mockGetAllSkills).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('built-in skill protection', () => {
     it('should identify built-in skills', async () => {
+      const wrapper = createWrapper()
+      await flushPromises()
+
       expect(wrapper.vm.skills[0].isBuiltIn).toBe(true)
     })
 
     it('should identify custom skills', async () => {
-      expect(wrapper.vm.skills[1].isBuiltIn).toBe(false)
-    })
-  })
-
-  describe('export/import skills', () => {
-    beforeEach(async () => {
-      wrapper = createWrapper()
+      const wrapper = createWrapper()
       await flushPromises()
-    })
 
-    it('should have exportSkills function', async () => {
-      expect(wrapper.vm.exportSkills).toBeDefined()
-    })
-
-    it('should have importSkills function', async () => {
-      expect(wrapper.vm.importSkills).toBeDefined()
+      expect(wrapper.vm.skills[1].isBuiltIn).toBe(false)
     })
   })
 })

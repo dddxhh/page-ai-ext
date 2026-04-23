@@ -684,6 +684,83 @@ user: {
 </style>
 ```
 
+## Composables 开发规范
+
+### 概述
+
+Composables 是 Vue 3 Composition API 的核心概念，用于封装和复用有状态的逻辑。
+
+### 文件命名
+
+- 使用 `use` 前缀 + 功能名称
+- 示例：`useMarkdown.ts`, `useSkillFilter.ts`, `useLocale.ts`
+- 文件位置：`entrypoints/sidebar/composables/`
+
+### 标准结构
+
+```typescript
+// composables/useExample.ts
+import { ref, computed } from 'vue'
+
+export function useExample(initialValue: string) {
+  // 1. 响应式状态
+  const data = ref(initialValue)
+  const isLoading = ref(false)
+
+  // 2. 计算属性
+  const processedData = computed(() => {
+    return data.value.toUpperCase()
+  })
+
+  // 3. 方法
+  async function fetchData(): Promise<void> {
+    isLoading.value = true
+    try {
+      // 业务逻辑
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // 4. 返回值 - 导出所有需要的状态和方法
+  return {
+    data,
+    isLoading,
+    processedData,
+    fetchData,
+  }
+}
+```
+
+### Composables 最佳实践
+
+1. **单一职责** - 每个 composable 只负责一个功能领域
+2. **可组合** - composables 可以相互调用
+3. **无副作用** - 除非必要，避免直接修改外部状态
+4. **返回值类型** - 使用 TypeScript 定义返回类型
+
+### 项目中的 Composables
+
+| Composable             | 功能                                   | 文件位置                              |
+| ---------------------- | -------------------------------------- | ------------------------------------- |
+| `useMarkdown`          | Markdown 渲染 + YAML front matter 解析 | `composables/useMarkdown.ts`          |
+| `useSkillFilter`       | 技能搜索、分类过滤                     | `composables/useSkillFilter.ts`       |
+| `useSkillImportExport` | 技能导入导出                           | `composables/useSkillImportExport.ts` |
+| `useSkillForm`         | 技能表单验证、数据初始化               | `composables/useSkillForm.ts`         |
+| `useLocale`            | 国际化语言切换                         | `composables/useLocale.ts`            |
+
+### Composable 测试
+
+每个 composable 应有对应的测试文件，位于 `tests/composables/` 目录：
+
+```
+tests/composables/
+├── useMarkdown.test.ts
+├── useSkillFilter.test.ts
+├── useSkillImportExport.test.ts
+└── useSkillForm.test.ts
+```
+
 ## 参考资源
 
 - [Vue 3 组件基础](https://vuejs.org/guide/essentials/component-basics.html)

@@ -14,6 +14,26 @@ vi.mock('../../modules/skill-manager', () => ({
   },
 }))
 
+vi.mock('../../entrypoints/sidebar/components/SkillForm.vue', () => ({
+  default: {
+    template:
+      '<div class="skill-form-mock"><input v-model="localFormData.name" /><input v-model="localFormData.description" /><input v-model="localFormData.systemPrompt" /></div>',
+    props: ['formData', 'formRules', 'mode'],
+    emits: ['updateFormData', 'addExample', 'removeExample'],
+    setup(props: any, { emit: _emit }: any) {
+      const localFormData = ref({ ...props.formData })
+      return { localFormData }
+    },
+  },
+}))
+
+vi.mock('../../entrypoints/sidebar/components/SkillPreview.vue', () => ({
+  default: {
+    template: '<div class="skill-preview-mock">Preview</div>',
+    props: ['skill'],
+  },
+}))
+
 const i18n = testI18n
 
 const mockSkill = {
@@ -29,6 +49,7 @@ const mockSkill = {
     category: 'Testing',
   },
   isBuiltIn: false,
+  enabled: true,
   createdAt: Date.now(),
 }
 
@@ -38,6 +59,8 @@ function createWrapper(props = {}) {
       plugins: [i18n],
       stubs: {
         ...elementPlusStubs,
+        SkillForm: true,
+        SkillPreview: true,
       },
     },
     props: {
@@ -48,6 +71,8 @@ function createWrapper(props = {}) {
     },
   })
 }
+
+import { ref } from 'vue'
 
 describe('SkillEditorDialog', () => {
   beforeEach(() => {

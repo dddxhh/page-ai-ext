@@ -381,6 +381,8 @@ chrome-ai-assistant/
 ├── entrypoints/
 │   ├── background.ts
 │   ├── content.ts
+│   ├── content-handlers.ts
+│   ├── content-utils.ts
 │   ├── sidebar.html
 │   └── sidebar/
 │       ├── main.ts
@@ -390,12 +392,25 @@ chrome-ai-assistant/
 │       ├── MessageList.vue
 │       ├── SkillSelector.vue
 │       ├── ModelSelector.vue
-│       └── AddModelDialog.vue
+│       ├── AddModelDialog.vue
+│       ├── SkillEditorDialog.vue
+│       ├── components/
+│       │   ├── SkillCard.vue
+│       │   ├── SkillImportExport.vue
+│       │   ├── SkillListPanel.vue
+│       │   ├── SkillForm.vue
+│       │   └── SkillPreview.vue
+│       └── composables/
+│           ├── useLocale.ts
+│           ├── useMarkdown.ts
+│           ├── useSkillFilter.ts
+│           ├── useSkillImportExport.ts
+│           └── useSkillForm.ts
 ├── modules/
 │   ├── storage.ts
 │   ├── messaging.ts
 │   ├── api-client.ts
-│   └── skill-manager.ts
+│   └ skill-manager.ts
 ├── mcp-server/
 │   ├── server.ts
 │   ├── tools/
@@ -403,12 +418,19 @@ chrome-ai-assistant/
 ├── skills/
 │   └── built-in-skills.ts
 ├── types/
-│   └── index.ts
+│   ├── index.ts
+│   └── mcp-tools.ts
+├── utils/
+│   └── id.ts
 └── tests/
     ├── setup.ts
     ├── fixtures/
     ├── mocks/
-    └── modules/
+    ├── modules/
+    ├── components/
+    ├── composables/
+    ├── content/
+    └── utils/
 ```
 
 ## 参考资源

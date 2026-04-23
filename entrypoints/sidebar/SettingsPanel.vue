@@ -63,8 +63,6 @@
         />
       </el-tab-pane>
 
-      .
-
       <el-tab-pane :label="t('settings.privacy')" name="privacy">
         <el-form :model="config.privacy" label-width="150px">
           <el-form-item :label="t('settings.encryptHistory')">
@@ -78,115 +76,16 @@
       </el-tab-pane>
 
       <el-tab-pane :label="t('settings.skills')" name="skills">
-        <div class="skills-header">
-          <el-input
-            v-model="searchQuery"
-            :placeholder="t('skill.searchPlaceholder')"
-            clearable
-            style="width: 200px"
-            @input="handleSearch"
-          />
-          <el-select
-            v-model="selectedCategory"
-            :placeholder="t('skill.categoryFilter')"
-            clearable
-            style="width: 150px"
-            @change="handleSearch"
-          >
-            <el-option :label="t('skill.allCategories')" value="" />
-            <el-option v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
-          </el-select>
-          <el-button type="primary" @click="openEditor('create')">
-            {{ t('skill.add') }}
-          </el-button>
-        </div>
-
-        <el-scrollbar max-height="300px">
-          <div class="skill-cards">
-            <div
-              v-for="skill in filteredSkills"
-              :key="skill.id"
-              class="skill-card"
-              :class="{ 'skill-card-disabled': !skill.enabled && !skill.isBuiltIn }"
-            >
-              <div class="skill-card-header">
-                <div class="skill-card-header-left">
-                  <el-switch
-                    v-if="!skill.isBuiltIn"
-                    :model-value="skill.enabled"
-                    size="small"
-                    @change="toggleSkillEnabled(skill)"
-                  />
-                  <span
-                    class="skill-name"
-                    :class="{ 'skill-name-disabled': !skill.enabled && !skill.isBuiltIn }"
-                  >
-                    {{ skill.name }}
-                  </span>
-                  <el-tag v-if="!skill.enabled && !skill.isBuiltIn" size="small" type="info">
-                    {{ t('skill.disabled') }}
-                  </el-tag>
-                </div>
-                <el-tag size="small" :type="skill.isBuiltIn ? 'info' : 'success'">
-                  {{ skill.isBuiltIn ? t('skill.builtIn') : t('skill.custom') }}
-                </el-tag>
-              </div>
-              <p class="skill-card-desc" v-html="renderSkillDescription(skill.description)"></p>
-              <div class="skill-card-meta">
-                <el-tag v-if="skill.metadata.category" size="small" type="warning">
-                  {{ skill.metadata.category }}
-                </el-tag>
-                <el-tag
-                  v-for="tag in (Array.isArray(skill.metadata.tags)
-                    ? skill.metadata.tags
-                    : []
-                  ).slice(0, 3)"
-                  :key="tag"
-                  size="small"
-                  type="info"
-                >
-                  {{ tag }}
-                </el-tag>
-              </div>
-              <div class="skill-card-actions">
-                <el-tooltip
-                  v-if="skill.isBuiltIn"
-                  :content="t('skill.noEditBuiltIn')"
-                  placement="top"
-                >
-                  <el-button size="small" disabled>{{ t('skill.edit') }}</el-button>
-                </el-tooltip>
-                <el-button v-else size="small" @click="openEditor('edit', skill)">
-                  {{ t('skill.edit') }}
-                </el-button>
-                <el-button size="small" @click="openEditor('copy', skill)">
-                  {{ t('skill.copy') }}
-                </el-button>
-                <el-tooltip
-                  v-if="skill.isBuiltIn"
-                  :content="t('skill.noDeleteBuiltIn')"
-                  placement="top"
-                >
-                  <el-button size="small" type="danger" disabled>
-                    {{ t('skill.delete') }}
-                  </el-button>
-                </el-tooltip>
-                <el-button v-else size="small" type="danger" @click="handleDelete(skill)">
-                  {{ t('skill.delete') }}
-                </el-button>
-              </div>
-            </div>
-          </div>
-        </el-scrollbar>
-
-        <div class="skills-footer">
-          <el-button type="primary" @click="exportSkills">
-            {{ t('settings.exportSkills') }}
-          </el-button>
-          <el-button @click="importSkills">
-            {{ t('settings.importSkills') }}
-          </el-button>
-        </div>
+        <SkillListPanel
+          :skills="skills"
+          @create="openEditor('create')"
+          @toggle-enabled="handleToggleEnabled"
+          @edit="openEditor('edit', $event)"
+          @copy="openEditor('copy', $event)"
+          @delete="handleDelete"
+          @export="handleExport"
+          @import="handleImport"
+        />
 
         <SkillEditorDialog
           v-model:visible="editorVisible"
@@ -219,13 +118,12 @@
   import { ref, onMounted } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { ElMessage, ElMessageBox } from 'element-plus/es'
-  import { marked } from 'marked'
-  import DOMPurify from 'dompurify'
-  import yaml from 'js-yaml'
   import { storage } from '~/modules/storage'
   import { skillManager } from '~/modules/skill-manager'
   import { Config, Skill } from '~/types'
+  import SkillListPanel from './components/SkillListPanel.vue'
   import SkillEditorDialog from './SkillEditorDialog.vue'
+  import { useSkillImportExport } from './composables/useSkillImportExport'
 
   const { t } = useI18n()
 
@@ -233,13 +131,11 @@
   const config = ref<Config | null>(null)
   const shortcutError = ref<string | null>(null)
   const skills = ref<Skill[]>([])
-  const filteredSkills = ref<Skill[]>([])
-  const searchQuery = ref('')
-  const selectedCategory = ref('')
   const editorVisible = ref(false)
   const editorMode = ref<'create' | 'edit' | 'copy'>('create')
   const editingSkill = ref<Skill | undefined>()
-  const categories = ref<string[]>([])
+
+  const { exportSkills, importSkills } = useSkillImportExport(loadSkills)
 
   const emit = defineEmits<{
     close: 'close'
@@ -252,25 +148,6 @@
 
   async function loadSkills(): Promise<void> {
     skills.value = await skillManager.getAllSkills()
-    filteredSkills.value = skills.value
-    const cats = new Set(skills.value.map((s) => s.metadata.category))
-    categories.value = Array.from(cats).filter((c) => c)
-  }
-
-  async function handleSearch(): Promise<void> {
-    filteredSkills.value = skills.value.filter((skill) => {
-      const matchesQuery =
-        !searchQuery.value ||
-        skill.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        skill.description.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        (Array.isArray(skill.metadata.tags) &&
-          skill.metadata.tags.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.value.toLowerCase())
-          ))
-      const matchesCategory =
-        !selectedCategory.value || skill.metadata.category === selectedCategory.value
-      return matchesQuery && matchesCategory
-    })
   }
 
   function openEditor(mode: 'create' | 'edit' | 'copy', skill?: Skill): void {
@@ -281,7 +158,6 @@
 
   async function handleEditorSave(): Promise<void> {
     await loadSkills()
-    await handleSearch()
   }
 
   async function handleDelete(skill: Skill): Promise<void> {
@@ -301,10 +177,23 @@
       await skillManager.deleteSkill(skill.id)
       ElMessage.success(t('skill.deleteSuccess'))
       await loadSkills()
-      await handleSearch()
     } catch {
-      // User cancelled or error
+      // User cancelled deletion
     }
+  }
+
+  async function handleToggleEnabled(skill: Skill): Promise<void> {
+    await skillManager.toggleSkillEnabled(skill.id)
+    await loadSkills()
+    ElMessage.success(skill.enabled ? t('skill.disableSkill') : t('skill.enableSkill'))
+  }
+
+  async function handleExport(): Promise<void> {
+    await exportSkills(() => storage.exportSkills())
+  }
+
+  async function handleImport(): Promise<void> {
+    await importSkills((importedSkills) => storage.importSkills(importedSkills))
   }
 
   async function saveSettings(): Promise<void> {
@@ -351,69 +240,8 @@
     return true
   }
 
-  async function exportSkills(): Promise<void> {
-    const skills = await storage.exportSkills()
-    const blob = new Blob([JSON.stringify(skills, null, 2)], {
-      type: 'application/json',
-    })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'skills.json'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  async function importSkills(): Promise<void> {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.json'
-
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (!file) return
-
-      const text = await file.text()
-      const skills = JSON.parse(text)
-      await storage.importSkills(skills)
-      ElMessage.success(t('settings.skillsImported'))
-    }
-
-    input.click()
-  }
-
   function handleClose(): void {
     emit('close')
-  }
-
-  function renderSkillDescription(description: string): string {
-    const yamlMatch = description.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
-
-    if (yamlMatch) {
-      try {
-        const metadata = yaml.load(yamlMatch[1]) as Record<string, any>
-        const markdownBody = yamlMatch[2]
-        const metadataHtml = Object.entries(metadata)
-          .map(
-            ([key, value]) =>
-              `<span class="yaml-key">${key}:</span> <span class="yaml-value">${value}</span>`
-          )
-          .join(' | ')
-        const bodyHtml = DOMPurify.sanitize(marked(markdownBody) as string)
-        return `<div class="yaml-inline">${metadataHtml}</div>${bodyHtml}`
-      } catch {
-        return DOMPurify.sanitize(marked(description) as string)
-      }
-    }
-
-    return DOMPurify.sanitize(marked(description) as string)
-  }
-
-  async function toggleSkillEnabled(skill: Skill): Promise<void> {
-    await skillManager.toggleSkillEnabled(skill.id)
-    await loadSkills()
-    await handleSearch()
-    ElMessage.success(skill.enabled ? t('skill.disableSkill') : t('skill.enableSkill'))
   }
 </script>
 
@@ -442,68 +270,10 @@
     border-top: 1px solid #ddd;
   }
 
-  .skills-section {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .skills-header {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    align-items: center;
-  }
-
-  .skill-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .skill-card {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fff;
-  }
-
-  .skill-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .skill-name {
-    font-weight: 600;
-    font-size: 14px;
-  }
-
-  .skill-card-desc {
-    color: #666;
-    font-size: 12px;
-    margin: 8px 0;
-    line-height: 1.4;
-  }
-
-  .skill-card-meta {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-
-  .skill-card-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .skills-footer {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid #ddd;
+  .loading {
+    color: #999;
+    text-align: center;
+    padding: 20px;
   }
 
   .about-section h4 {
@@ -513,46 +283,5 @@
   .about-section p {
     margin: 8px 0;
     color: #666;
-  }
-
-  .skill-card-disabled {
-    opacity: 0.6;
-  }
-
-  .skill-name-disabled {
-    text-decoration: line-through;
-  }
-
-  .skill-card-header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .skill-card-desc :deep(code) {
-    background: var(--el-fill-color);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: monospace;
-    font-size: 12px;
-  }
-
-  .skill-card-desc :deep(pre) {
-    background: var(--el-fill-color-dark);
-    padding: 8px;
-    border-radius: 4px;
-    overflow-x: auto;
-    font-size: 12px;
-  }
-
-  .yaml-inline {
-    font-size: 12px;
-    color: var(--el-text-color-secondary);
-    margin-bottom: 4px;
-    font-family: monospace;
-  }
-
-  .yaml-inline :deep(.yaml-key) {
-    color: var(--el-color-primary);
   }
 </style>

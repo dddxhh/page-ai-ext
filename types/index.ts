@@ -96,6 +96,7 @@ export const STORAGE_KEYS = {
 export type MessageType =
   | 'SEND_MESSAGE'
   | 'MESSAGE_RESPONSE'
+  | 'STOP_MESSAGE'
   | 'EXECUTE_TOOL'
   | 'EXECUTE_MCP_TOOL'
   | 'TOOL_RESULT'

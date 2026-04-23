@@ -3,7 +3,7 @@ import { storage } from '../modules/storage'
 import { apiClient } from '../modules/api-client'
 import { skillManager } from '../modules/skill-manager'
 import { mcpServer } from '../mcp-server/server'
-import { Message } from '../types'
+import { Message, STORAGE_KEYS, Config } from '../types'
 import { generateId } from '~/utils/id'
 import { defineBackground } from 'wxt/sandbox'
 
@@ -17,6 +17,17 @@ export default defineBackground(() => {
     const model = config.models.find((m) => m.id === config.currentModelId)
     if (model) {
       apiClient.setModel(model)
+    }
+  })
+
+  // Listen for config changes
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes[STORAGE_KEYS.CONFIG]) {
+      const newConfig = changes[STORAGE_KEYS.CONFIG].newValue as Config
+      const model = newConfig.models.find((m) => m.id === newConfig.currentModelId)
+      if (model) {
+        apiClient.setModel(model)
+      }
     }
   })
 
@@ -137,6 +148,27 @@ export default defineBackground(() => {
     } catch (error) {
       const errorMsg = (error as Error).message || 'Unknown error occurred'
       console.error('Send message error:', error)
+
+      if (errorMsg === 'User cancelled') {
+        chrome.runtime.sendMessage({
+          type: 'MESSAGE_RESPONSE',
+          data: {
+            error: 'User cancelled',
+            isStreaming: false,
+            done: true,
+          },
+        })
+      } else {
+        chrome.runtime.sendMessage({
+          type: 'MESSAGE_RESPONSE',
+          data: {
+            error: errorMsg,
+            isStreaming: false,
+            done: true,
+          },
+        })
+      }
+
       return {
         success: false,
         error: errorMsg,
@@ -158,24 +190,25 @@ export default defineBackground(() => {
     }
   })
 
-  // Handle toggle sidebar command
-  chrome.commands.onCommand.addListener('toggleSidebar', async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (tab.id) {
-      await chrome.sidePanel.open({ tabId: tab.id })
-    }
+  // Handle stop message
+  messaging.onMessage('STOP_MESSAGE', async () => {
+    apiClient.abort()
+    return { success: true }
   })
 
-  // Handle new conversation command
-  chrome.commands.onCommand.addListener('newConversation', async () => {
-    // Clear conversation from storage
-    await storage.deleteConversation('current')
-
-    // Notify sidebar to clear messages
-    chrome.runtime.sendMessage({
-      type: 'NEW_CONVERSATION',
-      data: {},
-    })
+  chrome.commands.onCommand.addListener(async (command) => {
+    if (command === 'toggleSidebar') {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (tab.id) {
+        await chrome.sidePanel.open({ tabId: tab.id })
+      }
+    } else if (command === 'newConversation') {
+      await storage.deleteConversation('current')
+      chrome.runtime.sendMessage({
+        type: 'NEW_CONVERSATION',
+        data: {},
+      })
+    }
   })
 
   async function getPageContent(): Promise<string | null> {
@@ -189,7 +222,7 @@ export default defineBackground(() => {
 
       return result?.content || null
     } catch (error) {
-      console.error('Get page content error:', error)
+      console.warn('Get page content error (content script may not be loaded):', error)
       return null
     }
   }

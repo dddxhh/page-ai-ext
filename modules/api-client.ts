@@ -9,9 +9,17 @@ interface ChatCompletionOptions {
 
 export class APIClient {
   private currentModel: ModelConfig | null = null
+  private currentAbortController: AbortController | null = null
 
   setModel(model: ModelConfig): void {
     this.currentModel = model
+  }
+
+  abort(): void {
+    if (this.currentAbortController) {
+      this.currentAbortController.abort()
+      this.currentAbortController = null
+    }
   }
 
   async chatCompletion(options: ChatCompletionOptions): Promise<string> {
@@ -19,6 +27,7 @@ export class APIClient {
       throw this.createError(ErrorType.API_KEY_INVALID, 'No model configured')
     }
 
+    this.currentAbortController = new AbortController()
     const { messages, tools, stream, onChunk } = options
 
     try {
@@ -28,7 +37,12 @@ export class APIClient {
         return await this.nonStreamChatCompletion(messages, tools || [])
       }
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('User cancelled')
+      }
       throw this.handleError(error)
+    } finally {
+      this.currentAbortController = null
     }
   }
 
@@ -44,6 +58,7 @@ export class APIClient {
         })),
         tools,
       }),
+      signal: this.currentAbortController?.signal,
     })
 
     if (!response.ok) {
@@ -71,6 +86,7 @@ export class APIClient {
         tools,
         stream: true,
       }),
+      signal: this.currentAbortController?.signal,
     })
 
     if (!response.ok) {
@@ -86,6 +102,9 @@ export class APIClient {
     let fullContent = ''
 
     while (true) {
+      if (this.currentAbortController?.signal.aborted) {
+        break
+      }
       const { done, value } = await reader.read()
       if (done) break
 

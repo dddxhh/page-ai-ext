@@ -6,10 +6,10 @@
           <div class="header">
             <h2>{{ t('app.title') }}</h2>
             <el-button-group>
-              <el-button type="primary" :disabled="showChat" @click="handleShowChat">
+              <el-button :type="showChat ? 'primary' : 'default'" @click="handleShowChat">
                 {{ t('app.chat') }}
               </el-button>
-              <el-button :disabled="showSettings" @click="handleShowSettings">
+              <el-button :type="showSettings ? 'primary' : 'default'" @click="handleShowSettings">
                 {{ t('app.settings') }}
               </el-button>
             </el-button-group>

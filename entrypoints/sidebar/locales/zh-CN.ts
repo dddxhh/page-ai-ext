@@ -12,7 +12,9 @@ export default {
     noMessages: '暂无消息，开始对话吧！',
     typeMessage: '输入消息...',
     send: '发送',
+    stop: '停止',
     conversationCleared: '对话已清空',
+    noModelSelected: '未选择模型',
   },
   settings: {
     title: '设置',

@@ -3,7 +3,7 @@ import { ExtensionMessage, MessageType } from '../types'
 export class Messaging {
   private listeners: Map<
     MessageType,
-    Set<(data: any, sender: chrome.runtime.MessageSender) => void>
+    Set<(data: any, sender: chrome.runtime.MessageSender) => any>
   > = new Map()
 
   // Send message to background
@@ -49,7 +49,7 @@ export class Messaging {
   // Listen for messages
   onMessage<T = any>(
     type: MessageType,
-    callback: (data: T, sender: chrome.runtime.MessageSender) => void
+    callback: (data: T, sender: chrome.runtime.MessageSender) => any
   ): void {
     if (!this.listeners.has(type)) {
       this.listeners.set(type, new Set())
@@ -60,7 +60,7 @@ export class Messaging {
   // Remove listener
   offMessage(
     type: MessageType,
-    callback: (data: any, sender: chrome.runtime.MessageSender) => void
+    callback: (data: any, sender: chrome.runtime.MessageSender) => any
   ): void {
     const listeners = this.listeners.get(type)
     if (listeners) {
@@ -74,20 +74,25 @@ export class Messaging {
       const { type, data } = message as ExtensionMessage
       const listeners = this.listeners.get(type)
 
-      if (listeners) {
-        let response: any
-        let responded = false
+      if (listeners && listeners.size > 0) {
+        const callbacks = Array.from(listeners)
+        const firstCallback = callbacks[0]
 
-        for (const callback of listeners) {
-          const result = callback(data, sender)
-          if (result !== undefined && !responded) {
-            response = result
-            responded = true
-          }
-        }
+        const result = firstCallback(data, sender)
 
-        if (responded) {
-          sendResponse(response)
+        if (result instanceof Promise) {
+          result
+            .then((response) => {
+              if (response !== undefined) {
+                sendResponse(response)
+              }
+            })
+            .catch((error) => {
+              sendResponse({ success: false, error: error.message })
+            })
+          return true
+        } else if (result !== undefined) {
+          sendResponse(result)
           return true
         }
       }

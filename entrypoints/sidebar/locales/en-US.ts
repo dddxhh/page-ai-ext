@@ -12,7 +12,9 @@ export default {
     noMessages: 'No messages yet. Start a conversation!',
     typeMessage: 'Type your message...',
     send: 'Send',
+    stop: 'Stop',
     conversationCleared: 'Conversation cleared',
+    noModelSelected: 'No model selected',
   },
   settings: {
     title: 'Settings',

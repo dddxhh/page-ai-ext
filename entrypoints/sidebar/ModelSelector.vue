@@ -204,6 +204,9 @@
     await storage.updateConfig({ models: config.models })
     modelApiKeys.value[pendingModel.value!.id] = apiKeyInput.value
 
+    await storage.updateConfig({ currentModelId: pendingModel.value!.id })
+    currentModelId.value = pendingModel.value!.id
+
     showApiKeyDialog.value = false
     ElMessage.success(t('model.apiKeySaved'))
   }

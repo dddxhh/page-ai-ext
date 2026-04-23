@@ -9,6 +9,9 @@
         <el-tag v-if="currentModelName" type="info" size="small">
           {{ currentModelName }}
         </el-tag>
+        <el-tag v-else type="warning" size="small">
+          {{ t('chat.noModelSelected') }}
+        </el-tag>
       </div>
       <el-button-group>
         <el-button size="small" @click="showSkillSelector = true">
@@ -43,10 +46,15 @@
         type="textarea"
         :rows="3"
         :placeholder="t('chat.typeMessage')"
-        @keydown.ctrl.enter="sendMessage"
+        @keydown.enter="handleEnterKey"
       />
-      <el-button type="primary" :loading="isSending" @click="sendMessage">
-        {{ t('chat.send') }}
+      <el-button
+        :type="isSending ? 'danger' : 'primary'"
+        :loading="false"
+        @click="handleSendOrStop"
+      >
+        <el-icon v-if="isSending"><SwitchButton /></el-icon>
+        {{ isSending ? t('chat.stop') : t('chat.send') }}
       </el-button>
     </div>
 
@@ -61,9 +69,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
+  import { ref, onMounted, onUnmounted, defineAsyncComponent, toRaw } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { ElMessage } from 'element-plus/es'
+  import { SwitchButton } from '@element-plus/icons-vue'
   import { messaging } from '~/modules/messaging'
   import { storage } from '~/modules/storage'
   import { skillManager } from '~/modules/skill-manager'
@@ -124,15 +133,22 @@
         const { content, isStreaming, done, error } = message.data
 
         if (error) {
-          ElMessage.error(error)
-          errorMessage.value = error
-          isSending.value = false
+          if (error === 'User cancelled') {
+            isSending.value = false
+            finalizeMessage(currentResponse.value).catch((err) => {
+              console.error('Failed to finalize cancelled message:', err)
+            })
+            currentResponse.value = ''
+          } else {
+            ElMessage.error(error)
+            errorMessage.value = error
+            isSending.value = false
+          }
           return
         }
 
         if (isStreaming) {
           currentResponse.value += content
-          // Update or add streaming message
           updateStreamingMessage(content)
         } else if (done) {
           isSending.value = false
@@ -142,11 +158,12 @@
           currentResponse.value = ''
         }
       } else if (message.type === 'NEW_CONVERSATION') {
-        // Clear conversation when shortcut triggered
         messages.value = []
         selectedSkill.value = null
         selectedSkillName.value = null
         errorMessage.value = null
+        isSending.value = false
+        currentResponse.value = ''
         ElMessage.success(t('chat.conversationCleared') || '对话已清空')
       }
     })
@@ -155,6 +172,33 @@
   onUnmounted(() => {
     // Cleanup listeners
   })
+
+  async function handleSendOrStop(): Promise<void> {
+    if (isSending.value) {
+      await stopMessage()
+    } else {
+      await sendMessage()
+    }
+  }
+
+  async function stopMessage(): Promise<void> {
+    try {
+      await messaging.sendToBackground('STOP_MESSAGE', {})
+    } catch (error) {
+      console.error('Stop message error:', error)
+      isSending.value = false
+    }
+  }
+
+  function handleEnterKey(event: KeyboardEvent): void {
+    if (event.shiftKey) {
+      return
+    }
+    event.preventDefault()
+    if (!isSending.value && inputMessage.value.trim()) {
+      sendMessage()
+    }
+  }
 
   async function sendMessage(): Promise<void> {
     if (!inputMessage.value.trim() || isSending.value) return
@@ -230,7 +274,7 @@
         id: 'current',
         url: tab.url || '',
         title: tab.title || '',
-        messages: messages.value,
+        messages: toRaw(messages.value),
         skillId: selectedSkill.value,
         createdAt,
         updatedAt: Date.now(),
@@ -245,6 +289,9 @@
     messages.value = []
     selectedSkill.value = null
     selectedSkillName.value = null
+    errorMessage.value = null
+    isSending.value = false
+    currentResponse.value = ''
     try {
       await storage.deleteConversation('current')
     } catch (error) {

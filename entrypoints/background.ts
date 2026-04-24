@@ -7,13 +7,32 @@ import '../mcp-server/tools/dom-tools'
 import '../mcp-server/tools/page-tools'
 import '../mcp-server/tools/screenshot'
 import { Message, STORAGE_KEYS, Config } from '../types'
+import type { ConfirmResponse } from '~/types/mcp-tools'
 import { generateId } from '~/utils/id'
 import { defineBackground } from 'wxt/sandbox'
+
+const pendingConfirmRequests = new Map<string, { resolve: (value: ConfirmResponse) => void }>()
 
 export default defineBackground(() => {
   // Initialize modules
   messaging.initialize()
   skillManager.initialize()
+
+  // Handle CONFIRM_RESPONSE from sidebar
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'CONFIRM_RESPONSE') {
+      const { requestId, confirmed, sessionAllow } = message.data as {
+        requestId: string
+        confirmed: boolean
+        sessionAllow?: string
+      }
+      const pending = pendingConfirmRequests.get(requestId)
+      if (pending) {
+        pending.resolve({ confirmed, sessionAllow: !!sessionAllow })
+        pendingConfirmRequests.delete(requestId)
+      }
+    }
+  })
 
   // Load configuration and set model
   storage.getConfig().then(async (config) => {
@@ -96,19 +115,53 @@ export default defineBackground(() => {
 
       // Tool executor callback
       const toolExecutor = async (name: string, args: Record<string, any>) => {
+        const toolId = generateId()
+        const startTime = Date.now()
+
+        chrome.runtime.sendMessage({
+          type: 'TOOL_EXECUTION',
+          data: {
+            id: toolId,
+            name: name,
+            params: args,
+            status: 'pending',
+            timestamp: startTime,
+          },
+        })
+
         try {
           const result = await mcpServer.executeTool(name, args)
+          const endTime = Date.now()
+
           chrome.runtime.sendMessage({
             type: 'TOOL_EXECUTION',
-            data: { tool: name, args, result, status: 'success' },
+            data: {
+              id: toolId,
+              name: name,
+              params: args,
+              result,
+              status: 'success',
+              timestamp: endTime,
+              duration: endTime - startTime,
+            },
           })
           return result
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : String(error)
+          const endTime = Date.now()
           console.error(`Tool ${name} execution failed:`, error)
+
           chrome.runtime.sendMessage({
             type: 'TOOL_EXECUTION',
-            data: { tool: name, args, error: errorMsg, status: 'error' },
+            data: {
+              id: toolId,
+              name: name,
+              params: args,
+              error: errorMsg,
+              status: 'error',
+              timestamp: endTime,
+              duration: endTime - startTime,
+            },
           })
           return { error: errorMsg, tool: name }
         }

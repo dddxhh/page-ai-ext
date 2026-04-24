@@ -5,6 +5,15 @@
         <span class="role">{{ roleLabel(message.role) }}</span>
         <span class="timestamp">{{ formatTime(message.timestamp) }}</span>
       </div>
+
+      <div v-if="message.metadata?.toolExecutions?.length" class="tool-executions">
+        <ToolCallCard
+          v-for="execution in message.metadata.toolExecutions"
+          :key="execution.id"
+          :execution="execution"
+        />
+      </div>
+
       <div class="message-content">
         <div v-if="message.role === 'user'" class="user-content">
           {{ message.content }}
@@ -22,6 +31,7 @@
   import { Message } from '~/types'
   import { marked } from 'marked'
   import DOMPurify from 'dompurify'
+  import ToolCallCard from './components/ToolCallCard.vue'
 
   const { t } = useI18n()
 
@@ -106,5 +116,11 @@
   .assistant-content :deep(code) {
     font-family: 'Courier New', monospace;
     font-size: 14px;
+  }
+
+  .tool-executions {
+    margin: 8px 0;
+    border-left: 3px solid #1976d2;
+    padding-left: 8px;
   }
 </style>

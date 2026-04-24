@@ -65,6 +65,14 @@
     />
 
     <ModelSelector v-model:visible="showModelSelector" @close="handleModelSelectorClose" />
+
+    <ToolConfirmDialog
+      v-if="pendingConfirm"
+      :confirm-request="pendingConfirm"
+      :show-session-allow="isSafeTool(pendingConfirm.tool)"
+      @confirm="handleConfirmDialog"
+      @cancel="cancelConfirm"
+    />
   </div>
 </template>
 
@@ -77,13 +85,17 @@
   import { storage } from '~/modules/storage'
   import { skillManager } from '~/modules/skill-manager'
   import { Message } from '~/types'
+  import type { ToolExecution, ConfirmRequest } from '~/types/mcp-tools'
   import { generateId } from '~/utils/id'
+  import { useToolConfirm } from '~/composables/useToolConfirm'
 
   const MessageList = defineAsyncComponent(() => import('./MessageList.vue'))
   const SkillSelector = defineAsyncComponent(() => import('./SkillSelector.vue'))
   const ModelSelector = defineAsyncComponent(() => import('./ModelSelector.vue'))
+  const ToolConfirmDialog = defineAsyncComponent(() => import('./components/ToolConfirmDialog.vue'))
 
   const { t } = useI18n()
+  const { pendingConfirm, requestConfirm, handleConfirm, cancelConfirm } = useToolConfirm()
   const messages = ref<Message[]>([])
   const inputMessage = ref('')
   const isSending = ref(false)
@@ -94,6 +106,8 @@
   const selectedSkill = ref<string | null>(null)
   const selectedSkillName = ref<string | null>(null)
   const errorMessage = ref<string | null>(null)
+  const toolExecutions = ref<ToolExecution[]>([])
+  const pendingConfirmRequest = ref<{ requestId: string } | null>(null)
 
   async function loadCurrentModelName(): Promise<void> {
     try {
@@ -158,20 +172,43 @@
           currentResponse.value = ''
         }
       } else if (message.type === 'TOOL_EXECUTION') {
-        const { tool, args, result, error, status } = message.data
-        if (status === 'error') {
-          console.error(`Tool ${tool} failed:`, error)
+        const data = message.data as ToolExecution
+        const existingIndex = toolExecutions.value.findIndex((e) => e.id === data.id)
+
+        if (existingIndex >= 0) {
+          toolExecutions.value[existingIndex] = data
+        } else {
+          toolExecutions.value.push(data)
+        }
+
+        if (data.status === 'error') {
+          console.error(`Tool ${data.name} failed:`, data.error)
           ElMessage.error({
-            message: `Tool ${tool} failed: ${error}`,
+            message: `Tool ${data.name} failed: ${data.error}`,
             duration: 3000,
           })
-        } else {
-          console.log(`Tool ${tool} executed:`, args, result)
+        } else if (data.status === 'success') {
+          console.log(`Tool ${data.name} executed:`, data.params, data.result)
           ElMessage.info({
-            message: `Tool ${tool} executed`,
+            message: `Tool ${data.name} executed`,
             duration: 2000,
           })
         }
+      } else if (message.type === 'CONFIRM_REQUEST') {
+        const confirmRequest: ConfirmRequest = message.data
+        pendingConfirmRequest.value = { requestId: message.requestId }
+
+        requestConfirm(confirmRequest, (confirmed, sessionAllow) => {
+          chrome.runtime.sendMessage({
+            type: 'CONFIRM_RESPONSE',
+            data: {
+              requestId: pendingConfirmRequest.value?.requestId,
+              confirmed,
+              sessionAllow,
+            },
+          })
+          pendingConfirmRequest.value = null
+        })
       } else if (message.type === 'NEW_CONVERSATION') {
         messages.value = []
         selectedSkill.value = null
@@ -179,6 +216,7 @@
         errorMessage.value = null
         isSending.value = false
         currentResponse.value = ''
+        toolExecutions.value = []
         ElMessage.success(t('chat.conversationCleared') || '对话已清空')
       }
     })
@@ -270,13 +308,18 @@
   async function finalizeMessage(content: string): Promise<void> {
     const index = messages.value.findIndex((m) => m.id === 'streaming')
     if (index >= 0) {
+      const finalizedExecutions = toRaw(toolExecutions.value)
       messages.value[index] = {
         id: generateId(),
         role: 'assistant',
         content,
         timestamp: Date.now(),
+        metadata: {
+          toolExecutions: finalizedExecutions.length > 0 ? finalizedExecutions : undefined,
+        },
       }
     }
+    toolExecutions.value = []
     await saveConversationToStorage()
   }
 
@@ -335,6 +378,15 @@
 
   async function handleModelSelectorClose(): Promise<void> {
     await loadCurrentModelName()
+  }
+
+  function handleConfirmDialog(confirmed: boolean, sessionAllow?: string): void {
+    handleConfirm(confirmed, sessionAllow)
+  }
+
+  function isSafeTool(tool: string): boolean {
+    const safeTools = ['scroll_page', 'extract_content', 'get_page_content', 'get_page_structure']
+    return safeTools.includes(tool)
   }
 </script>
 

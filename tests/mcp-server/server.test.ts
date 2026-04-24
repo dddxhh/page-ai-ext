@@ -3,6 +3,30 @@ import { mcpServer } from '../../mcp-server/server'
 
 const mockSendToContentScript = vi.hoisted(() => vi.fn())
 
+describe('MCP Tool Registration', () => {
+  it('should register all tools when tool files are imported', async () => {
+    ;(mcpServer as any).tools = new Map()
+
+    await import('../../mcp-server/tools/dom-tools')
+    await import('../../mcp-server/tools/page-tools')
+    await import('../../mcp-server/tools/screenshot')
+
+    const tools = mcpServer.getTools()
+    const toolNames = tools.map((t) => t.name)
+
+    expect(tools.length).toBe(9)
+    expect(toolNames).toContain('click_element')
+    expect(toolNames).toContain('fill_form')
+    expect(toolNames).toContain('extract_content')
+    expect(toolNames).toContain('scroll_page')
+    expect(toolNames).toContain('execute_script')
+    expect(toolNames).toContain('get_page_content')
+    expect(toolNames).toContain('get_page_structure')
+    expect(toolNames).toContain('find_elements')
+    expect(toolNames).toContain('take_screenshot')
+  })
+})
+
 vi.mock('../../modules/messaging', () => ({
   messaging: {
     sendToContentScript: mockSendToContentScript,

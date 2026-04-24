@@ -1,4 +1,23 @@
-import { ModelConfig, Message, AppError, ErrorType } from '../types'
+import {
+  ModelConfig,
+  Message,
+  AppError,
+  ErrorType,
+  ChatCompletionResponse,
+  ToolCallResponse,
+  MCPTool,
+} from '../types'
+
+interface ToolExecutor {
+  (name: string, args: Record<string, any>): Promise<any>
+}
+
+interface APIMessage {
+  role: 'user' | 'assistant' | 'system' | 'tool'
+  content: string
+  tool_calls?: ToolCallResponse[]
+  tool_call_id?: string
+}
 
 interface ChatCompletionOptions {
   messages: Message[]
@@ -43,6 +62,125 @@ export class APIClient {
       throw this.handleError(error)
     } finally {
       this.currentAbortController = null
+    }
+  }
+
+  async chatCompletionWithTools(
+    messages: Message[],
+    tools: MCPTool[],
+    executeTool: ToolExecutor,
+    onChunk?: (chunk: string) => void
+  ): Promise<string> {
+    if (!this.currentModel) {
+      throw this.createError(ErrorType.API_KEY_INVALID, 'No model configured')
+    }
+
+    this.currentAbortController = new AbortController()
+    const formattedTools = this.formatToolsForAPI(tools)
+    const initialMessages: APIMessage[] = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }))
+    const currentMessages: APIMessage[] = [...initialMessages]
+    let maxIterations = 10
+
+    try {
+      while (maxIterations > 0) {
+        maxIterations--
+
+        const response = await this.sendChatRequest(currentMessages, formattedTools)
+
+        if (response.finish_reason === 'stop' && response.content) {
+          if (onChunk) {
+            onChunk(response.content)
+          }
+          return response.content
+        }
+
+        if (response.finish_reason === 'tool_calls' && response.tool_calls) {
+          const assistantMessage: APIMessage = {
+            role: 'assistant',
+            content: response.content || '',
+            tool_calls: response.tool_calls,
+          }
+          currentMessages.push(assistantMessage)
+
+          for (const toolCall of response.tool_calls) {
+            const args = JSON.parse(toolCall.function.arguments)
+            const result = await executeTool(toolCall.function.name, args)
+
+            const toolResult: APIMessage = {
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(result),
+            }
+            currentMessages.push(toolResult)
+          }
+
+          continue
+        }
+
+        if (response.finish_reason === 'length') {
+          throw new Error('Response truncated due to token limit')
+        }
+
+        break
+      }
+
+      throw new Error('Tool calling loop exceeded maximum iterations')
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('User cancelled')
+      }
+      throw this.handleError(error)
+    } finally {
+      this.currentAbortController = null
+    }
+  }
+
+  private formatToolsForAPI(tools: MCPTool[]): any[] {
+    return tools.map((tool) => ({
+      type: 'function',
+      function: {
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.inputSchema,
+      },
+    }))
+  }
+
+  private async sendChatRequest(
+    messages: APIMessage[],
+    tools: any[]
+  ): Promise<ChatCompletionResponse> {
+    const response = await fetch(this.getAPIURL(), {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        model: this.currentModel!.model,
+        messages: messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+          tool_calls: m.tool_calls,
+          tool_call_id: m.tool_call_id,
+        })),
+        tools: tools.length > 0 ? tools : undefined,
+        tool_choice: tools.length > 0 ? 'auto' : undefined,
+      }),
+      signal: this.currentAbortController?.signal,
+    })
+
+    if (!response.ok) {
+      throw await this.handleAPIError(response)
+    }
+
+    const data = await response.json()
+    const choice = data.choices[0]
+
+    return {
+      content: choice.message?.content,
+      tool_calls: choice.message?.tool_calls,
+      finish_reason: choice.finish_reason,
     }
   }
 

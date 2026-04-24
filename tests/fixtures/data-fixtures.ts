@@ -1,4 +1,12 @@
-import { Config, Conversation, Skill, Message, ModelConfig } from '../../types'
+import {
+  Config,
+  Conversation,
+  Skill,
+  Message,
+  ModelConfig,
+  ToolCallResponse,
+  MCPTool,
+} from '../../types'
 
 export const mockConfig: Config = {
   models: [],
@@ -82,4 +90,25 @@ export const mockBuiltInSkill: Skill = {
   isBuiltIn: true,
   enabled: true,
   createdAt: Date.now(),
+}
+
+export const mockToolCall: ToolCallResponse = {
+  id: 'call_test123',
+  type: 'function',
+  function: {
+    name: 'click_element',
+    arguments: '{"selector": "#submit-btn"}',
+  },
+}
+
+export const mockMCPTool: MCPTool = {
+  name: 'click_element',
+  description: 'Click an element on the page',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      selector: { type: 'string', description: 'CSS selector' },
+    },
+    required: ['selector'],
+  },
 }

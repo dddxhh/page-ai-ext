@@ -81,7 +81,7 @@ export default defineBackground(() => {
           const contextMessage: Message = {
             id: generateId(),
             role: 'system',
-            content: `Page content:\n${pageContent}`,
+            content: `Current page content:\n${pageContent}\n\nYou can use the available tools to interact with the page.`,
             timestamp: Date.now(),
           }
           conversation.messages.push(contextMessage)
@@ -91,15 +91,24 @@ export default defineBackground(() => {
       // Get MCP tools
       const tools = mcpServer.getTools()
 
-      // Send to AI with streaming
+      // Tool executor callback
+      const toolExecutor = async (name: string, args: Record<string, any>) => {
+        const result = await mcpServer.executeTool(name, args)
+        chrome.runtime.sendMessage({
+          type: 'TOOL_EXECUTION',
+          data: { tool: name, args, result },
+        })
+        return result
+      }
+
+      // Send to AI with tool calling loop
       let assistantContent = ''
-      await apiClient.chatCompletion({
-        messages: conversation.messages,
+      await apiClient.chatCompletionWithTools(
+        conversation.messages,
         tools,
-        stream: true,
-        onChunk: (chunk: string) => {
+        toolExecutor,
+        (chunk: string) => {
           assistantContent += chunk
-          // Send chunk to sidebar
           chrome.runtime.sendMessage({
             type: 'MESSAGE_RESPONSE',
             data: {
@@ -108,8 +117,8 @@ export default defineBackground(() => {
               done: false,
             },
           })
-        },
-      })
+        }
+      )
 
       // Add assistant message
       const assistantMessage: Message = {
@@ -149,25 +158,14 @@ export default defineBackground(() => {
       const errorMsg = (error as Error).message || 'Unknown error occurred'
       console.error('Send message error:', error)
 
-      if (errorMsg === 'User cancelled') {
-        chrome.runtime.sendMessage({
-          type: 'MESSAGE_RESPONSE',
-          data: {
-            error: 'User cancelled',
-            isStreaming: false,
-            done: true,
-          },
-        })
-      } else {
-        chrome.runtime.sendMessage({
-          type: 'MESSAGE_RESPONSE',
-          data: {
-            error: errorMsg,
-            isStreaming: false,
-            done: true,
-          },
-        })
-      }
+      chrome.runtime.sendMessage({
+        type: 'MESSAGE_RESPONSE',
+        data: {
+          error: errorMsg,
+          isStreaming: false,
+          done: true,
+        },
+      })
 
       return {
         success: false,

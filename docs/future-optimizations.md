@@ -2,6 +2,32 @@
 
 ## 创建时间: 2026-04-24
 
+## 最后更新: 2026-04-24
+
+---
+
+## 当前已完成 ✅
+
+### 2026-04-24 完成的功能
+
+| 功能                         | 状态      | 说明                                |
+| ---------------------------- | --------- | ----------------------------------- |
+| get_page_structure handler   | ✅ 已实现 | 返回 DOM 树结构                     |
+| find_elements handler (增强) | ✅ 已实现 | 多策略 selector + 优先级排序        |
+| ToolCallCard UI 组件         | ✅ 已实现 | 显示工具调用状态、参数、结果        |
+| ToolConfirmDialog UI 组件    | ✅ 已实现 | 自定义确认对话框替代 window.confirm |
+| 工具执行实时更新             | ✅ 已实现 | pending → confirming → success      |
+| 工具历史保存到 Conversation  | ✅ 已实现 | metadata.toolExecutions             |
+| CSP 错误友好提示             | ✅ 已实现 | execute_script 错误消息改进         |
+
+### 当前测试覆盖
+
+| 测试                  | 状态      | 数量                                                   |
+| --------------------- | --------- | ------------------------------------------------------ |
+| 单元测试              | ✅ 通过   | 231 tests                                              |
+| content-handlers 测试 | ✅ 已更新 | handleClickElement, handleFillForm 使用 messaging mock |
+| 构建                  | ✅ 成功   | 768.92 kB                                              |
+
 ---
 
 ## 1. 元素截图预览增强

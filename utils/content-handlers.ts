@@ -13,6 +13,11 @@ import {
   type GetPageContentResult,
   type TakeScreenshotParams,
   type TakeScreenshotResult,
+  type GetPageStructureParams,
+  type GetPageStructureResult,
+  type FindElementsParams,
+  type FindElementsResult,
+  type ElementInfo,
 } from '~/types/mcp-tools'
 import {
   highlightElement,
@@ -20,6 +25,8 @@ import {
   convertToMarkdown,
   getDOMStructure,
 } from './content-utils'
+import { analyzeElement, isVisible, isInteractive } from './element-utils'
+import { getElementPreviewInfo } from './screenshot-utils'
 
 export async function handleClickElement(params: ClickElementParams): Promise<ClickElementResult> {
   const { selector } = params
@@ -147,7 +154,24 @@ export async function handleExecuteScript(
     const result = fn()
     return { result }
   } catch (error) {
-    throw new Error(`脚本执行错误: ${(error as Error).message}`)
+    const errorMsg = (error as Error).message
+
+    if (
+      errorMsg.includes('Content Security Policy') ||
+      errorMsg.includes('unsafe-eval') ||
+      errorMsg.includes('CSP')
+    ) {
+      throw new Error(
+        '此页面有严格的 CSP 禁止执行动态脚本。\n' +
+          '建议使用其他工具:\n' +
+          '- find_elements: 查找页面元素\n' +
+          '- click_element: 点击元素\n' +
+          '- fill_form: 填写表单\n' +
+          '- extract_content: 提取内容'
+      )
+    }
+
+    throw new Error(`脚本执行错误: ${errorMsg}`)
   }
 }
 
@@ -184,6 +208,76 @@ export async function handleTakeScreenshot(
   return { dataUrl }
 }
 
+export async function handleGetPageStructure(
+  params: GetPageStructureParams
+): Promise<GetPageStructureResult> {
+  const { depth = 3, includeText = false } = params
+
+  const structure = getDOMStructure(document.body, depth, includeText)
+  return { structure }
+}
+
+export async function handleFindElements(params: FindElementsParams): Promise<FindElementsResult> {
+  const {
+    text,
+    tag,
+    attribute,
+    attributeValue,
+    visible = true,
+    interactive = false,
+    limit = 10,
+    includePreview = true,
+  } = params
+
+  let selector = tag || '*'
+  if (attribute && attributeValue) {
+    selector += `[${attribute}="${attributeValue}"]`
+  }
+
+  const allElements = Array.from(document.querySelectorAll(selector))
+
+  const filteredElements = allElements.filter((el) => {
+    if (text && !el.textContent?.toLowerCase().includes(text.toLowerCase())) {
+      return false
+    }
+    if (visible && !isVisible(el)) {
+      return false
+    }
+    if (interactive && !isInteractive(el)) {
+      return false
+    }
+    return true
+  })
+
+  const analyzedElements: ElementInfo[] = filteredElements
+    .map((el) => {
+      const analysis = analyzeElement(el)
+
+      const attrs: Record<string, string> = {}
+      Array.from(el.attributes).forEach((attr) => {
+        if (attr.name !== 'class' || attr.value.length < 100) {
+          attrs[attr.name] = attr.value
+        }
+      })
+
+      return {
+        ...analysis,
+        text: el.textContent?.trim().slice(0, 100) || undefined,
+        tag: el.tagName.toLowerCase(),
+        attributes: attrs,
+        previewImage: includePreview ? getElementPreviewInfo(el) : undefined,
+      }
+    })
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, limit)
+
+  return {
+    elements: analyzedElements,
+    total: allElements.length,
+    filtered: filteredElements.length,
+  }
+}
+
 export async function handleToolExecution(data: { tool: string; params: any }, _sender: any) {
   const { tool, params } = data
 
@@ -211,6 +305,12 @@ export async function handleToolExecution(data: { tool: string; params: any }, _
         break
       case 'take_screenshot':
         result = await handleTakeScreenshot(params)
+        break
+      case 'get_page_structure':
+        result = await handleGetPageStructure(params)
+        break
+      case 'find_elements':
+        result = await handleFindElements(params)
         break
       default:
         throw new Error(`Unknown tool: ${tool}`)

@@ -157,6 +157,13 @@
           })
           currentResponse.value = ''
         }
+      } else if (message.type === 'TOOL_EXECUTION') {
+        const { tool, args, result } = message.data
+        console.log(`Tool executed: ${tool}`, args, result)
+        ElMessage.info({
+          message: `Tool ${tool} executed`,
+          duration: 2000,
+        })
       } else if (message.type === 'NEW_CONVERSATION') {
         messages.value = []
         selectedSkill.value = null

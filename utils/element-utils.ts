@@ -50,12 +50,25 @@ export function calculatePriorityScore(element: Element): number {
   let score = 0
 
   if (isVisible(element)) score += 30
-  if (isInteractive(element)) score += 20
+  if (isInteractive(element)) score += 25
+
+  // Boost score for clickable elements (higher priority for click operations)
+  const tag = element.tagName.toLowerCase()
+  const type = element.getAttribute('type')
+
+  // Primary clickable elements get highest boost
+  if (tag === 'button') score += 20
+  if (tag === 'a') score += 15
+  if (tag === 'input' && (type === 'button' || type === 'submit')) score += 18
+
+  // Elements with click-related attributes
+  if (element.getAttribute('onclick')) score += 12
+  if (element.getAttribute('role') === 'button') score += 15
+  if (element.getAttribute('aria-label')) score += 10
 
   if (element.id) score += 15
   if (element.getAttribute('data-testid')) score += 12
-  if (element.getAttribute('aria-label')) score += 10
-  if (element.getAttribute('role')) score += 8
+  if (element.getAttribute('role')) score += 5
   if (element.getAttribute('name')) score += 5
 
   const rect = element.getBoundingClientRect()
@@ -68,8 +81,8 @@ export function calculatePriorityScore(element: Element): number {
 
   if (element.textContent?.trim()) score += 5
 
-  const tag = element.tagName.toLowerCase()
-  if (['button', 'a', 'input'].includes(tag)) score += 3
+  // Lower priority for form inputs (unless specifically searching for forms)
+  if (tag === 'input' && type !== 'button' && type !== 'submit') score -= 5
 
   return score
 }

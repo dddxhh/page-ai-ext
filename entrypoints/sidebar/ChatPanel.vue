@@ -40,6 +40,21 @@
     </div>
     <MessageList v-else :messages="messages" />
 
+    <!-- Real-time tool execution display -->
+    <div v-if="toolExecutions.length > 0" class="active-tools-panel">
+      <div class="panel-header">
+        <span class="panel-title">工具执行中</span>
+        <span class="tool-count">{{ toolExecutions.length }} 个工具</span>
+      </div>
+      <div class="tool-cards-container">
+        <ToolCallCard
+          v-for="execution in toolExecutions"
+          :key="execution.id"
+          :execution="execution"
+        />
+      </div>
+    </div>
+
     <div class="input-area">
       <el-input
         v-model="inputMessage"
@@ -93,6 +108,7 @@
   const SkillSelector = defineAsyncComponent(() => import('./SkillSelector.vue'))
   const ModelSelector = defineAsyncComponent(() => import('./ModelSelector.vue'))
   const ToolConfirmDialog = defineAsyncComponent(() => import('./components/ToolConfirmDialog.vue'))
+  const ToolCallCard = defineAsyncComponent(() => import('./components/ToolCallCard.vue'))
 
   const { t } = useI18n()
   const { pendingConfirm, requestConfirm, handleConfirm, cancelConfirm } = useToolConfirm()
@@ -431,6 +447,39 @@
     align-items: center;
     justify-content: center;
     color: #999;
+  }
+
+  .active-tools-panel {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    background: #f5f7fa;
+    padding: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .panel-title {
+    font-weight: 600;
+    color: #409eff;
+    font-size: 14px;
+  }
+
+  .tool-count {
+    color: #909399;
+    font-size: 12px;
+  }
+
+  .tool-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .input-area {

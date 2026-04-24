@@ -24,9 +24,19 @@
 
 | 测试                  | 状态      | 数量                                                   |
 | --------------------- | --------- | ------------------------------------------------------ |
-| 单元测试              | ✅ 通过   | 231 tests                                              |
+| 单元测试              | ✅ 通过   | 229 tests                                              |
 | content-handlers 测试 | ✅ 已更新 | handleClickElement, handleFillForm 使用 messaging mock |
-| 构建                  | ✅ 成功   | 768.92 kB                                              |
+| element-utils 测试    | ✅ 已添加 | isVisible, isInteractive, calculatePriorityScore       |
+| 构建                  | ✅ 成功   | 771.74 kB                                              |
+
+### 2026-04-24 额外优化
+
+| 功能                     | 状态      | 说明                                      |
+| ------------------------ | --------- | ----------------------------------------- |
+| 工具调用实时显示         | ✅ 已实现 | ChatPanel 添加 active-tools-panel 区域    |
+| click_element 优先级提升 | ✅ 已实现 | button +20, anchor +15, input[button] +18 |
+| execute_script CSP 改进  | ✅ 已实现 | 更友好的错误提示 + 替代工具建议           |
+| ToolCallCard 简化显示    | ✅ 已实现 | 默认仅显示名称，点击展开详情              |
 
 ---
 

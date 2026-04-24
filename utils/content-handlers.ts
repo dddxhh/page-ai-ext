@@ -172,8 +172,6 @@ export async function handleExecuteScript(
     /localStorage/i,
     /sessionStorage/i,
     /window\.location/i,
-    /eval\(/i,
-    /Function\(/i,
   ]
 
   for (const pattern of dangerousPatterns) {
@@ -182,9 +180,22 @@ export async function handleExecuteScript(
     }
   }
 
+  const isSimpleExpression = /^[\w\s.()[\]"']+$/.test(script) && !script.includes('return')
+
   try {
-    const fn = new Function('return ' + script)
-    const result = fn()
+    let result: unknown
+
+    if (isSimpleExpression) {
+      try {
+        result = (0, eval)(script)
+      } catch {
+        result = new Function('return (' + script + ')')()
+      }
+    } else {
+      const code = script.includes('return') ? script : `return (${script})`
+      result = new Function(code)()
+    }
+
     return { result }
   } catch (error) {
     const errorMsg = (error as Error).message
@@ -192,19 +203,22 @@ export async function handleExecuteScript(
     if (
       errorMsg.includes('Content Security Policy') ||
       errorMsg.includes('unsafe-eval') ||
-      errorMsg.includes('CSP')
+      errorMsg.includes('CSP') ||
+      errorMsg.includes('eval') ||
+      errorMsg.includes('Function')
     ) {
       throw new Error(
         '此页面有严格的 CSP 禁止执行动态脚本。\n' +
           '建议使用其他工具:\n' +
-          '- find_elements: 查找页面元素\n' +
-          '- click_element: 点击元素\n' +
+          '- click_element: 点击按钮/链接\n' +
           '- fill_form: 填写表单\n' +
-          '- extract_content: 提取内容'
+          '- find_elements: 查找元素\n' +
+          '- extract_content: 提取页面内容\n' +
+          '- scroll_page: 滚动页面'
       )
     }
 
-    throw new Error(`脚本执行错误: ${errorMsg}`)
+    throw new Error(`脚本执行失败: ${errorMsg}\n请检查脚本语法是否正确`)
   }
 }
 

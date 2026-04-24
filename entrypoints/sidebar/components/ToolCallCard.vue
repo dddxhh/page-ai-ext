@@ -1,21 +1,24 @@
 <template>
   <div class="tool-call-card" :class="execution.status">
-    <div class="tool-header">
+    <div class="tool-header" @click="expanded = !expanded">
       <span class="tool-icon">{{ toolIcon }}</span>
       <span class="tool-name">{{ execution.name }}</span>
       <el-tag :type="statusType" size="small">{{ statusText }}</el-tag>
+      <span class="expand-icon">{{ expanded ? '▼' : '▶' }}</span>
     </div>
 
-    <div v-if="execution.previewImage" class="preview-section">
-      <img :src="execution.previewImage" class="preview-thumbnail" />
-    </div>
+    <div v-if="expanded" class="tool-details">
+      <div v-if="execution.previewImage" class="preview-section">
+        <img :src="execution.previewImage" class="preview-thumbnail" />
+      </div>
 
-    <el-collapse>
-      <el-collapse-item title="Parameters">
+      <div class="detail-section">
+        <div class="detail-label">Parameters</div>
         <pre class="params">{{ JSON.stringify(execution.params, null, 2) }}</pre>
-      </el-collapse-item>
+      </div>
 
-      <el-collapse-item v-if="execution.result" title="Result">
+      <div v-if="execution.result" class="detail-section">
+        <div class="detail-label">Result</div>
         <div v-if="isFindElementsResult" class="elements-result">
           <div v-for="(el, idx) in execution.result.elements" :key="idx" class="element-item">
             <div class="element-header">
@@ -36,27 +39,30 @@
           </div>
         </div>
         <pre v-else class="result">{{ formatResult }}</pre>
-      </el-collapse-item>
+      </div>
 
-      <el-collapse-item v-if="execution.error" title="Error">
+      <div v-if="execution.error" class="detail-section">
+        <div class="detail-label">Error</div>
         <div class="error">{{ execution.error }}</div>
-      </el-collapse-item>
-    </el-collapse>
+      </div>
 
-    <div class="tool-meta">
-      <span v-if="execution.duration" class="duration">{{ execution.duration }}ms</span>
-      <span class="timestamp">{{ formatTime }}</span>
+      <div class="tool-meta">
+        <span v-if="execution.duration" class="duration">{{ execution.duration }}ms</span>
+        <span class="timestamp">{{ formatTime }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { ref, computed } from 'vue'
   import type { ToolExecution } from '~/types/mcp-tools'
 
   const props = defineProps<{
     execution: ToolExecution
   }>()
+
+  const expanded = ref(false)
 
   const toolIcon = computed(() => {
     const icons: Record<string, string> = {
@@ -138,9 +144,10 @@
   .tool-call-card {
     border: 1px solid #e0e0e0;
     border-radius: 6px;
-    padding: 8px 12px;
-    margin: 8px 0;
+    padding: 6px 10px;
+    margin: 4px 0;
     background: #fafafa;
+    font-size: 13px;
   }
 
   .tool-call-card.pending {
@@ -172,15 +179,44 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .tool-header:hover {
+    background: rgba(0, 0, 0, 0.02);
   }
 
   .tool-icon {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .tool-name {
     font-weight: 500;
     flex: 1;
+    font-size: 13px;
+  }
+
+  .expand-icon {
+    font-size: 10px;
+    color: #666;
+  }
+
+  .tool-details {
+    margin-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 8px;
+  }
+
+  .detail-section {
+    margin: 8px 0;
+  }
+
+  .detail-label {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 500;
   }
 
   .preview-section {

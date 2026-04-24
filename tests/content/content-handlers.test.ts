@@ -214,7 +214,7 @@ describe('content-handlers', () => {
 
     it('should throw error for invalid script', async () => {
       await expect(handleExecuteScript({ script: 'invalid syntax here!!!' })).rejects.toThrow(
-        '脚本执行错误'
+        '脚本执行失败'
       )
     })
   })

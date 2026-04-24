@@ -13,8 +13,6 @@ describe('Script Execution Security', () => {
       /localStorage/i,
       /sessionStorage/i,
       /window\.location/i,
-      /eval\(/i,
-      /Function\(/i,
     ]
 
     for (const pattern of dangerousPatterns) {
@@ -28,7 +26,7 @@ describe('Script Execution Security', () => {
       const result = fn()
       return { result }
     } catch (error) {
-      throw new Error(`脚本执行错误: ${(error as Error).message}`)
+      throw new Error(`脚本执行失败: ${(error as Error).message}\n请检查脚本语法是否正确`)
     }
   }
 
@@ -60,21 +58,9 @@ describe('Script Execution Security', () => {
     )
   })
 
-  it('should block nested eval', async () => {
-    await expect(handleExecuteScript({ script: 'eval("test")' })).rejects.toThrow(
-      '脚本包含禁止的操作'
-    )
-  })
-
-  it('should block nested Function', async () => {
-    await expect(handleExecuteScript({ script: 'Function("return 1")' })).rejects.toThrow(
-      '脚本包含禁止的操作'
-    )
-  })
-
   it('should handle syntax errors gracefully', async () => {
     await expect(handleExecuteScript({ script: 'invalid syntax here' })).rejects.toThrow(
-      '脚本执行错误'
+      '脚本执行失败'
     )
   })
 

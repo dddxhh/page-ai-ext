@@ -90,13 +90,19 @@ export class APIClient {
 
         const response = await this.sendChatRequest(currentMessages, formattedTools)
 
-        if (response.finish_reason === 'stop' && response.content) {
-          if (onChunk) {
+        console.log(
+          `[Tool Loop] iteration=${10 - maxIterations}, finish_reason=${response.finish_reason}, has_tool_calls=${!!response.tool_calls}, has_content=${!!response.content}`
+        )
+
+        // If AI returns 'stop', return content (even if empty)
+        if (response.finish_reason === 'stop') {
+          if (response.content && onChunk) {
             onChunk(response.content)
           }
-          return response.content
+          return response.content || ''
         }
 
+        // If AI wants to call tools
         if (response.finish_reason === 'tool_calls' && response.tool_calls) {
           const assistantMessage: APIMessage = {
             role: 'assistant',
@@ -129,7 +135,15 @@ export class APIClient {
           throw new Error('Response truncated due to token limit')
         }
 
+        // Unknown finish_reason, break and return
+        console.warn(`[Tool Loop] Unknown finish_reason: ${response.finish_reason}, breaking`)
         break
+      }
+
+      // If we exhausted iterations, return last content or empty string
+      const lastMessage = currentMessages[currentMessages.length - 1]
+      if (lastMessage?.role === 'assistant' && lastMessage.content) {
+        return lastMessage.content
       }
 
       throw new Error('Tool calling loop exceeded maximum iterations')

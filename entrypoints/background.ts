@@ -103,7 +103,28 @@ export default defineBackground(() => {
           const contextMessage: Message = {
             id: generateId(),
             role: 'system',
-            content: `Current page content:\n${pageContent}\n\nYou can use the available tools to interact with the page.`,
+            content: `Current page content:\n${pageContent}
+
+## Available Tools
+
+You have access to tools to interact with the page. Use them wisely:
+
+### When to use tools:
+- Use tools only when the user explicitly requests an action (click, fill, scroll, etc.)
+- If the user just asks a question, answer directly without using tools
+
+### Tool usage guidelines:
+1. **Plan first**: Before using tools, briefly tell the user what you're going to do
+2. **One action at a time**: Don't call multiple tools simultaneously unless necessary
+3. **Stop when done**: After completing the requested action, stop and report the result
+4. **Handle cancellations**: If a tool returns { cancelled: true }, respect the user's decision and don't retry
+
+### When NOT to use tools:
+- User asks for information only (no action)
+- User cancelled the previous action
+- You already completed the requested action
+
+Important: After successfully executing a tool, provide a brief summary and STOP. Do not call more tools unless the user asks for additional actions.`,
             timestamp: Date.now(),
           }
           conversation.messages.push(contextMessage)

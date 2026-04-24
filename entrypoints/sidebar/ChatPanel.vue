@@ -181,6 +181,15 @@
           toolExecutions.value.push(data)
         }
 
+        // Update streaming message's metadata to show tool executions in real-time
+        const streamingMsg = messages.value.find((m) => m.id === 'streaming')
+        if (streamingMsg) {
+          streamingMsg.metadata = {
+            ...streamingMsg.metadata,
+            toolExecutions: toRaw(toolExecutions.value),
+          }
+        }
+
         if (data.status === 'error') {
           console.error(`Tool ${data.name} failed:`, data.error)
           ElMessage.error({

@@ -291,6 +291,37 @@ export default defineBackground(() => {
     }
   }
 
+  // Handle confirm requests from content script
+  const pendingConfirmRequests = new Map<string, { resolve: (value: any) => void }>()
+
+  messaging.onMessage('CONFIRM_REQUEST', async (data, _sender) => {
+    const requestId = generateId()
+
+    return new Promise((resolve) => {
+      pendingConfirmRequests.set(requestId, { resolve })
+
+      // Send to sidebar
+      chrome.runtime.sendMessage({
+        type: 'CONFIRM_REQUEST',
+        requestId,
+        data,
+      })
+    })
+  })
+
+  // Handle confirm responses from sidebar
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'CONFIRM_RESPONSE') {
+      const { requestId, confirmed, sessionAllow } = message.data
+      const pending = pendingConfirmRequests.get(requestId)
+
+      if (pending) {
+        pending.resolve({ confirmed, sessionAllow })
+        pendingConfirmRequests.delete(requestId)
+      }
+    }
+  })
+
   // Install handler
   chrome.runtime.onInstalled.addListener(async () => {
     console.log('AI Assistant extension installed')

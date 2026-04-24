@@ -18,15 +18,48 @@ import {
   type FindElementsParams,
   type FindElementsResult,
   type ElementInfo,
+  type ConfirmRequest,
 } from '~/types/mcp-tools'
-import {
-  highlightElement,
-  confirmAction,
-  convertToMarkdown,
-  getDOMStructure,
-} from './content-utils'
+import { highlightElement, convertToMarkdown, getDOMStructure } from './content-utils'
 import { analyzeElement, isVisible, isInteractive } from './element-utils'
-import { getElementPreviewInfo } from './screenshot-utils'
+import { getElementPreviewInfo, captureElementScreenshot } from './screenshot-utils'
+import { messaging } from '~/modules/messaging'
+
+async function confirmViaMessaging(
+  tool: string,
+  params: Record<string, any>,
+  element?: Element
+): Promise<boolean> {
+  const previewImage = element ? await captureElementScreenshot(element) : undefined
+  const elementInfo = element
+    ? {
+        text: element.textContent?.slice(0, 100),
+        tag: element.tagName?.toLowerCase() || 'unknown',
+        selector: params.selector || '',
+      }
+    : undefined
+
+  const operationDescriptions: Record<string, string> = {
+    click_element: '点击元素',
+    fill_form: `填写表单: "${params.value}"`,
+  }
+
+  const confirmRequest: ConfirmRequest = {
+    tool,
+    params,
+    previewImage,
+    elementInfo,
+    operationDescription: operationDescriptions[tool] || tool,
+  }
+
+  try {
+    const response = await messaging.sendToBackground('CONFIRM_REQUEST', confirmRequest)
+    return response?.confirmed === true
+  } catch (error) {
+    console.warn('Confirm request failed, fallback to window.confirm:', error)
+    return window.confirm(confirmRequest.operationDescription)
+  }
+}
 
 export async function handleClickElement(params: ClickElementParams): Promise<ClickElementResult> {
   const { selector } = params
@@ -38,7 +71,7 @@ export async function handleClickElement(params: ClickElementParams): Promise<Cl
 
   highlightElement(element)
 
-  const confirmed = await confirmAction('Click this element?')
+  const confirmed = await confirmViaMessaging('click_element', params, element)
   if (!confirmed) {
     return { cancelled: true }
   }
@@ -56,7 +89,7 @@ export async function handleFillForm(params: FillFormParams): Promise<FillFormRe
   }
 
   highlightElement(element)
-  const confirmed = await confirmAction(`Fill "${value}" into this field?`)
+  const confirmed = await confirmViaMessaging('fill_form', params, element)
   if (!confirmed) {
     return { cancelled: true }
   }

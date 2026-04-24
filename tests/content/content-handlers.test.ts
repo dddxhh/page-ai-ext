@@ -8,9 +8,18 @@ import {
   handleGetPageContent,
 } from '../../utils/content-handlers'
 
+const mockSendToBackground = vi.hoisted(() => vi.fn().mockResolvedValue({ confirmed: true }))
+
+vi.mock('../../modules/messaging', () => ({
+  messaging: {
+    sendToBackground: mockSendToBackground,
+  },
+}))
+
 describe('content-handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockSendToBackground.mockResolvedValue({ confirmed: true })
   })
 
   describe('handleClickElement', () => {
@@ -28,26 +37,32 @@ describe('content-handlers', () => {
         setAttribute: vi.fn(),
         getAttribute: vi.fn().mockReturnValue(''),
         removeAttribute: vi.fn(),
+        tagName: 'BUTTON',
+        textContent: 'Submit',
       }
       vi.spyOn(document, 'querySelector').mockReturnValue(mockElement as any)
-      vi.spyOn(window, 'confirm').mockReturnValue(true)
       vi.spyOn(window, 'setTimeout').mockImplementation((fn: any) => fn())
 
       const result = await handleClickElement({ selector: '#button' })
 
+      expect(mockSendToBackground).toHaveBeenCalledWith('CONFIRM_REQUEST', expect.any(Object))
       expect(result.clicked).toBe(true)
       expect(mockElement.click).toHaveBeenCalled()
     })
 
     it('should return cancelled: true if not confirmed', async () => {
+      mockSendToBackground.mockResolvedValueOnce({ confirmed: false })
+
       const mockElement = {
         click: vi.fn(),
         setAttribute: vi.fn(),
         getAttribute: vi.fn().mockReturnValue(''),
         removeAttribute: vi.fn(),
+        tagName: 'BUTTON',
+        textContent: 'Cancel',
       }
       vi.spyOn(document, 'querySelector').mockReturnValue(mockElement as any)
-      vi.spyOn(window, 'confirm').mockReturnValue(false)
+      vi.spyOn(window, 'setTimeout').mockImplementation((fn: any) => fn())
 
       const result = await handleClickElement({ selector: '#button' })
 
@@ -73,12 +88,15 @@ describe('content-handlers', () => {
         getAttribute: vi.fn().mockReturnValue(''),
         removeAttribute: vi.fn(),
         closest: vi.fn().mockReturnValue(null),
+        tagName: 'INPUT',
+        textContent: '',
       }
       vi.spyOn(document, 'querySelector').mockReturnValue(mockInput as any)
-      vi.spyOn(window, 'confirm').mockReturnValue(true)
+      vi.spyOn(window, 'setTimeout').mockImplementation((fn: any) => fn())
 
       const result = await handleFillForm({ selector: '#input', value: 'test value' })
 
+      expect(mockSendToBackground).toHaveBeenCalledWith('CONFIRM_REQUEST', expect.any(Object))
       expect(result.filled).toBe(true)
       expect(mockInput.value).toBe('test value')
       expect(mockInput.dispatchEvent).toHaveBeenCalled()
@@ -93,9 +111,11 @@ describe('content-handlers', () => {
         getAttribute: vi.fn().mockReturnValue(''),
         removeAttribute: vi.fn(),
         closest: vi.fn().mockReturnValue(mockForm),
+        tagName: 'INPUT',
+        textContent: '',
       }
       vi.spyOn(document, 'querySelector').mockReturnValue(mockInput as any)
-      vi.spyOn(window, 'confirm').mockReturnValue(true)
+      vi.spyOn(window, 'setTimeout').mockImplementation((fn: any) => fn())
 
       const result = await handleFillForm({ selector: '#input', value: 'test', submit: true })
 

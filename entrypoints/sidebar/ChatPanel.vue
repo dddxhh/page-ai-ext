@@ -158,12 +158,20 @@
           currentResponse.value = ''
         }
       } else if (message.type === 'TOOL_EXECUTION') {
-        const { tool, args, result } = message.data
-        console.log(`Tool executed: ${tool}`, args, result)
-        ElMessage.info({
-          message: `Tool ${tool} executed`,
-          duration: 2000,
-        })
+        const { tool, args, result, error, status } = message.data
+        if (status === 'error') {
+          console.error(`Tool ${tool} failed:`, error)
+          ElMessage.error({
+            message: `Tool ${tool} failed: ${error}`,
+            duration: 3000,
+          })
+        } else {
+          console.log(`Tool ${tool} executed:`, args, result)
+          ElMessage.info({
+            message: `Tool ${tool} executed`,
+            duration: 2000,
+          })
+        }
       } else if (message.type === 'NEW_CONVERSATION') {
         messages.value = []
         selectedSkill.value = null

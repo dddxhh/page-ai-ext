@@ -39,15 +39,27 @@ class MCPServer {
       throw new Error(`Tool not found: ${name}`)
     }
 
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (!tab.id) {
-      throw new Error('No active tab')
-    }
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (!tab.id) {
+        throw new Error('No active tab')
+      }
 
-    return await messaging.sendToContentScript(tab.id, 'EXECUTE_TOOL', {
-      tool: name,
-      params: args,
-    })
+      const result = await messaging.sendToContentScript(tab.id, 'EXECUTE_TOOL', {
+        tool: name,
+        params: args,
+      })
+
+      if (result?.success === false) {
+        throw new Error(result.error || 'Tool execution failed')
+      }
+
+      return result?.result || result
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      console.error(`Tool execution error (${name}):`, error)
+      throw new Error(`Failed to execute tool ${name}: ${errorMsg}`)
+    }
   }
 
   async getResource(uri: string): Promise<any> {

@@ -96,12 +96,22 @@ export default defineBackground(() => {
 
       // Tool executor callback
       const toolExecutor = async (name: string, args: Record<string, any>) => {
-        const result = await mcpServer.executeTool(name, args)
-        chrome.runtime.sendMessage({
-          type: 'TOOL_EXECUTION',
-          data: { tool: name, args, result },
-        })
-        return result
+        try {
+          const result = await mcpServer.executeTool(name, args)
+          chrome.runtime.sendMessage({
+            type: 'TOOL_EXECUTION',
+            data: { tool: name, args, result, status: 'success' },
+          })
+          return result
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error)
+          console.error(`Tool ${name} execution failed:`, error)
+          chrome.runtime.sendMessage({
+            type: 'TOOL_EXECUTION',
+            data: { tool: name, args, error: errorMsg, status: 'error' },
+          })
+          return { error: errorMsg, tool: name }
+        }
       }
 
       // Send to AI with tool calling loop

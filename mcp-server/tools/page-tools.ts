@@ -17,6 +17,7 @@ mcpServer.registerTool({
         description: 'CSS selector for a specific section (optional)',
       },
     },
+    required: [],
   },
 })
 
@@ -37,6 +38,7 @@ mcpServer.registerTool({
         default: false,
       },
     },
+    required: [],
   },
 })
 
@@ -63,5 +65,6 @@ mcpServer.registerTool({
         description: 'Attribute value (optional)',
       },
     },
+    required: [],
   },
 })

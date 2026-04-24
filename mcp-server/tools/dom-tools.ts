@@ -85,6 +85,7 @@ mcpServer.registerTool({
         description: 'Scroll amount in pixels (optional)',
       },
     },
+    required: [],
   },
 })
 

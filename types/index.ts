@@ -1,3 +1,5 @@
+import type { ToolExecution } from './mcp-tools'
+
 // Configuration
 export interface ModelConfig {
   id: string
@@ -37,6 +39,7 @@ export interface Message {
   metadata?: {
     toolCalls?: ToolCall[]
     pageContext?: PageContext
+    toolExecutions?: ToolExecution[]
   }
 }
 
@@ -125,6 +128,8 @@ export type MessageType =
   | 'GET_PAGE_CONTENT'
   | 'PAGE_CONTENT_RESPONSE'
   | 'TOGGLE_SIDEBAR'
+  | 'CONFIRM_REQUEST'
+  | 'CONFIRM_RESPONSE'
 
 export interface ExtensionMessage<T = any> {
   type: MessageType

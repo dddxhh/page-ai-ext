@@ -40,6 +40,27 @@ export interface Message {
   }
 }
 
+export interface ToolCallResponse {
+  id: string
+  type: 'function'
+  function: {
+    name: string
+    arguments: string
+  }
+}
+
+export interface ToolResultMessage {
+  role: 'tool'
+  tool_call_id: string
+  content: string
+}
+
+export interface ChatCompletionResponse {
+  content?: string
+  tool_calls?: ToolCallResponse[]
+  finish_reason: 'stop' | 'tool_calls' | 'length'
+}
+
 export interface ToolCall {
   id: string
   name: string

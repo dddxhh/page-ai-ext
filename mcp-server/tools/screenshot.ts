@@ -17,5 +17,6 @@ mcpServer.registerTool({
         default: 'png',
       },
     },
+    required: [],
   },
 })

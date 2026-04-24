@@ -83,12 +83,12 @@ export class Messaging {
         if (result instanceof Promise) {
           result
             .then((response) => {
-              if (response !== undefined) {
-                sendResponse(response)
-              }
+              sendResponse(response ?? { success: true })
             })
             .catch((error) => {
-              sendResponse({ success: false, error: error.message })
+              const errorMsg = error?.message || String(error) || 'Unknown error'
+              console.error('Message handler error:', error)
+              sendResponse({ success: false, error: errorMsg })
             })
           return true
         } else if (result !== undefined) {

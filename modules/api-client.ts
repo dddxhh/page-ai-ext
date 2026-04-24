@@ -106,7 +106,12 @@ export class APIClient {
           currentMessages.push(assistantMessage)
 
           for (const toolCall of response.tool_calls) {
-            const args = JSON.parse(toolCall.function.arguments)
+            let args: Record<string, any>
+            try {
+              args = JSON.parse(toolCall.function.arguments)
+            } catch {
+              throw new Error(`Failed to parse tool arguments: ${toolCall.function.arguments}`)
+            }
             const result = await executeTool(toolCall.function.name, args)
 
             const toolResult: APIMessage = {

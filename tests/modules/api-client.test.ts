@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { APIClient } from '../../modules/api-client'
 import { ErrorType } from '../../types'
-import { mockModelConfig, mockMessage } from '../fixtures/data-fixtures'
+import { mockModelConfig, mockMessage, mockToolCall, mockMCPTool } from '../fixtures/data-fixtures'
 
 describe('API Client Module', () => {
   let apiClient: APIClient
@@ -272,6 +272,149 @@ describe('API Client Module', () => {
         'https://custom-api.example.com/v1/chat/completions',
         expect.any(Object)
       )
+    })
+  })
+
+  describe('Tool Calling', () => {
+    beforeEach(() => {
+      apiClient.setModel(mockModelConfig)
+    })
+
+    describe('formatToolsForAPI', () => {
+      it('should format MCP tools for OpenAI API', () => {
+        const formatted = (apiClient as any).formatToolsForAPI([mockMCPTool])
+
+        expect(formatted).toEqual([
+          {
+            type: 'function',
+            function: {
+              name: 'click_element',
+              description: 'Click an element on the page',
+              parameters: mockMCPTool.inputSchema,
+            },
+          },
+        ])
+      })
+
+      it('should return empty array for no tools', () => {
+        const formatted = (apiClient as any).formatToolsForAPI([])
+
+        expect(formatted).toEqual([])
+      })
+    })
+
+    describe('sendChatRequest', () => {
+      it('should parse tool_calls response', async () => {
+        const mockResponse = {
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            choices: [
+              {
+                message: {
+                  content: null,
+                  tool_calls: [mockToolCall],
+                },
+                finish_reason: 'tool_calls',
+              },
+            ],
+          }),
+        }
+        mockFetch.mockResolvedValue(mockResponse)
+
+        const result = await (apiClient as any).sendChatRequest([mockMessage], [])
+
+        expect(result.tool_calls).toBeDefined()
+        expect(result.tool_calls?.[0].function.name).toBe('click_element')
+        expect(result.finish_reason).toBe('tool_calls')
+      })
+
+      it('should parse stop response with content', async () => {
+        const mockResponse = {
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            choices: [
+              {
+                message: { content: 'Final answer' },
+                finish_reason: 'stop',
+              },
+            ],
+          }),
+        }
+        mockFetch.mockResolvedValue(mockResponse)
+
+        const result = await (apiClient as any).sendChatRequest([mockMessage], [])
+
+        expect(result.content).toBe('Final answer')
+        expect(result.finish_reason).toBe('stop')
+      })
+    })
+
+    describe('chatCompletionWithTools', () => {
+      it('should execute tool and continue conversation', async () => {
+        const toolResponses = [
+          {
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              choices: [
+                {
+                  message: {
+                    content: null,
+                    tool_calls: [mockToolCall],
+                  },
+                  finish_reason: 'tool_calls',
+                },
+              ],
+            }),
+          },
+          {
+            ok: true,
+            json: vi.fn().mockResolvedValue({
+              choices: [
+                {
+                  message: { content: 'Element clicked successfully' },
+                  finish_reason: 'stop',
+                },
+              ],
+            }),
+          },
+        ]
+        mockFetch.mockImplementation(() => Promise.resolve(toolResponses.shift()!))
+
+        const mockExecuteTool = vi.fn().mockResolvedValue({ clicked: true })
+
+        const result = await apiClient.chatCompletionWithTools(
+          [mockMessage],
+          [mockMCPTool],
+          mockExecuteTool
+        )
+
+        expect(mockExecuteTool).toHaveBeenCalledWith('click_element', { selector: '#submit-btn' })
+        expect(result).toBe('Element clicked successfully')
+      })
+
+      it('should throw error on max iterations', async () => {
+        const mockResponse = {
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            choices: [
+              {
+                message: {
+                  content: null,
+                  tool_calls: [mockToolCall],
+                },
+                finish_reason: 'tool_calls',
+              },
+            ],
+          }),
+        }
+        mockFetch.mockResolvedValue(mockResponse)
+
+        const mockExecuteTool = vi.fn().mockResolvedValue({ clicked: true })
+
+        await expect(
+          apiClient.chatCompletionWithTools([mockMessage], [mockMCPTool], mockExecuteTool)
+        ).rejects.toThrow('Tool calling loop exceeded maximum iterations')
+      })
     })
   })
 })
